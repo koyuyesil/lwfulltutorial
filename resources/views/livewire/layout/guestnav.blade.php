@@ -1,33 +1,3 @@
-{{-- <nav class="-mx-3 flex flex-1 justify-end">
-    @auth
-        <a
-            href="{{ url('/dashboard') }}"
-            class="rounded-md px-3 py-2 text-black ring-1 ring-transparent transition hover:text-black/70 focus:outline-none focus-visible:ring-[#FF2D20] dark:text-white dark:hover:text-white/80 dark:focus-visible:ring-white"
-        >
-            Anasayfa
-        </a>
-
-    @else
-        <a
-            href="{{ route('login') }}"
-            class="rounded-md px-3 py-2 text-black ring-1 ring-transparent transition hover:text-black/70 focus:outline-none focus-visible:ring-[#FF2D20] dark:text-white dark:hover:text-white/80 dark:focus-visible:ring-white"
-        >
-            Log in
-        </a>
-
-        @if (Route::has('register'))
-            <a
-                href="{{ route('register') }}"
-                class="rounded-md px-3 py-2 text-black ring-1 ring-transparent transition hover:text-black/70 focus:outline-none focus-visible:ring-[#FF2D20] dark:text-white dark:hover:text-white/80 dark:focus-visible:ring-white"
-            >
-                Register
-            </a>
-        @endif
-    @endauth
-</nav> --}}
-
-
-
 <nav x-data="{ open: false }" class="bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700">
     <!-- Primary Navigation Menu --> <!-- sonra bunu aayrla Responsive Navigation Menu -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -63,10 +33,10 @@
                     </x-slot>
 
                     <x-slot name="content">
-                        <x-dropdown-link :href="route('login')">
+                        <x-dropdown-link :href="route('login')" wire:navigate>
                             {{ __('Login') }}
                         </x-dropdown-link>
-                        <x-dropdown-link :href="route('register')">
+                        <x-dropdown-link :href="route('register')" wire:navigate>
                             {{ __('Register') }}
                         </x-dropdown-link>
                     </x-slot>

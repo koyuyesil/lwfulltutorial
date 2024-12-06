@@ -11,7 +11,7 @@ class TasksIndex extends Component
 {
     #[Rule('required|min:5')]//validate ile kullanılır.
     public string $title;
-    #[Rule('required|min:25')]
+    #[Rule('required|min:5')]
     public string $slug;
     #[Rule('required')]
     public string $description ;

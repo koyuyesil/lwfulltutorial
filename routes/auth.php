@@ -31,7 +31,7 @@ Route::middleware('auth')->group(function () {
     Volt::route('confirm-password', 'pages.auth.confirm-password')
         ->name('password.confirm');
     
-    Route::get('tasks', Show::class)->name('tasks.show');
-    Route::get('tasksi', TasksIndex::class)->name('tasks.index');
+    Route::get('tasks', TasksIndex::class)->name('tasks.index');
+    
     
 });
