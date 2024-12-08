@@ -2,7 +2,7 @@
 
 namespace App\Enums;
 
-enum PriotyType: string
+enum PriorityType: string
 {
     case LOW = 'low';
     case NORMAL = 'normal';
