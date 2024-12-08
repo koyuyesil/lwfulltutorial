@@ -67,8 +67,8 @@
                         </div>
                         <div>
                             <x-input-label for="update_deadline" :value="__('Deadline')" />
-                            <x-text-input wire:model.live="form.deadline" id="update_deadline" name="deadline" type="date"
-                                class="mt-1 block w-full" />
+                            <x-text-input wire:model.live="form.deadline" id="update_deadline" name="deadline"
+                                type="date" class="mt-1 block w-full" />
                             <x-input-error :messages="$errors->get('form.deadline')" class="mt-2" />
                         </div>
 
@@ -93,8 +93,15 @@
                             <button type="button" wire:click="refresh"
                                 class="flex py-2 px-4 bg-slate-400 hover:bg-slate-500 text-white rounded-md">Refresh
                             </button>
+                        </div>
+                        <div>
+                            @if (session()->has('message'))
+                            <div class="alert alert-success">
+                                {{ session('message') }}
+                            </div>
+                            @endif
+                        </div>
                     </form>
-
                 </section>
             </div>
         </div>
