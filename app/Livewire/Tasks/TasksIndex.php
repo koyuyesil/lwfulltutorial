@@ -4,33 +4,15 @@ namespace App\Livewire\Tasks;
 
 use Livewire\Component;
 
-use App\Livewire\Forms\TaskForm;
+use App\Models\Task;
 
+use Illuminate\Support\Facades\Auth;
 
 class TasksIndex extends Component
 {
-    public TaskForm $form;
-
-    public function save()
-    {
-        $this->form->validate(); 
-
-        $this->form->createTask();
-
-        $this->form->reset();
-
-    }
-
-
+    //nesting yapıldı incele
     public function render()
     {
-        //return view('livewire.tasks.tasks-index');
-
         return view('livewire.tasks.tasks-index')->layout('layouts.app');
-
-        // return view('livewire.tasks.tasks-index', [
-        //     'form' => $this->form,
-        // ])->layout('layouts.app');
-        
     }
 }

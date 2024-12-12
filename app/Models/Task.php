@@ -19,7 +19,7 @@ class Task extends Model
     protected $casts = [
         'deadline' => 'date',
         'status' => StatusType::class,
-        'prioty' => PriorityType::class,
+        'priority' => PriorityType::class,
     ];
 
     /*setSlugAttribute Mutator: Laravel'de model üzerinde bir mutator tanımlayarak,
