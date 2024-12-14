@@ -9,6 +9,11 @@ use Illuminate\Support\Facades\Auth;
 
 class TasksList extends Component
 {
+    use WithPagination;
+    public function placeholder()
+    {
+        return view('skeleton');//lazzy loading
+    }
 
     #[On('task-created')]
     public function render()
