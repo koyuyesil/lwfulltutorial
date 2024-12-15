@@ -8,7 +8,12 @@ export default {
         './storage/framework/views/*.php',
         './resources/views/**/*.blade.php',
     ],
-
+    safelist: [
+        'border-blue-500',
+        'border-yellow-500',
+        'border-green-500',
+        // Diğer dinamik sınıflarınızı buraya ekleyebilirsiniz
+      ],
     theme: {
         extend: {
             fontFamily: {

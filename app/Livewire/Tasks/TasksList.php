@@ -7,6 +7,7 @@ use Livewire\Component;
 use Livewire\WithPagination;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use App\Models\Task;
 
 class TasksList extends Component
 {
@@ -16,15 +17,21 @@ class TasksList extends Component
         return view('skeleton');//lazzy loading
     }
 
+
+    public function changeStatus($id, $status)
+    {
+        $task = Task::find($id);
+        $task->update(['status' => $status]);
+    }
     #[On('task-created')]
     public function render()
     {
         return view('livewire.tasks.tasks-list', [
             'tasks' => Auth::user()->tasks()->paginate(3),
             'tasksByStatus' => Auth::user()->tasks()->select('status', DB::raw('COUNT(*) as count'))
-            ->groupBy('status')
-            ->orderBy('status', 'desc')
-            ->get()
+                ->groupBy('status')
+                ->orderBy('status', 'desc')
+                ->get()
         ]);
     }
 }
