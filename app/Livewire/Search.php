@@ -9,7 +9,10 @@ class Search extends Component
 {
     // bu aspect yazıldığı değişkenin urlden de alınabileceğini ifade eder.
     //yani şpost da aynı değişkeni arar varsa buna eşitler.
-    #[Url]
+    //as url değişkeni farklı kullanılacaksa.
+    //keep true sayfada herzaman query gözükür.
+    //history aramaları tarayıcı geçmişine ekler
+    #[Url(as: 'q' , keep:true,history:true)]
     public $search;
     public function render()
     {
