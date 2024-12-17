@@ -37,7 +37,7 @@ Veritabanı dosyasını oluşturmak için aşağıdaki komutu çalıştırın.
 php artisan migrate --seed
 ```
 
-## Son olarak
+## "Vite manifest not found at:..." Hatası Alıyorsanız
 
 front-end yapılandırmalarını tamamlamak için aşağıdaki komutları çalıştırın.
 
