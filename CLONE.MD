@@ -31,13 +31,16 @@ php artisan key:generate
 
 ## "Database File at Path" Hatası Alıyorsanız
 
-Veritabanı dosyasını oluşturmak ve front-end yapılandırmalarını tamamlamak için aşağıdaki komutları çalıştırın.
+Veritabanı dosyasını oluşturmak için aşağıdaki komutu çalıştırın.
 
 ```bash
 php artisan migrate --seed
 ```
 
 ## Son olarak
+
+front-end yapılandırmalarını tamamlamak için aşağıdaki komutları çalıştırın.
+
 ```bash
 npm install
 npm run build
