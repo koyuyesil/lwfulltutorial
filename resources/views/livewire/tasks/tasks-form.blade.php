@@ -68,17 +68,13 @@
             </button>
         </div>
         <div>
+            {{-- @if (session('message')) --}}
             @if (session()->has('message'))
-                <div class="alert alert-success">
-                    {{ session('message') }}
-                </div>
+            <div class="p-4 mb-4 text-sm text-green-800 rounded-lg bg-green-50 dark:bg-gray-800 dark:text-green-400"
+                role="alert">
+                <span class="font-medium">{{ session('message') }}</span>
+            </div>
             @endif
         </div>
     </form>
-    @if (session('success'))
-    <div class="p-4 mb-4 text-sm text-green-800 rounded-lg bg-green-50 dark:bg-gray-800 dark:text-green-400"
-        role="alert">
-        <span class="font-medium">{{ session('success') }}</span>
-    </div>
-    @endif
 </div>

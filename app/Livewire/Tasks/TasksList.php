@@ -23,6 +23,11 @@ class TasksList extends Component
         $task = Task::find($id);
         $task->update(['status' => $status]);
     }
+
+    public function delete(Task $task)
+    {
+        $task->delete();
+    }
     #[On('task-created')]
     public function render()
     {
