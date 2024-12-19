@@ -4,26 +4,28 @@ namespace App\Livewire\Forms;
 
 use App\Enums\PriorityType;
 use App\Enums\StatusType;
-use Livewire\Attributes\Rule;
-use Livewire\Form;
 use App\Models\Task;
+use Livewire\Attributes\Rule;
+use Livewire\Attributes\Validate;
+use Livewire\Form;
+
 
 class TaskForm extends Form
 {
     public $editMode = false;
     public ?Task $task;
     // Validation Attiribute or Aspect
-    #[Rule('required|min:5')]
+    #[Validate('required|min:5')]
     public $title;                      //tip güvenli olmadan yazılmış null hatası vermez.
-    #[Rule('required|min:5')]
+    #[Validate('required|min:5')]
     public ?string $slug;               //tip güvenli ama ? ile işaretli yani null hatasını atlar.
-    #[Rule('required')]
+    #[Validate('required')]
     public string $description = '';    //tip güvenli ilk atamayla kalıcı çözüm.
-    #[Rule('required')]
+    #[Validate('required')]
     public StatusType $status = StatusType::OPEN;
-    #[Rule('required')]
+    #[Validate('required')]
     public PriorityType $priority = PriorityType::LOW;
-    #[Rule('required')]
+    #[Validate('required')]
     public string $deadline = '';
 
 
