@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Auth\VerifyEmailController;
+use App\Livewire\Customers\CustomersIndex;
 use Illuminate\Support\Facades\Route;
 use Livewire\Volt\Volt;
 use App\Livewire\Tasks\TasksIndex;
@@ -30,8 +31,9 @@ Route::middleware('auth')->group(function () {
 
     Volt::route('confirm-password', 'pages.auth.confirm-password')
         ->name('password.confirm');
-    
+
     Route::get('tasks', TasksIndex::class)->name('tasks.index');
-    
-    
+    Route::get('customers', CustomersIndex::class)->name('customers.index');
+
+
 });
