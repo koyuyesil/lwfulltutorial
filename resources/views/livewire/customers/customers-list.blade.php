@@ -4,19 +4,34 @@
             <div
                 class="my-4 px-6 py-4 bg-white rounded-lg shadow-lg hover:shadow-xl hover:bg-gray-100 transition duration-300 dark:bg-gray-800 dark:hover:bg-gray-700">
                 <div class="p-4 leading-normal">
-                    <div class="flex justify-between items-center mb-4">
-                        <h5 class="text-xl font-semibold text-gray-900 dark:text-white">
+                    <div class="mb-2">
+                        <span class="text-xl font-semibold text-gray-900 dark:text-white">
                             {{ $customer->fname }} {{ $customer->lname }}
-                        </h5>
-                        <span
-                            class="px-3 py-1 text-sm font-medium text-gray-700 bg-gray-100 rounded-full border border-gray-300 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600">
-                            {{ $customer->email }}
                         </span>
                     </div>
-                    <p class="text-gray-600 dark:text-gray-400 mb-2">{{ $customer->address }}</p>
+                    <div class="flex space-x-6 text-gray-600 dark:text-gray-400">
+                        <div>
+                            <strong class="text-sm">Phone:</strong>
+                            <p class="text-xs">{{ $customer->phone }}</p>
+                        </div>
+                        <div>
+                            <strong class="text-sm">Email:</strong>
+                            <p class="text-xs">{{ $customer->email }}</p>
+                        </div>
+                        <div>
+                            <strong class="text-sm">Company:</strong>
+                            <p class="text-xs">{{ $customer->company }}</p>
+                        </div>
+                    </div>
+                    <div class="mt-2 flex space-x-6 text-gray-600 dark:text-gray-400">
+                        <div><strong class="text-sm">Address:</strong>
+                            <p class="text-xs">{{ $customer->address }}</p>
+                        </div>
+
+                    </div>
                 </div>
-                <div class="flex justify-between items-center">
-                    <div class="flex space-x-2">
+                <div class="flex justify-between items-center mt-2">
+                    <div class="flex space-x-6">
                         <x-primary-button wire:click="$dispatch('edit', {id: {{ $customer->id }}})"
                             class="bg-green-500 hover:bg-green-600 text-white">
                             Edit
