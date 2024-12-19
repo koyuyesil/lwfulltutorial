@@ -1,42 +1,39 @@
 <div class="mt-6 space-y-6">
     @if ($customers->count() > 0)
-        {{-- <livewire:customers.customers-count :$customersCount /> --}}
         @foreach ($customers as $customer)
             <div
-                class="my-4 px-4 py-6 bg-white rounded-lg shadow hover:bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700">
+                class="my-4 px-6 py-4 bg-white rounded-lg shadow-lg hover:shadow-xl hover:bg-gray-100 transition duration-300 dark:bg-gray-800 dark:hover:bg-gray-700">
                 <div class="p-4 leading-normal">
-                    <div class="flex justify-between mb-4">
-                        <h5 class="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
-                            {{ $customer->fname }}
+                    <div class="flex justify-between items-center mb-4">
+                        <h5 class="text-xl font-semibold text-gray-900 dark:text-white">
+                            {{ $customer->fname }} {{ $customer->lname }}
                         </h5>
                         <span
-                            class="px-2 py-1 border border-slate-200 rounded-md flex justify-end">{{ $customer->email}}</span>
+                            class="px-3 py-1 text-sm font-medium text-gray-700 bg-gray-100 rounded-full border border-gray-300 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600">
+                            {{ $customer->email }}
+                        </span>
                     </div>
-                    <p class="mb-3 font-normal text-gray-700 dark:text-gray-400">{{ $customer->address }}</p>
+                    <p class="text-gray-600 dark:text-gray-400 mb-2">{{ $customer->address }}</p>
                 </div>
-                <div class="flex justify-between">
-                    <div>
-                        {{-- @foreach (App\Enums\StatusType::cases() as $case)
-                            <button type="button" wire:click="changeStatus({{ $task->id }}, '{{ $case->value }}')"
-                                @class([
-                                    'inline-flex items-center px-4 py-2 bg-white border rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-25 transition ease-in-out duration-150',
-                                    $case->color() => true, //enumlar kadar buton üretilir true ise sitil gelmesi yeterli demek
-                                ])
-                                {{ $case->value == $task->status->value ? 'disabled' : '' }}>
-                                {{ Str::of($case->value)->headline() }}
-                            </button>
-                        @endforeach --}}
-                    </div>
-                    <div>
+                <div class="flex justify-between items-center">
+                    <div class="flex space-x-2">
                         <x-primary-button wire:click="$dispatch('edit', {id: {{ $customer->id }}})"
-                            class="bg-green-500 hover:bg-green-700">Edit</x-primary-button>
+                            class="bg-green-500 hover:bg-green-600 text-white">
+                            Edit
+                        </x-primary-button>
                         <x-primary-button wire:click="delete({{ $customer->id }})"
-                            wire:confirm="Are you sure you want to delete this task"
-                            class="bg-red-500 hover:bg-red-700">Delete</x-primary-button>
+                            wire:confirm="Are you sure you want to delete this customer?"
+                            class="bg-red-500 hover:bg-red-600 text-white">
+                            Delete
+                        </x-primary-button>
                     </div>
                 </div>
             </div>
         @endforeach
-        {{-- {{ $customer->links() }} --}}
+        {{ $customers->links() }}
+    @else
+        <div class="text-center text-gray-600 dark:text-gray-400 mt-4">
+            No customers found.
+        </div>
     @endif
 </div>

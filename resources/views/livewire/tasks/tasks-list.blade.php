@@ -38,5 +38,9 @@
             </div>
         @endforeach
         {{ $tasks->links() }}
+    @else
+        <div class="text-center text-gray-600 dark:text-gray-400 mt-4">
+            No tasks found.
+        </div>
     @endif
 </div>
