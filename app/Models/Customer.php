@@ -41,5 +41,9 @@ class Customer extends Model
         parent::setAttribute($key, $value);
     }
 
+    public function customerDevices()
+    {
+        return $this->hasMany(CustomerDevice::class );
+    }
 
 }
