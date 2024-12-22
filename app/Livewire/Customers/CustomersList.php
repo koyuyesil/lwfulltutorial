@@ -23,8 +23,12 @@ class CustomersList extends Component
     #[On('customer-created')]
     public function render()
     {
+        //$customers = Customer::query()->paginate(3)
+        // Müşterileri ve her müşterinin cihazlarını alıyoruz.
+        $customers = Customer::with('customerDevices.device')->paginate(3); // Pagination ekleniyor
+
         return view('livewire.customers.customers-list', [
-            'customers' => Customer::query()->paginate(3), // Tüm tabloyu çeker
+            'customers' => $customers,  // Eager loading kullanarak ilişkili cihazları alıyoruz
         ]);
     }
 }
