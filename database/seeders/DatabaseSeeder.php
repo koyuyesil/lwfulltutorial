@@ -19,14 +19,29 @@ class DatabaseSeeder extends Seeder
     {
         //User::factory(10)->create();
         //Task::factory(10)->create();
-        Task::factory(10)->create(['user_id' => User::factory()]);
-        Device::factory(10)->create();
-        Customer::factory(10)->create();
-        CustomerDevice::factory(10)->create([
-            'device_id' => Customer::factory(),
-            'customer_id' => Device::factory(),]);
+        //Device::factory(10)->create();
+        //Customer::factory(10)->create();
 
-        //Service::factory(10)->create(['customer_id'=>Customer::factory()]);
+        Task::factory(10)->create(['user_id' => User::factory()]);
+
+        // Her CustomerDevice için bir aygıt ve bir müşteri oluşturur.
+        // CustomerDevice::factory(10)->create([
+        //     'device_id' => Customer::factory(),
+        //     'customer_id' => Device::factory(),]);
+
+
+        // Müşteriler oluşturuluyor
+        Customer::factory(10)->create()->each(function ($customer) {
+            // Her müşteri için cihazlar oluşturuluyor
+            $devices = Device::factory(3)->create(); // 3 cihaz oluşturuluyor
+            foreach ($devices as $device) {
+                // CustomerDevice ilişkisi oluşturuluyor
+                CustomerDevice::factory()->create([
+                    'customer_id' => $customer->id,
+                    'device_id' => $device->id,
+                ]);
+            }
+        });
 
     }
 }
