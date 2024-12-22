@@ -28,7 +28,7 @@ class TaskFactory extends Factory
             'priority' => fake()->randomElement(PriorityType::cases()), // Get a random priority from the PriorityType enum
             'created_at' => now(),
             'updated_at' => now(),
-            'user_id' => 1, // Assuming user_id is fixed as 1
+            'user_id' => 1, // Assuming user_id is fixed as 1//bu araa bu eziliyor
         ];
     }
 }

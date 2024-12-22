@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\Customer;
 use App\Models\CustomerDevice;
 use App\Models\Device;
+use App\Models\Service;
 use App\Models\User;
 use App\Models\Task;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
@@ -35,11 +36,18 @@ class DatabaseSeeder extends Seeder
             // Her müşteri için cihazlar oluşturuluyor
             $devices = Device::factory(3)->create(); // 3 cihaz oluşturuluyor
             foreach ($devices as $device) {
+
                 // CustomerDevice ilişkisi oluşturuluyor
-                CustomerDevice::factory()->create([
+                $customerDevice = CustomerDevice::factory()->create([
                     'customer_id' => $customer->id,
                     'device_id' => $device->id,
+
                 ]);
+                // Her müşteri cihazı için servisler oluşturuluyor
+                Service::factory(3)->create([
+                    'customer_device_id' => $customerDevice->id,
+                ]);
+
             }
         });
 

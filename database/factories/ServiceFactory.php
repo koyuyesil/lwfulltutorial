@@ -17,7 +17,11 @@ class ServiceFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            'problem' => fake()->jobTitle(),
+            'priority' => fake()->colorName(),
+            'status' => fake()->randomLetter(),
+            'created_at' => now(),
+            'updated_at' => now(),
         ];
     }
 }

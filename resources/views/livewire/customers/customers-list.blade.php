@@ -5,7 +5,7 @@
                 <div class="p-4 leading-normal">
                     <div class="mb-2">
                         <span class="text-xl font-semibold text-gray-900 dark:text-white">
-                            {{ $customer->fname }} {{ $customer->lname }}
+                            {{ $customer->company ?? $customer->fname . ' ' . $customer->lname }}
                         </span>
                     </div>
                     <div class="flex space-x-6 text-gray-600 dark:text-gray-400">
@@ -18,8 +18,8 @@
                             <p class="text-xs">{{ $customer->email }}</p>
                         </div>
                         <div>
-                            <strong class="text-sm">Company:</strong>
-                            <p class="text-xs">{{ $customer->company }}</p>
+                            <strong class="text-sm">{{ $customer->company ? 'Representative:':'Company:' }}</strong>
+                            <p class="text-xs">{{ $customer->company ? $customer->fname . ' ' . $customer->lname : $customer->company }}</p>
                         </div>
                     </div>
                     <div class="mt-2 flex space-x-6 text-gray-600 dark:text-gray-400">
@@ -31,12 +31,14 @@
 
                 <!-- Customer's Devices Section -->
                 @if ($customer->customerDevices->count() > 0)
-                    <div class="mt-4">
+                    <div class="p-4 leading-normal mt-2">
                         <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Devices</h3>
                         <ul class="list-disc pl-6">
                             @foreach ($customer->customerDevices as $customerDevice)
                                 <li class="text-sm text-gray-700 dark:text-gray-300">
-                                    {{ $customerDevice->device->brand }} {{ $customerDevice->device->model_name }} - Serial: {{ $customerDevice->serial }}
+                                    <a href="#" class="hover:underline">
+                                        Brand: {{ $customerDevice->device->brand }}&nbsp;&nbsp;Model: {{ $customerDevice->device->model_name }}&nbsp;&nbsp;Serial: {{ $customerDevice->serial }}
+                                    </a>
                                 </li>
                             @endforeach
                         </ul>
