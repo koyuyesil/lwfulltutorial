@@ -3,15 +3,15 @@
 namespace App\Livewire\Tasks;
 
 use Livewire\Component;
-use Livewire\Attributes\On;
 use Livewire\WithPagination;
+use App\Models\Task;
+use Livewire\Attributes\On;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use App\Models\Task;
 
 class TasksList extends Component
 {
-    use WithPagination;
+    use WithPagination; //config/livewire.php den sayfa sayısını ayarlayabilirsin env ye de aktarailirsin
     public function placeholder()
     {
         return view('skeleton');//lazzy loading

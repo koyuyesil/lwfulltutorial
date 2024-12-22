@@ -3,10 +3,10 @@
 namespace App\Livewire\Customers;
 
 use Livewire\Component;
-use Livewire\Attributes\On;
 use Livewire\WithPagination;
-
 use App\Models\Customer;
+use Livewire\Attributes\On;
+
 class CustomersList extends Component
 {
     use WithPagination;
