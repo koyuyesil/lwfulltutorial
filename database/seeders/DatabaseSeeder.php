@@ -47,7 +47,8 @@ class DatabaseSeeder extends Seeder
                 Ticket::factory(3)->create([
                     'customer_device_id' => $customerDevice->id,
                 ]);
-
+                // Ticket oluşturulduktan sonra 1 saniye bekleme
+                //sleep(1);
             }
         });
 
