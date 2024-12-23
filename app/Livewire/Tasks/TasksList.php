@@ -4,8 +4,8 @@ namespace App\Livewire\Tasks;
 
 use Livewire\Component;
 use Livewire\WithPagination;
-use App\Models\Task;
 use Livewire\Attributes\On;
+use App\Models\Task;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 

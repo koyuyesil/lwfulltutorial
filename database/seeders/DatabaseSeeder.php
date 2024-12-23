@@ -5,7 +5,7 @@ namespace Database\Seeders;
 use App\Models\Customer;
 use App\Models\CustomerDevice;
 use App\Models\Device;
-use App\Models\Service;
+use App\Models\Ticket;
 use App\Models\User;
 use App\Models\Task;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
@@ -44,7 +44,7 @@ class DatabaseSeeder extends Seeder
 
                 ]);
                 // Her müşteri cihazı için servisler oluşturuluyor
-                Service::factory(3)->create([
+                Ticket::factory(3)->create([
                     'customer_device_id' => $customerDevice->id,
                 ]);
 

@@ -4,8 +4,8 @@ namespace App\Livewire\Devices;
 
 use Livewire\Component;
 use Livewire\WithPagination;
-use App\Models\Device;
 use Livewire\Attributes\On;
+use App\Models\Device;
 
 class DevicesList extends Component
 {

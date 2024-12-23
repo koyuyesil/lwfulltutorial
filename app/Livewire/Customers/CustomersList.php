@@ -4,8 +4,8 @@ namespace App\Livewire\Customers;
 
 use Livewire\Component;
 use Livewire\WithPagination;
-use App\Models\Customer;
 use Livewire\Attributes\On;
+use App\Models\Customer;
 
 class CustomersList extends Component
 {

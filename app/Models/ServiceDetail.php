@@ -10,9 +10,9 @@ class ServiceDetail extends Model
     /** @use HasFactory<\Database\Factories\ServiceDetailFactory> */
     use HasFactory;
 
-    public function service()
+    public function ticket()
     {
-        return $this->belongsTo(Service::class);
+        return $this->belongsTo(Ticket::class);
     }
 
     public function productService()

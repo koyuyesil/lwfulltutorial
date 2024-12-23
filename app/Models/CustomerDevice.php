@@ -21,8 +21,8 @@ class CustomerDevice extends Model
         return $this->belongsTo(Device::class);
     }
 
-    public function service()
+    public function ticket()
     {
-        return $this->hasMany(Service::class);
+        return $this->hasMany(Ticket::class);
     }
 }
