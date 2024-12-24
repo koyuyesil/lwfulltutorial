@@ -19,16 +19,18 @@ class TaskFactory extends Factory
      */
     public function definition(): array
     {
+        $title = $this->faker->sentence;
+        $slug = Str::slug($title);
         return [
-            'title' => fake()->sentence(), // Random sentence for title
-            'slug' => fake()->slug(), // Generate a proper slug
-            'description' => fake()->paragraph(), // Random paragraph for description
+            'title' => $title,  // Random sentence for title
+            'slug' => $slug,    // Generate a proper slug
+            'description' => $this->faker->paragraph,   // Random paragraph for description
             'deadline'  => fake()->dateTimeBetween('+1 day', '+1 month'), // A random date for the deadline
             'status' => fake()->randomElement(StatusType::cases()), // Get a random status from the StatusType enum
             'priority' => fake()->randomElement(PriorityType::cases()), // Get a random priority from the PriorityType enum
             'created_at' => now(),
             'updated_at' => now(),
-            'user_id' => 1, // Assuming user_id is fixed as 1//bu araa bu eziliyor
+            'user_id' => 1, // Assuming user_id is fixed as 1
         ];
     }
 }
