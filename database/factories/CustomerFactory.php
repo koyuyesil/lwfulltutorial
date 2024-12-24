@@ -19,7 +19,7 @@ class CustomerFactory extends Factory
         return [
             'fname' => fake()->firstName(), // Rastgele bir ilk isim
             'lname' => fake()->lastName(),  // Rastgele bir soyisim
-            'company' => fake()->company(), // Rastgele bir şirket adı
+            'company' => rand(0, 1) ? fake()->company() : null, // Rastgele bir şirket adı
             'phone' => fake()->phoneNumber(), // Rastgele bir telefon numarası
             'email' => fake()->safeEmail(), // Rastgele bir güvenli e-posta adresi
             'address' => fake()->address(), // Rastgele bir adres

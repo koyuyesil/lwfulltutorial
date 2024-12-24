@@ -5,7 +5,7 @@
                 <div class="p-4 leading-normal">
                     <div class="mb-2">
                         <span class="text-xl font-semibold text-gray-900 dark:text-white">
-                            {{ $customer->company ?? $customer->fname . ' ' . $customer->lname }}
+                            {{ $customer->company ? $customer->company : $customer->fname . ' ' . $customer->lname }}
                         </span>
                     </div>
                     <div class="flex space-x-6 text-gray-600 dark:text-gray-400">
