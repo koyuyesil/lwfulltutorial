@@ -33,7 +33,7 @@ class DevicesList extends Component
         // todo burada formları oluşturuken tüm tabloyu açsan iyi olur
         return view('livewire.devices.devices-list', [
             //'devices' => Device::query()->paginate(3), // Tüm tabloyu çeker.
-            'devices' => Auth::user()->devices()->paginate(3), // User ilişkili tabloyu çeker
+            'devices' => Auth::user()->devices()->paginate(5), // User ilişkili tabloyu çeker
         ]);
     }
 }

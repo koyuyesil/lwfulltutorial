@@ -1,53 +1,53 @@
 <div>
-    <form wire:submit="save" class="mt-6 space-y-6">
+    <form wire:submit="save" class="mt-6 space-y-4">
         <!-- Manufacturer -->
         <div>
-            <x-input-label for="manufacturer" :value="__('Manufacturer')" />
+            <x-input-label for="manufacturer" :value="__('Manufacturer')" class="text-sm" />
             <x-text-input wire:model.live="form.manufacturer" id="manufacturer" name="manufacturer" type="text"
-                class="mt-1 block w-full" />
-            <x-input-error :messages="$errors->get('form.manufacturer')" class="mt-2" />
+                class="mt-1 block w-full text-sm py-1 px-2" />
+            <x-input-error :messages="$errors->get('form.manufacturer')" class="mt-1 text-sm" />
         </div>
 
         <!-- Brand -->
         <div>
-            <x-input-label for="brand" :value="__('Brand')" />
+            <x-input-label for="brand" :value="__('Brand')" class="text-sm" />
             <x-text-input wire:model.live="form.brand" id="brand" name="brand" type="text"
-                class="mt-1 block w-full" />
-            <x-input-error :messages="$errors->get('form.brand')" class="mt-2" />
+                class="mt-1 block w-full text-sm py-1 px-2" />
+            <x-input-error :messages="$errors->get('form.brand')" class="mt-1 text-sm" />
         </div>
 
         <!-- Model Name -->
         <div>
-            <x-input-label for="model_name" :value="__('Model Name')" />
+            <x-input-label for="model_name" :value="__('Model Name')" class="text-sm" />
             <x-text-input wire:model.live="form.model_name" id="model_name" name="model_name" type="text"
-                class="mt-1 block w-full" />
-            <x-input-error :messages="$errors->get('form.model_name')" class="mt-2" />
+                class="mt-1 block w-full text-sm py-1 px-2" />
+            <x-input-error :messages="$errors->get('form.model_name')" class="mt-1 text-sm" />
         </div>
 
         <!-- Model Number -->
         <div>
-            <x-input-label for="model_number" :value="__('Model Number')" />
+            <x-input-label for="model_number" :value="__('Model Number')" class="text-sm" />
             <x-text-input wire:model.live="form.model_number" id="model_number" name="model_number" type="text"
-                class="mt-1 block w-full" />
-            <x-input-error :messages="$errors->get('form.model_number')" class="mt-2" />
+                class="mt-1 block w-full text-sm py-1 px-2" />
+            <x-input-error :messages="$errors->get('form.model_number')" class="mt-1 text-sm" />
         </div>
 
         <!-- Description -->
         <div>
-            <x-input-label for="description" :value="__('Description')" />
+            <x-input-label for="description" :value="__('Description')" class="text-sm" />
             <x-text-input wire:model.live="form.description" id="description" name="description" type="text"
-                class="mt-1 block w-full" />
-            <x-input-error :messages="$errors->get('form.description')" class="mt-2" />
+                class="mt-1 block w-full text-sm py-1 px-2" />
+            <x-input-error :messages="$errors->get('form.description')" class="mt-1 text-sm" />
         </div>
 
         <!-- Submit Button -->
         <div class="mb-3 flex justify-between">
             <button type="submit"
-                class="flex py-2 px-4 bg-indigo-500 hover:bg-indigo-600 text-white rounded-md">
+                class="flex py-1 px-3 bg-indigo-500 hover:bg-indigo-600 text-sm text-white rounded-md">
                 Submit
                 <div wire:loading>
                     <svg aria-hidden="true"
-                        class="w-5 h-5 mx-2 text-gray-200 animate-spin dark:text-gray-600 fill-blue-600"
+                        class="w-4 h-4 mx-2 text-gray-200 animate-spin dark:text-gray-600 fill-blue-600"
                         viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path
                             d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
@@ -60,14 +60,14 @@
                 </div>
             </button>
             <button type="button" wire:click="refresh"
-                class="flex py-2 px-4 bg-slate-400 hover:bg-slate-500 text-white rounded-md">Refresh
+                class="flex py-1 px-3 bg-slate-400 hover:bg-slate-500 text-sm text-white rounded-md">Refresh
             </button>
         </div>
 
         <!-- Success Message -->
         <div>
             @if (session()->has('message'))
-            <div class="p-4 mb-4 text-sm text-green-800 rounded-lg bg-green-50 dark:bg-gray-800 dark:text-green-400"
+            <div class="p-2 text-sm text-green-800 rounded-lg bg-green-50 dark:bg-gray-800 dark:text-green-400"
                 role="alert">
                 <span class="font-medium">{{ session('message') }}</span>
             </div>
