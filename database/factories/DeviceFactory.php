@@ -24,6 +24,7 @@ class DeviceFactory extends Factory
             'description' => fake()->sentence(),   // Örnek: "Kullanıcı dostu bir cihazdır."
             'created_at' => now(),
             'updated_at' => now(),
+            'user_id' => 1, // Assuming user_id is fixed as 1
         ];
     }
 }

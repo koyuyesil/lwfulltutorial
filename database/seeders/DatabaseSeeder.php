@@ -30,26 +30,29 @@ class DatabaseSeeder extends Seeder
         //     'device_id' => Customer::factory(),
         //     'customer_id' => Device::factory(),]);
 
-
         // Müşteriler oluşturuluyor
-        Customer::factory(10)->create()->each(function ($customer) {
+        User::factory(1)->create()->each(function ($user) {
             // Her müşteri için cihazlar oluşturuluyor
-            $devices = Device::factory(3)->create(); // 3 cihaz oluşturuluyor
-            foreach ($devices as $device) {
-
-                // CustomerDevice ilişkisi oluşturuluyor
-                $customerDevice = CustomerDevice::factory()->create([
-                    'customer_id' => $customer->id,
-                    'device_id' => $device->id,
-
-                ]);
-                // Her müşteri cihazı için servisler oluşturuluyor
-                Ticket::factory(3)->create([
-                    'customer_device_id' => $customerDevice->id,
-                ]);
-                // Ticket oluşturulduktan sonra 1 saniye bekleme
-                //sleep(1);
-            }
+            // Müşteriler oluşturuluyor
+            Customer::factory(10)->create()->each(function ($customer)use ($user)  {
+                // Her müşteri için cihazlar oluşturuluyor
+                $devices = Device::factory(3)->create([
+                    'user_id' => $user->id,
+                ]); // 3 cihaz oluşturuluyor
+                foreach ($devices as $device) {
+                    // CustomerDevice ilişkisi oluşturuluyor
+                    $customerDevice = CustomerDevice::factory()->create([
+                        'customer_id' => $customer->id,
+                        'device_id' => $device->id,
+                    ]);
+                    // Her müşteri cihazı için servisler oluşturuluyor
+                    Ticket::factory(3)->create([
+                        'customer_device_id' => $customerDevice->id,
+                    ]);
+                    // Ticket oluşturulduktan sonra 1 saniye bekleme
+                    //sleep(1);
+                }
+            });
         });
 
     }

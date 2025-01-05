@@ -31,7 +31,7 @@
                 </div>
                 <div class="flex justify-between items-center mt-2">
                     <div class="flex space-x-6">
-                        <x-primary-button wire:click="$dispatch('edit', {id: {{ $device->id }}})"
+                        <x-primary-button wire:click="$dispatch('edit-device', {id: {{ $device->id }}})"
                             class="bg-green-500 hover:bg-green-600 text-white">
                             Edit
                         </x-primary-button>

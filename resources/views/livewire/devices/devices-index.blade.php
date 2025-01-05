@@ -25,10 +25,10 @@
                 <section class="col-span-2 w-full mt-2 p-4 space-y-4 bg-gray-50 dark:bg-gray-700 rounded-lg"> {{-- Ekleme kısmı genişlik olarak 1/4 kaplıyor --}}
                     <header>
                         <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100">
-                            {{ __('Add New Customer') }}
+                            {{ __('Add New Device') }}
                         </h2>
                         <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
-                            {{ __('Add a new customer') }}
+                            {{ __('Add a new device') }}
                         </p>
                     </header>
                     <livewire:devices.devices-form />

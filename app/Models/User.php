@@ -47,9 +47,14 @@ class User extends Authenticatable
         ];
     }
 
-    public function Tasks(): HasMany
+    public function tasks(): HasMany
     {
         return $this->hasMany(Task::class);
+    }
+
+    public function devices(): HasMany
+    {
+        return $this->hasMany(Device::class);
     }
 
 }

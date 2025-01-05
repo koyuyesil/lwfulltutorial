@@ -11,6 +11,7 @@ use App\Enums\StatusType;
 
 class Task extends Model
 {
+    /** @use HasFactory<\Database\Factories\DeviceFactory> */
     use HasFactory;
 
     protected $fillable = ['title', 'slug', 'description', 'status', 'priority', 'deadline'];

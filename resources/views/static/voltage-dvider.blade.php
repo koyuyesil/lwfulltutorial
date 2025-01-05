@@ -45,8 +45,6 @@
             <div class="bg-white p-6 rounded-lg shadow-lg">
                 <!-- SVG Grafik -->
                 <div class="mb-6 text-center">
-                    <?xml version="1.0" encoding="utf-8"  standalone="no"?>
-                    <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
                     <svg width="230" height="253" viewBox="0 0 230 253" xmlns="http://www.w3.org/2000/svg"
                         version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" id="s1">
                         <title>Diagram of voltage divider netwrok</title>
@@ -72,6 +70,8 @@
                                 <text x="188" y="137">V</text>
                                 <text x="132" y="85">R</text>
                                 <text x="132" y="195">R</text>
+                                {{-- <text x="200" y="85">=100K</text>
+                                <text x="200" y="195">=100K</text> --}}
                             </g>
                             <g style="stroke-width:0.25; font-size:14pt" text-anchor="left">
                                 <text x="27" y="34">in</text>

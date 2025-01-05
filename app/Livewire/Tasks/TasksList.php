@@ -17,7 +17,6 @@ class TasksList extends Component
         return view('skeleton');//lazzy loading
     }
 
-
     public function changeStatus($id, $status)
     {
         $task = Task::find($id);

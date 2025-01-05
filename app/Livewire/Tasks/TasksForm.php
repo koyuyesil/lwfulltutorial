@@ -2,10 +2,10 @@
 
 namespace App\Livewire\Tasks;
 
-use App\Livewire\Forms\TaskForm;
-use Livewire\Attributes\On;
-use Livewire\Component;
 use App\Models\Task;
+use Livewire\Component;
+use Livewire\Attributes\On;
+use App\Livewire\Forms\TaskForm;
 
 class TasksForm extends Component
 {
