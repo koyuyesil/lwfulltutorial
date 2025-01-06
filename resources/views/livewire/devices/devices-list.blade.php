@@ -33,15 +33,15 @@
                             </td>
                             <td class="border border-gray-300 dark:border-gray-700 px-4 py-2 text-center">
                                 <div class="flex justify-center space-x-4">
-                                    <x-primary-button wire:click="$dispatch('edit-device', {id: {{ $device->id }}})"
-                                        class="bg-green-500 hover:bg-green-600 text-white text-xs px-2 py-1">
+                                    <button wire:click="$dispatch('edit-device', {id: {{ $device->id }}})"
+                                        class="flex py-1 px-3 bg-orange-500 hover:bg-red-600 text-sm text-white rounded-md">
                                         Edit
-                                    </x-primary-button>
-                                    <x-primary-button wire:click="delete({{ $device->id }})"
+                                    </button>
+                                    <button wire:click="delete({{ $device->id }})"
                                         wire:confirm="Are you sure you want to delete this device?"
-                                        class="bg-red-500 hover:bg-red-600 text-white text-xs px-2 py-1">
+                                        class="flex py-1 px-3 bg-green-500 hover:bg-green-400 text-sm text-white rounded-md">
                                         Delete
-                                    </x-primary-button>
+                                    </button>
                                 </div>
                             </td>
                         </tr>
