@@ -4,9 +4,11 @@
             <table class="min-w-full border-collapse border border-gray-300 dark:border-gray-700">
                 <thead>
                     <tr class="bg-gray-100 dark:bg-gray-800 text-xs font-semibold uppercase text-gray-700 dark:text-gray-300">
-                        <th class="border border-gray-300 dark:border-gray-700 px-4 py-2 text-left">Model</th>
+
                         <th class="border border-gray-300 dark:border-gray-700 px-4 py-2 text-left">Manufacturer</th>
                         <th class="border border-gray-300 dark:border-gray-700 px-4 py-2 text-left">Brand</th>
+                        <th class="border border-gray-300 dark:border-gray-700 px-4 py-2 text-left">Model</th>
+                        <th class="border border-gray-300 dark:border-gray-700 px-4 py-2 text-left">Model No</th>
                         <th class="border border-gray-300 dark:border-gray-700 px-4 py-2 text-left">Description</th>
                         <th class="border border-gray-300 dark:border-gray-700 px-4 py-2 text-center">Actions</th>
                     </tr>
@@ -15,13 +17,16 @@
                     @foreach ($devices as $device)
                         <tr class="text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition">
                             <td class="border border-gray-300 dark:border-gray-700 px-4 py-2">
-                                {{ $device->model_name }} {{ $device->model_number }}
-                            </td>
-                            <td class="border border-gray-300 dark:border-gray-700 px-4 py-2">
                                 {{ $device->manufacturer }}
                             </td>
                             <td class="border border-gray-300 dark:border-gray-700 px-4 py-2">
                                 {{ $device->brand }}
+                            </td>
+                            <td class="border border-gray-300 dark:border-gray-700 px-4 py-2">
+                                {{ $device->model_name }}
+                            </td>
+                            <td class="border border-gray-300 dark:border-gray-700 px-4 py-2">
+                                {{ $device->model_number }}
                             </td>
                             <td class="border border-gray-300 dark:border-gray-700 px-4 py-2">
                                 {{ $device->description }}
