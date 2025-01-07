@@ -46,6 +46,12 @@ class Customer extends Model
         return $this->hasMany(CustomerDevice::class);
     }
 
+    // Kullanıcı ile ilişki
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
     // TODO MÜŞTERİ SİLİNDİĞİNDE customerDevices SİLİNMESİN BAŞKA USER YADA TABLOYA TAŞINSIN
     protected static function booted()
     {

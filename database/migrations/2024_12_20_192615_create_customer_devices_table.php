@@ -2,7 +2,7 @@
 
 use App\Models\Device;
 use App\Models\Customer;
-use App\Models\Service;
+use App\Models\User;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -16,13 +16,14 @@ return new class extends Migration
     {
         Schema::create('customer_devices', function (Blueprint $table) {
             $table->id();
-            // $table->foreignIdFor(Device::class);
-            // $table->foreignIdFor(Customer::class);
+
             $table->foreignIdFor(Device::class)->constrained()->onDelete('cascade');
             $table->foreignIdFor(Customer::class)->constrained()->onDelete('cascade');
+            $table->foreignIdFor(User::class)->constrained()->onDelete('cascade');
             $table->string('serial');
             $table->string('imei');
             $table->string('color');
+
             $table->timestamps();
         });
     }

@@ -14,12 +14,14 @@ return new class extends Migration
     {
         Schema::create('devices', function (Blueprint $table) {
             $table->id();
+
+            $table->foreignIdFor(User::class)->constrained()->onDelete('cascade');
             $table->string('manufacturer');
             $table->string('brand');
             $table->string('model_name');
             $table->string('model_number');
             $table->string('description');
-            $table->foreignIdFor(User::class)->constrained()->onDelete('cascade');
+
 
             $table->timestamps();
         });

@@ -17,6 +17,7 @@ class CustomerFactory extends Factory
     public function definition(): array
     {
         return [
+            'user_id' => 1, // Assuming user_id is fixed as 1
             'fname' => fake()->firstName(), // Rastgele bir ilk isim
             'lname' => fake()->lastName(),  // Rastgele bir soyisim
             'company' => rand(0, 1) ? fake()->company() : null, // Rastgele bir şirket adı

@@ -25,6 +25,11 @@ class CustomerDevice extends Model
         return $this->belongsTo(Device::class);
     }
 
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
+
     public function ticket(): HasMany
     {
         return $this->hasMany(Ticket::class);

@@ -57,4 +57,16 @@ class User extends Authenticatable
         return $this->hasMany(Device::class);
     }
 
+    public function customers()
+    {
+        return $this->hasMany(Customer::class);
+    }
+
+    public function customersDevice()
+    {
+        return $this->hasMany(CustomerDevice::class);
+    }
+
+
+
 }
