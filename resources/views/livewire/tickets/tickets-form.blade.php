@@ -33,9 +33,9 @@
         <input type="text" wire:model.live="model_name" placeholder="Model Adı">
         <input type="text" wire:model.live="model_number" placeholder="Model Numarası">
         <input type="text" wire:model.live="description" placeholder="Açıklama">
-        <input type="text" wire:model.live="color" placeholder="Renk">
         <input type="text" wire:model.live="serial" placeholder="Serial">
         <input type="text" wire:model.live="imei" placeholder="IMEI">
+        <input type="text" wire:model.live="color" placeholder="Renk">
 
         <button type="submit">Kaydet</button>
     </form>

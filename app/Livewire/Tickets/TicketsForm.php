@@ -16,7 +16,7 @@ class TicketsForm extends Component
     public $devices = [];
     public $selectedDevice;
     public $tickets = [];
-
+    public $selectedcustomerDevice;
 
     // Customer fields
     public $fname;
@@ -90,8 +90,6 @@ class TicketsForm extends Component
                 $this->model_name = $device->model_name;
                 $this->model_number = $device->model_number;
                 $this->description = $device->description;
-                $this->color = $device->color;
-                $this->imei = $device->imei;
             } else {
                 $this->reset();
             }
@@ -129,7 +127,7 @@ class TicketsForm extends Component
 
         ]);
 
-        CustomerDevice::create([
+        $customerDevice = CustomerDevice::create([
             'user_id' => Auth::id(),
             'customer_id' => $customer->id,
             'device_id' => $device->id,
@@ -140,10 +138,9 @@ class TicketsForm extends Component
 
         $this->selectedCustomer = $customer->id;
         $this->selectedDevice = $device->id;
+        $this->selectedcustomerDevice = $customerDevice->id;
 
-        $this->reset();
-        $this->loadCustomers();
-        $this->loadDevices();
+
     }
 
     public function createTicket()
@@ -156,14 +153,15 @@ class TicketsForm extends Component
         ]);
 
         Ticket::create([
-            'customer_id' => $this->selectedCustomer,
-            'device_id' => $this->selectedDevice,
+            'customer_device_id' => $this->selectedcustomerDevice,
             'problem' => $this->problem,
             'priority' => $this->priority,
             'status' => 'pending',
         ]);
 
         $this->reset();
+        $this->loadCustomers();
+        $this->loadDevices();
     }
 
     public function render()
