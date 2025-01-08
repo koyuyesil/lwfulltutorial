@@ -127,6 +127,7 @@ class TicketsForm extends Component
 
         ]);
 
+        //TODO EĞER HAZIR SEÇİLİRSE ONU EKLE TRANSACTİON KONTROLLERİNİ DE EKLE
         $customerDevice = CustomerDevice::create([
             'user_id' => Auth::id(),
             'customer_id' => $customer->id,
