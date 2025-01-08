@@ -15,6 +15,11 @@ class CustomerDevice extends Model
     /** @use HasFactory<\Database\Factories\CustomerDeviceFactory> */
     use HasFactory;
 
+    protected $fillable = ['user_id', 'device_id', 'customer_id', 'serial', 'imei', 'color'];
+    // user_id
+    // customer_id
+    // device_id
+
     public function customer(): BelongsTo
     {
         return $this->belongsTo(Customer::class);
