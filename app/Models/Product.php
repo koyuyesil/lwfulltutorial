@@ -2,19 +2,19 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Support\Str;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-class Device extends Model
+class Product extends Model
 {
-    /** @use HasFactory<\Database\Factories\DeviceFactory> */
+    /** @use HasFactory<\Database\Factories\ProductFactory> */
     use HasFactory;
     protected $fillable = ['manufacturer', 'brand', 'model_name', 'model_number', 'description'];
 
-    //Slug'ın otomatik olarak oluşturulması için mutator kullanımı. not isim formatı zorunlu.
+    // todo multiple yap key value olarak. Başlık formatı mutator kullanımı. (Methot ismi rastgele değildir.)
     public function setManufacturerAttribute($value)
     {
         $this->attributes['manufacturer'] = Str::title($value);
@@ -25,16 +25,17 @@ class Device extends Model
         return $this->belongsTo(User::class);  // User ile ilişki
     }
 
-    public function customerDevices(): HasMany
+    public function clientProducts(): HasMany
     {
-        return $this->hasMany(CustomerDevice::class);
+        return $this->hasMany(ClientProduct::class);
     }
 
     // TODO device'dan item silindiğinde customerDevices de başka bilinmeyen aygıt olarak aktarılsın
     protected static function booted()
     {
+        //todo Clients modelden aynısını yap.
         static::deleting(function ($device) {
-            $device->customerDevices()->delete();
+            $device->clientProducts()->delete();
         });
     }
 }

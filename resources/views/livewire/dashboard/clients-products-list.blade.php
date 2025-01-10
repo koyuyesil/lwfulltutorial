@@ -5,7 +5,7 @@
                 <div class="p-4 leading-normal">
                     <div class="mb-2">
                         <span class="text-xl font-semibold text-gray-900 dark:text-white">
-                            {{ $client->company ? $client->company : $client->fname . ' ' . $client->lname }}
+                            {{ $client->company ? $client->company : $client->first_name . ' ' . $client->last_name }}
                         </span>
                     </div>
                     <div class="flex space-x-6 text-gray-600 dark:text-gray-400">
@@ -19,7 +19,7 @@
                         </div>
                         <div>
                             <strong class="text-sm">{{ $client->company ? 'Representative:':'Company:' }}</strong>
-                            <p class="text-xs">{{ $client->company ? $client->fname . ' ' . $client->lname : $client->company }}</p>
+                            <p class="text-xs">{{ $client->company ? $client->first_name . ' ' . $client->last_name : $client->company }}</p>
                         </div>
                     </div>
                     <div class="mt-2 flex space-x-6 text-gray-600 dark:text-gray-400">
@@ -30,7 +30,7 @@
                 </div>
 
                 <!-- Customer's Devices Section -->
-                @if ($client->customerDevices->count() > 0)
+                @if ($client->clientProducts->count() > 0)
                 <div class="p-4 leading-normal mt-2">
                     <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Devices</h3>
                     <div class="overflow-x-auto">
@@ -44,22 +44,22 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach ($client->customerDevices as $clientDevice)
+                                @foreach ($client->clientProducts as $clientProduct)
                                 <tr class="hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer relative"
-                                    title="{{ $clientDevice->device->description }}"
+                                    title="{{ $clientProduct->product->description }}"
                                     onclick="window.location.href='#';">
                                     <!-- Product Column (Combined Manufacturer, Brand, Model Name) -->
                                     <td class="border border-gray-300 dark:border-gray-700 px-4 py-2">
-                                        {{ $clientDevice->device->manufacturer }}
-                                        {{ $clientDevice->device->brand }}
-                                        {{ $clientDevice->device->model_name }}
+                                        {{ $clientProduct->product->manufacturer }}
+                                        {{ $clientProduct->product->brand }}
+                                        {{ $clientProduct->product->model_name }}
                                     </td>
                                     <!-- Serial Column -->
-                                    <td class="border border-gray-300 dark:border-gray-700 px-4 py-2">{{ $clientDevice->serial }}</td>
+                                    <td class="border border-gray-300 dark:border-gray-700 px-4 py-2">{{ $clientProduct->serial }}</td>
                                     <!-- IMEI Column -->
-                                    <td class="border border-gray-300 dark:border-gray-700 px-4 py-2">{{ $clientDevice->imei }}</td>
+                                    <td class="border border-gray-300 dark:border-gray-700 px-4 py-2">{{ $clientProduct->imei }}</td>
                                     <!-- Color Column -->
-                                    <td class="border border-gray-300 dark:border-gray-700 px-4 py-2">{{ $clientDevice->color }}</td>
+                                    <td class="border border-gray-300 dark:border-gray-700 px-4 py-2">{{ $clientProduct->color }}</td>
                                 </tr>
                                 @endforeach
                             </tbody>

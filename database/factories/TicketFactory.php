@@ -16,10 +16,11 @@ class TicketFactory extends Factory
      */
     public function definition(): array
     {
+        $status = ['open', 'in_progress', 'done'];
         return [
             'problem' => fake()->jobTitle(),
             'priority' => fake()->colorName(),
-            'status' => fake()->randomLetter(),
+            'status' => $status[array_rand($status)],
             'created_at' => now(),
             'updated_at' => now(),
         ];

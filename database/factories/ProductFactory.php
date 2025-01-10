@@ -1,14 +1,14 @@
 <?php
 
 namespace Database\Factories;
-use GeminiAPI\Laravel\Facades\Gemini;
 
+use GeminiAPI\Laravel\Facades\Gemini;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Device>
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Product>
  */
-class DeviceFactory extends Factory
+class ProductFactory extends Factory
 {
     /**
      * Define the model's default state.
@@ -29,8 +29,9 @@ Samsung|Galaxy|S21 Ultra|SM-G998B|108MP camera, 5000mAh battery, Exynos 2100 chi
 Produce similar data for new devices. Each request will return data for a different product.
 EOT;
         // Yapay zeka tarafından veri oluşturuluyor
-        $deviceText = Gemini::generateText($examplePrompt);
-        dd($deviceText);
+        //$deviceText = Gemini::generateText($examplePrompt);
+        $deviceText = 'Samsung|Galaxy|S21 Ultra|SM-G998B|108MP camera, 5000mAh battery, Exynos 2100 chipset';
+        //dd($deviceText);
         // Metni virgül ile bölerek dizi haline getiriyoruz
         $device = explode('|', $deviceText);
         $man = ['Xiaomi', 'Apple', 'Samsung'];

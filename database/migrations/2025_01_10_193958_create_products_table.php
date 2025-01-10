@@ -1,6 +1,6 @@
 <?php
 
-use App\Models\ClientProduct;
+use App\Models\User;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
@@ -12,13 +12,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('tickets', function (Blueprint $table) {
+        Schema::create('products', function (Blueprint $table) {
             $table->id();
 
-            $table->foreignIdFor(ClientProduct::class);
-            $table->string('problem');
-            $table->string('priority');
-            $table->string('status');
+            $table->foreignIdFor(User::class)->constrained()->onDelete('cascade');
+            $table->string('manufacturer');
+            $table->string('brand');
+            $table->string('model_name');
+            $table->string('model_number');
+            $table->string('description');
 
             $table->timestamps();
         });
@@ -29,6 +31,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('tickets');
+        Schema::dropIfExists('products');
     }
 };

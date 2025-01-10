@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Dashboard;
 
+use App\Models\Client;
 use Livewire\Component;
 use Livewire\WithPagination;
 use App\Models\Customer;
@@ -18,7 +19,7 @@ class ClientsProductsList extends Component
     public function render()
     {
         // Müşterileri ve her müşterinin cihazlarını alıyoruz.
-        $clientsProducts = Customer::with('customerDevices.device')->paginate(3); // Pagination ekleniyor
+        $clientsProducts = Client::with('clientProducts.product')->paginate(3); // Pagination ekleniyor
 
         return view('livewire.dashboard.clients-products-list', [
             'clientsProducts' => $clientsProducts,  // Eager loading kullanarak ilişkili cihazları alıyoruz

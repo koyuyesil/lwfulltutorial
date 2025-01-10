@@ -2,12 +2,12 @@
 
 namespace Database\Seeders;
 
-use App\Models\Customer;
-use App\Models\CustomerDevice;
-use App\Models\Device;
-use App\Models\Ticket;
-use App\Models\User;
 use App\Models\Task;
+use App\Models\User;
+use App\Models\Client;
+use App\Models\Ticket;
+use App\Models\Product;
+use App\Models\ClientProduct;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -22,38 +22,25 @@ class DatabaseSeeder extends Seeder
         //Task::factory(10)->create();
         //Device::factory(10)->create();
         //Customer::factory(10)->create();
+        //Task::factory(10)->create(['user_id' => User::factory()]);
+        //Client::factory(10)->create(['user_id'=> User::factory()]);
 
-        Task::factory(10)->create(['user_id' => User::factory()]);
-
-        // Her CustomerDevice için bir aygıt ve bir müşteri oluşturur.
-        // CustomerDevice::factory(10)->create([
-        //     'device_id' => Customer::factory(),
-        //     'customer_id' => Device::factory(),]);
-
-        // Müşteriler oluşturuluyor
         User::factory(1)->create()->each(function ($user) {
-            // Her müşteri için cihazlar oluşturuluyor
-            // Müşteriler oluşturuluyor
-            Customer::factory(10)->create()->each(function ($customer)use ($user)  {
-                // Her müşteri için cihazlar oluşturuluyor
-                $devices = Device::factory(3)->create([
+            Client::factory(10)->create()->each(function ($client)use ($user)  {
+                $products = Product::factory(3)->create([
                     'user_id' => $user->id,
-                ]); // 3 cihaz oluşturuluyor
-                foreach ($devices as $device) {
-                    // CustomerDevice ilişkisi oluşturuluyor
-                    $customerDevice = CustomerDevice::factory()->create([
-                        'customer_id' => $customer->id,
-                        'device_id' => $device->id,
+                ]);
+                foreach ($products as $product) {
+                    $clientProduct = ClientProduct::factory()->create([
+                        'client_id' => $client->id,
+                        'product_id' => $product->id,
                     ]);
-                    // Her müşteri cihazı için servisler oluşturuluyor
                     Ticket::factory(3)->create([
-                        'customer_device_id' => $customerDevice->id,
+                        'client_product_id' => $clientProduct->id,
                     ]);
-                    // Ticket oluşturulduktan sonra 1 saniye bekleme
                     //sleep(1);
                 }
             });
         });
-
     }
 }
