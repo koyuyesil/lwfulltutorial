@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::view('/', 'welcome');
 
-Route::view('dash', 'dashboard')
+Route::view('dash', 'dash')
     ->middleware(['auth', 'verified'])
     ->name('dash');
 

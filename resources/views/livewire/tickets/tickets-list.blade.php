@@ -4,16 +4,16 @@
             {{-- Cihaz ve Müşteri Bilgileri --}}
             <div class="flex items-center text-xs text-gray-600 dark:text-gray-400">
                 <span class="mr-2 font-medium text-gray-900 dark:text-white">
-                    {{ $ticket->customerDevice->customer->company ? $ticket->customerDevice->customer->company : $ticket->customerDevice->customer->fname . ' ' . $ticket->customerDevice->customer->lname }}
+                    {{ $ticket->clientProduct->client->company ? $ticket->clientProduct->client->company : $ticket->clientProduct->client->fname . ' ' . $ticket->clientProduct->client->lname }}
                 </span>
-                <span class="mr-2">{{ $ticket->customerDevice->customer->phone }}</span>
-                <span class="mr-2">{{ $ticket->customerDevice->customer->email }}</span>
+                <span class="mr-2">{{ $ticket->clientProduct->client->phone }}</span>
+                <span class="mr-2">{{ $ticket->clientProduct->client->email }}</span>
             </div>
 
             {{-- Cihaz Bilgisi --}}
             <div class="flex items-center text-xs text-gray-600 dark:text-gray-400 mt-1">
-                <span class="mr-2">Device: {{ $ticket->customerDevice->device->brand }}
-                    {{ $ticket->customerDevice->device->model_name }}</span>
+                <span class="mr-2">Product: {{ $ticket->clientProduct->product->brand }}
+                    {{ $ticket->clientProduct->product->model_name }}</span>
             </div>
 
             {{-- Ticket Bilgileri --}}

@@ -26,15 +26,15 @@ class TicketsList extends Component
     public function render()
     {
         // // Müşterileri ve her bir cihazı ve her cihazın ticket'larını alıyoruz
-        // $customers = Customer::with([
-        //     'customerDevices.device',  // Cihaz ve cihazın bilgileri
-        //     'customerDevices.ticket'  // Cihaza ait ticket'lar (servis)
+        // $client = Client::with([
+        //     'clientProduct.product', // Cihaza ait bilgiler
+        //     'clientProduct.client', // Müşteri bilgileri
         // ])->paginate(3);
 
         // Ticket'ları, müşteri, cihaz ve cihaz bilgisi ile alıyoruz
         $tickets = Ticket::with([
-            'customerDevice.device', // Cihaza ait bilgiler
-            'customerDevice.customer', // Müşteri bilgileri
+            'clientProduct.product', // Cihaza ait bilgiler
+            'clientProduct.client', // Müşteri bilgileri
         ])
         ->orderBy('updated_at', 'desc')
         ->paginate(10);

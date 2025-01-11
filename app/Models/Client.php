@@ -47,7 +47,7 @@ class Client extends Model
         //Silme işlemi yapıldığında çağrılır
         static::deleting(function ($client) {
             // Config dosyasından stratejiyi al, yoksa 'delete' varsayılanını kullan
-            $strategy = config('client_product.deletion_strategy', 'delete');//todo config
+            $strategy = config('client_product.deletion_strategy', 'delete');//TODO config
 
             switch ($strategy) {
                 case 'delete':

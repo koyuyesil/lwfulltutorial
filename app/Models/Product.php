@@ -14,7 +14,7 @@ class Product extends Model
     use HasFactory;
     protected $fillable = ['manufacturer', 'brand', 'model_name', 'model_number', 'description'];
 
-    // todo multiple yap key value olarak. Başlık formatı mutator kullanımı. (Methot ismi rastgele değildir.)
+    // TODO multiple yap key value olarak. Başlık formatı mutator kullanımı. (Methot ismi rastgele değildir.)
     public function setManufacturerAttribute($value)
     {
         $this->attributes['manufacturer'] = Str::title($value);
@@ -33,7 +33,7 @@ class Product extends Model
     // TODO device'dan item silindiğinde customerDevices de başka bilinmeyen aygıt olarak aktarılsın
     protected static function booted()
     {
-        //todo Clients modelden aynısını yap.
+        //TODO Clients modelden aynısını yap.
         static::deleting(function ($device) {
             $device->clientProducts()->delete();
         });
