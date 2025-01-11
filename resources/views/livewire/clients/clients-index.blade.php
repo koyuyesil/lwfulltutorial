@@ -1,6 +1,6 @@
 <x-slot name="header">
     <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-        {{ __('Dashboard') }}
+        {{ __('Manage - Clients') }}
     </h2>
 </x-slot>
 <div class="py-12">
@@ -12,26 +12,26 @@
                 <section class="col-span-3 w-full mt-2 p-4 space-y-4 bg-gray-50 dark:bg-gray-700 rounded-lg"> {{-- Liste kısmı genişlik olarak 3/4 kaplıyor --}}
                     <header>
                         <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100">
-                            {{ __('Clients Products') }}
+                            {{ __('Clients') }}
                         </h2>
                         <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
-                            {{ __('List of Clients Products') }}
+                            {{ __('List of clients') }}
                         </p>
                     </header>
-                    <livewire:dashboard.clients-products-list lazy />
+                    <livewire:clients.clients-list lazy />
                 </section>
 
                 <!-- Add New Customer Section -->
                 <section class="col-span-2 w-full mt-2 p-4 space-y-4 bg-gray-50 dark:bg-gray-700 rounded-lg"> {{-- Ekleme kısmı genişlik olarak 1/4 kaplıyor --}}
                     <header>
                         <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100">
-                            {{ __('List of Something') }}
+                            {{ __('Add New Client') }}
                         </h2>
                         <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
-                            {{ __('List of Something') }}
+                            {{ __('Add a new Client') }}
                         </p>
                     </header>
-                    {{-- <livewire:dashboard.clients-products-list lazy /> --}}
+                    <livewire:clients.clients-form />
                 </section>
 
             </div>

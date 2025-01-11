@@ -30,7 +30,7 @@
                 </div>
 
                 <!-- Customer's Devices Section -->
-                @if ($client->clientProducts->count() > 0)
+                @if ($client->clientsProducts->count() > 0)
                 <div class="p-4 leading-normal mt-2">
                     <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Devices</h3>
                     <div class="overflow-x-auto">
@@ -44,7 +44,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach ($client->clientProducts as $clientProduct)
+                                @foreach ($client->clientsProducts as $clientProduct)
                                 <tr class="hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer relative"
                                     title="{{ $clientProduct->product->description }}"
                                     onclick="window.location.href='#';">
@@ -78,7 +78,7 @@
         {{ $clientsProducts->links() }}
     @else
         <div class="text-center text-gray-600 dark:text-gray-400 mt-4">
-            No clientsProducts found.
+            No clients products found.
         </div>
     @endif
 </div>

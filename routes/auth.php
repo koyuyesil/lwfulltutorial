@@ -1,13 +1,13 @@
 <?php
 
-use App\Http\Controllers\Auth\VerifyEmailController;
-use App\Livewire\Customers\CustomersIndex;
-use App\Livewire\Dashboard\DashboardIndex;
-use App\Livewire\Devices\DevicesIndex;
-use App\Livewire\Tasks\TasksIndex;
-use App\Livewire\Tickets\TicketsIndex;
-use Illuminate\Support\Facades\Route;
 use Livewire\Volt\Volt;
+use App\Livewire\Tasks\TasksIndex;
+use Illuminate\Support\Facades\Route;
+use App\Livewire\Products\ProductsIndex;
+use App\Livewire\Tickets\TicketsIndex;
+use App\Livewire\Clients\ClientsIndex;
+use App\Livewire\Dashboard\DashboardIndex;
+use App\Http\Controllers\Auth\VerifyEmailController;
 
 
 
@@ -38,10 +38,9 @@ Route::middleware('auth')->group(function () {
         ->name('password.confirm');
 
     Route::get('dashboard', DashboardIndex::class)->name('dashboard');
-    //Route::get('devices', ClientsIndex::class)->name('clients.index');
+    Route::get('clients', ClientsIndex::class)->name('clients.index');
     Route::get('tasks', TasksIndex::class)->name('tasks.index');
-    Route::get('devices', DevicesIndex::class)->name('devices.index');
-    Route::get('customers', CustomersIndex::class)->name('customers.index');
+    Route::get('products', ProductsIndex::class)->name('products.index');
     Route::get('tickets', TicketsIndex::class)->name('tickets.index');
 
 

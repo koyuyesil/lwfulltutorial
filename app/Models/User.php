@@ -3,10 +3,10 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Foundation\Auth\User as Authenticatable;
 
 class User extends Authenticatable
 {
@@ -52,21 +52,18 @@ class User extends Authenticatable
         return $this->hasMany(Task::class);
     }
 
-    public function devices(): HasMany
+    public function products(): HasMany
     {
-        return $this->hasMany(Device::class);
+        return $this->hasMany(Product::class);
     }
 
-    public function customers()
+    public function clients()
     {
-        return $this->hasMany(Customer::class);
+        return $this->hasMany(Client::class);
     }
 
-    public function customersDevice()
+    public function clientsProducts()
     {
-        return $this->hasMany(CustomerDevice::class);
+        return $this->hasMany(ClientProduct::class);
     }
-
-
-
 }

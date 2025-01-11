@@ -3,24 +3,24 @@
     <h3>Yeni Kayıt Ekle</h3>
 
     {{-- Müşteri Seçim Alanı --}}
-    <select wire:model.live="selectedCustomer">
+    <select wire:model.live="selectedClient">
         <option value="">Müşteri Seç</option>
-        @foreach ($customers as $customer)
-            <option value="{{ $customer->id }}">{{ $customer->fname }} {{ $customer->lname }}</option>
+        @foreach ($clients as $client)
+            <option value="{{ $client->id }}">{{ $client->first_name }} {{ $client->last_name }}</option>
         @endforeach
     </select>
     {{-- Cihaz Seçim Alanı --}}
-    <select wire:model.live="selectedDevice">
+    <select wire:model.live="selectedProduct">
         <option value="">Cihaz Seç</option>
-        @foreach ($devices as $device)
-            <option value="{{ $device->id }}">{{ $device->model_name }} ({{ $device->model_number }})</option>
+        @foreach ($products as $product)
+            <option value="{{ $product->id }}">{{ $product->model_name }} ({{ $product->model_number }})</option>
         @endforeach
     </select>
 
     {{-- Yeni Müşteri Ekleme Formu --}}
-    <form wire:submit.prevent="createCustomerAndDevice">
-        <input type="text" wire:model.live="fname" placeholder="Müşteri Adı">
-        <input type="text" wire:model.live="lname" placeholder="Müşteri Soyadı">
+    <form wire:submit.prevent="createClientAndProduct">
+        <input type="text" wire:model.live="first_name" placeholder="Müşteri Adı">
+        <input type="text" wire:model.live="last_name" placeholder="Müşteri Soyadı">
         <input type="text" wire:model.live="company" placeholder="Şirket">
         <input type="text" wire:model.live="phone" placeholder="Telefon">
         <input type="email" wire:model.live="email" placeholder="Mail">

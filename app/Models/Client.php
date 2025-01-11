@@ -31,7 +31,7 @@ class Client extends Model
         parent::setAttribute($key, $value);
     }
 
-    public function clientProducts()
+    public function clientsProducts()
     {
         return $this->hasMany(ClientProduct::class);
     }
@@ -52,13 +52,13 @@ class Client extends Model
             switch ($strategy) {
                 case 'delete':
                     // Cihazları tamamen sil
-                    $client->clientProducts()->delete();
+                    $client->clientsProducts()->delete();
                     break;
 
                 case 'reassign':
                     // Cihazları başka bir kullanıcıya ata
                     $defaultUserId = config('client_product.default_user_id');
-                    $client->clientProducts()->update(['user_id' => $defaultUserId]);
+                    $client->clientsProducts()->update(['user_id' => $defaultUserId]);
                     break;
 
                 case 'archive':

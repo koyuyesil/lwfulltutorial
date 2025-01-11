@@ -33,11 +33,11 @@ new class extends Component
                     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')" wire:navigate>
                         {{ __('Dashboard') }}
                     </x-nav-link>
-                    <x-nav-link :href="route('devices.index')" :active="request()->routeIs('devices.index')" wire:navigate>
-                        {{ __('Devices') }}
+                    <x-nav-link :href="route('products.index')" :active="request()->routeIs('products.index')" wire:navigate>
+                        {{ __('Products') }}
                     </x-nav-link>
-                    <x-nav-link :href="route('customers.index')" :active="request()->routeIs('customers.index')" wire:navigate>
-                        {{ __('Customers') }}
+                    <x-nav-link :href="route('clients.index')" :active="request()->routeIs('clients.index')" wire:navigate>
+                        {{ __('Clients') }}
                     </x-nav-link>
                     <x-nav-link :href="route('tickets.index')" :active="request()->routeIs('tickets.index')" wire:navigate>
                         {{ __('Tickets') }}
@@ -99,11 +99,11 @@ new class extends Component
             <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')" wire:navigate>
                 {{ __('Dashboard') }}
             </x-responsive-nav-link>
-            <x-responsive-nav-link :href="route('devices.index')" :active="request()->routeIs('devices.index')" wire:navigate>
-                {{ __('Devices') }}
+            <x-responsive-nav-link :href="route('products.index')" :active="request()->routeIs('products.index')" wire:navigate>
+                {{ __('Products') }}
             </x-responsive-nav-link>
-            <x-responsive-nav-link :href="route('customers.index')" :active="request()->routeIs('customers.index')" wire:navigate>
-                {{ __('Customers') }}
+            <x-responsive-nav-link :href="route('clients.index')" :active="request()->routeIs('clients.index')" wire:navigate>
+                {{ __('Clients') }}
             </x-responsive-nav-link>
             <x-responsive-nav-link :href="route('tickets.index')" :active="request()->routeIs('tickets.index')" wire:navigate>
                 {{ __('Tickets') }}

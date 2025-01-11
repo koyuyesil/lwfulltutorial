@@ -2,171 +2,185 @@
 
 namespace App\Livewire\Tickets;
 
-use Livewire\Component;
-use App\Models\Customer;
-use App\Models\CustomerDevice;
+use App\Models\Client;
 use App\Models\Ticket;
-use App\Models\Device;
+use App\Models\Product;
+use Livewire\Component;
+use App\Models\ClientProduct;
 use Illuminate\Support\Facades\Auth;
 
 class TicketsForm extends Component
 {
-    public $customers = [];
-    public $selectedCustomer;
-    public $devices = [];
-    public $selectedDevice;
-    public $tickets = [];
-    public $selectedcustomerDevice;
+    public $clients = []; // Kullanıcının sahip olduğu tüm müşteriler
+    public $selectedClient; // Seçilen müşteri (ID)
+    public $products = []; // Kullanıcının sahip olduğu tüm ürünler
+    public $selectedProduct; // Seçilen ürün (ID)
+    public $tickets = []; // Kullanıcının arıza kayıtları
+    public $selectedClientProduct; // Seçilen müşteri-ürün ilişkisi (ID)
 
-    // Customer fields
-    public $fname;
-    public $lname;
-    public $company;
-    public $phone;
-    public $email;
-    public $address;
+    // Client (Müşteri) alanları
+    public $first_name; // Müşteri adı
+    public $last_name; // Müşteri soyadı
+    public $company; // Şirket adı
+    public $phone; // Telefon numarası
+    public $email; // E-posta adresi
+    public $address; // Adres
 
-    // Device fields
-    public $manufacturer;
-    public $brand;
-    public $model_name;
-    public $model_number;
-    public $description;
+    // Product (Ürün) alanları
+    public $manufacturer; // Üretici
+    public $brand; // Marka
+    public $model_name; // Model ismi
+    public $model_number; // Model numarası
+    public $description; // Ürün açıklaması
 
-    //CustomerDevice fields
-    public $serial;
-    public $imei;
-    public $color;
+    // ClientProduct (Müşteri-Ürün) alanları
+    public $serial; // Seri numarası
+    public $imei; // IMEI numarası
+    public $color; // Renk
 
-    //ticket fields
-    public $problem;
-    public $priority;
+    // Ticket (Arıza Kaydı) alanları
+    public $problem; // Arıza açıklaması
+    public $priority; // Arıza önceliği
 
+    // Bileşen yüklendiğinde ilk olarak müşterileri ve ürünleri yükle
     public function mount()
     {
-        $this->loadCustomers();
-        $this->loadDevices();
+        $this->loadClients();
+        $this->loadProducts();
     }
 
-    public function loadCustomers()
+    // Kullanıcının müşterilerini yükler
+    public function loadClients()
     {
-        $this->customers = Auth::user()->customers()->get();
+        $this->clients = Auth::user()->clients()->get(); // Kullanıcıya ait müşterileri al
     }
 
-    public function loadDevices()
+    // Kullanıcının ürünlerini yükler
+    public function loadProducts()
     {
-        $this->devices = Auth::user()->devices()->get();
+        $this->products = Auth::user()->products()->get(); // Kullanıcıya ait ürünleri al
     }
 
-    public function updatedSelectedCustomer()
+    // Seçilen müşteri değiştiğinde çağrılan metot
+    public function updatedselectedClient()
     {
-        if ($this->selectedCustomer) {
-            $customer = Customer::find($this->selectedCustomer);
+        if ($this->selectedClient) {
+            $client = Client::find($this->selectedClient); // Seçilen müşteri ID'siyle müşteri bilgilerini al
 
-            if ($customer) {
-                $this->fname = $customer->fname;
-                $this->lname = $customer->lname;
-                $this->company = $customer->company;
-                $this->phone = $customer->phone;
-                $this->email = $customer->email;
-                $this->address = $customer->address;
-                $this->loadDevices();
+            if ($client) {
+                // Müşteri bilgilerini form alanlarına at
+                $this->first_name = $client->first_name;
+                $this->last_name = $client->last_name;
+                $this->company = $client->company;
+                $this->phone = $client->phone;
+                $this->email = $client->email;
+                $this->address = $client->address;
+                $this->loadProducts(); // Müşteri seçildiğinde ürünleri de yükle
             } else {
-                $this->reset();
+                $this->reset(); // Müşteri bulunamazsa formu sıfırla
             }
         } else {
-            $this->reset();
+            $this->reset(); // Müşteri seçilmezse formu sıfırla
         }
     }
 
-    public function updatedSelectedDevice()
+    // Seçilen ürün değiştiğinde çağrılan metot
+    public function updatedselectedProduct()
     {
-        if ($this->selectedDevice) {
-            $device = Device::find($this->selectedDevice);
+        if ($this->selectedProduct) {
+            $product = Product::find($this->selectedProduct); // Seçilen ürün ID'siyle ürün bilgilerini al
 
-            if ($device) {
-                $this->manufacturer = $device->manufacturer;
-                $this->brand = $device->brand;
-                $this->model_name = $device->model_name;
-                $this->model_number = $device->model_number;
-                $this->description = $device->description;
+            if ($product) {
+                // Ürün bilgilerini form alanlarına at
+                $this->manufacturer = $product->manufacturer;
+                $this->brand = $product->brand;
+                $this->model_name = $product->model_name;
+                $this->model_number = $product->model_number;
+                $this->description = $product->description;
             } else {
-                $this->reset();
+                $this->reset(); // Ürün bulunamazsa formu sıfırla
             }
         } else {
-            $this->reset();
+            $this->reset(); // Ürün seçilmezse formu sıfırla
         }
     }
 
-    public function createCustomerAndDevice()
+    // Yeni müşteri ve ürün oluşturma işlemi
+    public function createClientAndProduct()
     {
+        // Müşteri verisi için doğrulama
         $this->validate([
-            'fname' => 'required|string|max:255',
-            'lname' => 'required|string|max:255',
+            'first_name' => 'required|string|max:255',
+            'last_name' => 'required|string|max:255',
             'company' => 'nullable|string|max:255',
             'phone' => 'required|string|max:255',
             'email' => 'nullable|string|email|max:255',
             'address' => 'nullable|string|max:255',
         ]);
 
-        $customer = Auth::user()->customers()->create([
-            'fname' => $this->fname,
-            'lname' => $this->lname,
+        // Yeni müşteri oluştur
+        $client = Auth::user()->clients()->create([
+            'first_name' => $this->first_name,
+            'last_name' => $this->last_name,
             'company' => $this->company,
             'phone' => $this->phone,
             'email' => $this->email,
             'address' => $this->address,
         ]);
 
-        $device = Auth::user()->devices()->create([
+        // Yeni ürün oluştur
+        $product = Auth::user()->products()->create([
             'manufacturer' => $this->manufacturer,
             'brand' => $this->brand,
             'model_name' => $this->model_name,
             'model_number' => $this->model_number,
             'description' => $this->description,
-
         ]);
 
-        //TODO EĞER HAZIR SEÇİLİRSE ONU EKLE TRANSACTİON KONTROLLERİNİ DE EKLE
-        $customerDevice = CustomerDevice::create([
+        // Müşteri ve ürün arasında ilişki oluştur
+        $clientProduct = ClientProduct::create([
             'user_id' => Auth::id(),
-            'customer_id' => $customer->id,
-            'device_id' => $device->id,
+            'client_id' => $client->id,
+            'product_id' => $product->id,
             'color' => $this->color,
             'serial' => $this->serial,
             'imei' => $this->imei,
         ]);
 
-        $this->selectedCustomer = $customer->id;
-        $this->selectedDevice = $device->id;
-        $this->selectedcustomerDevice = $customerDevice->id;
-
-
+        // Seçilen müşteri ve ürün bilgilerini güncelle
+        $this->selectedClient = $client->id;
+        $this->selectedProduct = $product->id;
+        $this->selectedClientProduct = $clientProduct->id;
     }
 
+    // Arıza kaydını oluşturma işlemi
     public function createTicket()
     {
+        // Arıza kaydı için doğrulama
         $this->validate([
-            'selectedCustomer' => 'required|exists:customers,id',
-            'selectedDevice' => 'required|exists:devices,id',
+            'selectedClient' => 'required|exists:clients,id',
+            'selectedProduct' => 'required|exists:products,id',
             'problem' => 'required|string|min:10',
             'priority' => 'required|string|in:low,medium,high',
         ]);
 
+        // Yeni arıza kaydı oluştur
         Ticket::create([
-            'customer_device_id' => $this->selectedcustomerDevice,
+            'client_product_id' => $this->selectedClientProduct,
             'problem' => $this->problem,
             'priority' => $this->priority,
             'status' => 'pending',
         ]);
 
+        // Formu sıfırla ve tekrar yükle
         $this->reset();
-        $this->loadCustomers();
-        $this->loadDevices();
+        $this->loadClients();
+        $this->loadProducts();
     }
 
+    // Bileşenin render edilmesini sağlar (view dosyasını yükler)
     public function render()
     {
-        return view('livewire.tickets.tickets-form');
+        return view('livewire.tickets.tickets-form'); // Form görünümünü döndür
     }
 }

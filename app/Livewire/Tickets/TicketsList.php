@@ -6,8 +6,7 @@ use Livewire\Component;
 use Livewire\WithPagination;
 use Livewire\Attributes\On;
 use App\Models\Ticket;
-use App\Models\Customer;
-use App\Models\Device;
+
 
 class TicketsList extends Component
 {
@@ -39,8 +38,10 @@ class TicketsList extends Component
         ->orderBy('updated_at', 'desc')
         ->paginate(10);
 
+        //dd($tickets);
+
         return view('livewire.tickets.tickets-list', [
-            // 'customers' => $customers, // İlişkili verileri eager loading ile alıyoruz.
+            // 'clients' => $clients, // İlişkili verileri eager loading ile alıyoruz.
             'tickets' => $tickets, // İlişkili verileri eager loading ile alıyoruz
         ]);
     }
