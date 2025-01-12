@@ -1,28 +1,45 @@
 <div>
     @foreach ($tickets as $ticket)
         <div class="p-2 bg-white dark:bg-gray-800 rounded-lg shadow-md mb-2">
-            {{-- Cihaz ve Müşteri Bilgileri --}}
+            {{-- Müşteri Bilgileri --}}
             <div class="flex items-center text-xs text-gray-600 dark:text-gray-400">
-                <span class="mr-2 font-medium text-gray-900 dark:text-white">
+                <span class="mr-2">
+                    <strong>Client:</strong>
                     {{ $ticket->clientProduct->client->company ? $ticket->clientProduct->client->company : $ticket->clientProduct->client->fname . ' ' . $ticket->clientProduct->client->lname }}
                 </span>
-                <span class="mr-2">{{ $ticket->clientProduct->client->phone }}</span>
-                <span class="mr-2">{{ $ticket->clientProduct->client->email }}</span>
+                <span class="mr-2"><strong>Telefon:</strong>{{ $ticket->clientProduct->client->phone }}</span>
+                <span class="mr-2"><strong>E-posta:</strong>{{ $ticket->clientProduct->client->email }}</span>
+                <span class="mr-2"><strong>Adres:</strong>{{ $ticket->clientProduct->client->address }}</span>
             </div>
 
             {{-- Cihaz Bilgisi --}}
             <div class="flex items-center text-xs text-gray-600 dark:text-gray-400 mt-1">
-                <span class="mr-2">Product: {{ $ticket->clientProduct->product->brand }}
-                    {{ $ticket->clientProduct->product->model_name }}</span>
+                <span class="mr-2"><strong>Base Product #{{ $ticket->clientProduct->product->id }}</strong></span>
+                <span class="mr-2"><strong>Manufacturer:</strong>{{ $ticket->clientProduct->product->manufacturer }}</span>
+                <span class="mr-2"><strong>Brand:</strong>{{ $ticket->clientProduct->product->brand }}</span>
+                <span class="mr-2"><strong>Model Name:</strong>{{ $ticket->clientProduct->product->model_name }}
+                <span class="mr-2"><strong>Model Number:</strong>{{ $ticket->clientProduct->product->model_number }}</span>
+                {{-- <span class="mr-2"><strong>Description:</strong>{{ $ticket->clientProduct->product->description }}</span> --}}
+            </div>
+
+            {{-- Cihaz Dtaylı Bilgisi --}}
+            <div class="flex items-center text-xs text-gray-600 dark:text-gray-400 mt-1">
+                <span class="mr-2"><strong>Client Product #{{ $ticket->clientProduct->id }}</strong></span>
+                <span class="mr-2"><strong>Serial:</strong>{{ $ticket->clientProduct->serial }}</span>
+                <span class="mr-2"><strong>Imei:</strong>{{ $ticket->clientProduct->imei }}</span>
+                <span class="mr-2"><strong>Color:</strong>{{ $ticket->clientProduct->color }}
             </div>
 
             {{-- Ticket Bilgileri --}}
             <div class="flex items-center text-xs text-gray-600 dark:text-gray-400 mt-1">
                 <span class="mr-2"><strong>Ticket #{{ $ticket->id }}</strong></span>
-                <span class="mr-2">Status: {{ $ticket->status }}</span>
-                <span class="mr-2">Issue: {{ $ticket->problem }}</span>
-                <span>Created At: {{ $ticket->created_at }}</span>
+                <span class="mr-2"><strong>Priority:</strong>{{ $ticket->priority }}</span>
+                <span class="mr-2"><strong>Status:</strong>{{ $ticket->status }}</span>
+                <span class="mr-2"><strong>Issue:</strong>{{ $ticket->problem }}</span>
+                <span class="mr-2"><strong>Created At:</strong>{{ $ticket->created_at->format('d-m-Y H:i') }}</span>
+                <span class="mr-2"><strong>Updated At:</strong>{{ $ticket->updated_at->format('d-m-Y H:i') }}</span>
             </div>
+
             <div class="mt-3 flex justify-between">
                 <div>
                     @foreach (App\Enums\StatusType::cases() as $case)
@@ -30,15 +47,15 @@
                             @class([
                                 'inline-flex items-center px-4 py-2 bg-white border rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-25 transition ease-in-out duration-150',
                                 $case->color() => true, //enumlar kadar buton üretilir true ise sitil gelmesi yeterli demek
-                            ]) {{ $case->value == $ticket->status->value ? 'disabled' : '' }}>
+                            ])
+                            {{ $case->value == $ticket->status->value ? 'disabled' : '' }}>
                             {{ Str::of($case->value)->headline() }}
                         </button>
                     @endforeach
                 </div>
                 <div class="flex justify-between items-center">
                     <button type="button" wire:click="$dispatch('edit', {id: {{ $ticket->id }}})"
-                        class="flex items-center text-teal-700 hover:text-white border border-teal-700 hover:bg-teal-800 focus:ring-4 focus:outline-none focus:ring-teal-300 font-medium rounded-lg text-sm px-4 py-2  me-2 mb-2 dark:border-teal-500 dark:text-teal-500 dark:hover:text-white dark:hover:bg-teal-600 dark:focus:ring-teal-900"
-
+                        class="flex items-center text-teal-700 hover:text-white border border-teal-700 hover:bg-teal-800 focus:ring-4 focus:outline-none focus:ring-teal-300 font-medium rounded-lg text-sm px-4 py-2  me-2 mb-2 dark:border-teal-500 dark:text-teal-500 dark:hover:text-white dark:hover:bg-teal-600 dark:focus:ring-teal-900">
                         <svg class="w-4 h-4 me-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
                             fill="currentColor" aria-hidden="true">
                             <path fill-rule="evenodd"
@@ -63,8 +80,8 @@
         </div>
     @endforeach
 </div>
+
 {{-- Pagination --}}
 <div class="mt-4">
     {{ $tickets->links() }}
-</div>
 </div>
