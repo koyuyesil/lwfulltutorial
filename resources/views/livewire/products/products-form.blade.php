@@ -1,42 +1,42 @@
 <div>
     <form wire:submit="save" class="mt-6 space-y-4">
         <!-- Manufacturer -->
-        <div>
+        <div class="mb-4">
             <x-input-label for="manufacturer" :value="__('Manufacturer')" class="text-sm" />
             <x-text-input wire:model.live="form.manufacturer" id="manufacturer" name="manufacturer" type="text"
-                class="mt-1 block w-full text-sm py-1 px-2" />
+                class="mt-1 block w-full text-sm py-1 px-2 border-gray-300 rounded-md" />
             <x-input-error :messages="$errors->get('form.manufacturer')" class="mt-1 text-sm" />
         </div>
 
         <!-- Brand -->
-        <div>
+        <div class="mb-4">
             <x-input-label for="brand" :value="__('Brand')" class="text-sm" />
             <x-text-input wire:model.live="form.brand" id="brand" name="brand" type="text"
-                class="mt-1 block w-full text-sm py-1 px-2" />
+                class="mt-1 block w-full text-sm py-1 px-2 border-gray-300 rounded-md" />
             <x-input-error :messages="$errors->get('form.brand')" class="mt-1 text-sm" />
         </div>
 
         <!-- Model Name -->
-        <div>
+        <div class="mb-4">
             <x-input-label for="model_name" :value="__('Model Name')" class="text-sm" />
             <x-text-input wire:model.live="form.model_name" id="model_name" name="model_name" type="text"
-                class="mt-1 block w-full text-sm py-1 px-2" />
+                class="mt-1 block w-full text-sm py-1 px-2 border-gray-300 rounded-md" />
             <x-input-error :messages="$errors->get('form.model_name')" class="mt-1 text-sm" />
         </div>
 
         <!-- Model Number -->
-        <div>
+        <div class="mb-4">
             <x-input-label for="model_number" :value="__('Model Number')" class="text-sm" />
             <x-text-input wire:model.live="form.model_number" id="model_number" name="model_number" type="text"
-                class="mt-1 block w-full text-sm py-1 px-2" />
+                class="mt-1 block w-full text-sm py-1 px-2 border-gray-300 rounded-md" />
             <x-input-error :messages="$errors->get('form.model_number')" class="mt-1 text-sm" />
         </div>
 
         <!-- Description -->
-        <div>
+        <div class="mb-4">
             <x-input-label for="description" :value="__('Description')" class="text-sm" />
             <x-text-input wire:model.live="form.description" id="description" name="description" type="text"
-                class="mt-1 block w-full text-sm py-1 px-2" />
+                class="mt-1 block w-full text-sm py-1 px-2 border-gray-300 rounded-md" />
             <x-input-error :messages="$errors->get('form.description')" class="mt-1 text-sm" />
         </div>
 

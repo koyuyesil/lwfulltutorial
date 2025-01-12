@@ -1,59 +1,80 @@
 <div>
     {{-- Müşteri Ekleme Alanı --}}
-    <h3>Yeni Kayıt Ekle</h3>
+    <h3 class=" mt-4 text-md font-semibold">Mevcut Kayıttan Seç</h3>
 
     {{-- Müşteri Seçim Alanı --}}
-    <select wire:model.live="selectedClient">
-        <option value="">Müşteri Seç</option>
-        @foreach ($clients as $client)
-            <option value="{{ $client->id }}">{{ $client->first_name }} {{ $client->last_name }}</option>
-        @endforeach
-    </select>
+    <div>
+        <x-input-label for="selectedClient" :value="__('Müşteri Seç')" class="text-sm" />
+        <select wire:model.live="selectedClient" id="selectedClient" class="mt-1 block w-full text-sm py-1 px-2 border-gray-300 rounded-md">
+            <option value="">Müşteri Seç</option>
+            @foreach ($clients as $client)
+                <option value="{{ $client->id }}">{{ $client->first_name }} {{ $client->last_name }}</option>
+            @endforeach
+        </select>
+        <x-input-error :messages="$errors->get('selectedClient')" class="mt-1 text-sm" />
+    </div>
+
     {{-- Cihaz Seçim Alanı --}}
-    <select wire:model.live="selectedProduct">
-        <option value="">Cihaz Seç</option>
-        @foreach ($products as $product)
-            <option value="{{ $product->id }}">{{ $product->model_name }} ({{ $product->model_number }})</option>
-        @endforeach
-    </select>
+    <div>
+        <x-input-label for="selectedProduct" :value="__('Cihaz Seç')" class="text-sm" />
+        <select wire:model.live="selectedProduct" id="selectedProduct" class="mt-1 block w-full text-sm py-1 px-2 border-gray-300 rounded-md">
+            <option value="">Cihaz Seç</option>
+            @foreach ($products as $product)
+                <option value="{{ $product->id }}">{{ $product->model_name }} ({{ $product->model_number }})</option>
+            @endforeach
+        </select>
+        <x-input-error :messages="$errors->get('selectedProduct')" class="mt-1 text-sm" />
+    </div>
 
+    {{-- TODO FORM ERROR FIELDS --}}
     {{-- Yeni Müşteri Ekleme Formu --}}
-    <form wire:submit.prevent="createClientAndProduct">
-        <input type="text" wire:model.live="first_name" placeholder="Müşteri Adı">
-        <input type="text" wire:model.live="last_name" placeholder="Müşteri Soyadı">
-        <input type="text" wire:model.live="company" placeholder="Şirket">
-        <input type="text" wire:model.live="phone" placeholder="Telefon">
-        <input type="email" wire:model.live="email" placeholder="Mail">
-        <input type="text" wire:model.live="address" placeholder="Adres">
+    <form wire:submit.prevent="createClientAndProduct" class="mt-4 space-y-4">
+        <h3 class="text-md font-semibold">Müşteri Bilgileri</h3>
+        <x-text-input wire:model.live="first_name" id="first_name" placeholder="Müşteri Adı" class="block w-full text-sm py-1 px-2" />
+        <x-text-input wire:model.live="last_name" id="last_name" placeholder="Müşteri Soyadı" class="block w-full text-sm py-1 px-2" />
+        <x-text-input wire:model.live="company" id="company" placeholder="Şirket" class="block w-full text-sm py-1 px-2" />
+        <x-text-input wire:model.live="phone" id="phone" placeholder="Telefon" class="block w-full text-sm py-1 px-2" />
+        <x-text-input wire:model.live="email" id="email" placeholder="Mail" class="block w-full text-sm py-1 px-2" />
+        <x-text-input wire:model.live="address" id="address" placeholder="Adres" class="block w-full text-sm py-1 px-2" />
 
-        {{-- Cihaz Bilgileri --}}
-        <h3>Cihaz Bilgileri</h3>
-        <input type="text" wire:model.live="manufacturer" placeholder="Üretici">
-        <input type="text" wire:model.live="brand" placeholder="Marka">
-        <input type="text" wire:model.live="model_name" placeholder="Model Adı">
-        <input type="text" wire:model.live="model_number" placeholder="Model Numarası">
-        <input type="text" wire:model.live="description" placeholder="Açıklama">
-        <input type="text" wire:model.live="serial" placeholder="Serial">
-        <input type="text" wire:model.live="imei" placeholder="IMEI">
-        <input type="text" wire:model.live="color" placeholder="Renk">
+        <h3 class="text-md font-semibold">Cihaz Bilgileri</h3>
+        <x-text-input wire:model.live="manufacturer" id="manufacturer" placeholder="Üretici" class="block w-full text-sm py-1 px-2" />
+        <x-text-input wire:model.live="brand" id="brand" placeholder="Marka" class="block w-full text-sm py-1 px-2" />
+        <x-text-input wire:model.live="model_name" id="model_name" placeholder="Model Adı" class="block w-full text-sm py-1 px-2" />
+        <x-text-input wire:model.live="model_number" id="model_number" placeholder="Model Numarası" class="block w-full text-sm py-1 px-2" />
+        <x-text-input wire:model.live="description" id="description" placeholder="Açıklama" class="block w-full text-sm py-1 px-2" />
+        <x-text-input wire:model.live="serial" id="serial" placeholder="Serial" class="block w-full text-sm py-1 px-2" />
+        <x-text-input wire:model.live="imei" id="imei" placeholder="IMEI" class="block w-full text-sm py-1 px-2" />
+        <x-text-input wire:model.live="color" id="color" placeholder="Renk" class="block w-full text-sm py-1 px-2" />
 
-        <button type="submit">Kaydet</button>
+        <div class="flex justify-between">
+            <button type="submit" class="flex py-1 px-3 bg-indigo-500 hover:bg-indigo-600 text-sm text-white rounded-md">
+                Kaydet
+                <div wire:loading>
+                    <x-koyu-svg-loading />
+                </div>
+            </button>
+        </div>
     </form>
 
     {{-- Arıza Detayları --}}
-    <h3>Arıza Kaydı</h3>
-    <textarea wire:model="problem" placeholder="Arıza Detayı"></textarea></br>
-    <select wire:model="priority">
+    <h3 class="text-md font-semibold mt-6">Arıza Kaydı</h3>
+    <textarea wire:model="problem" placeholder="Arıza Detayı" class="block w-full text-sm py-1 px-2 border-gray-300 rounded-md"></textarea>
+    <select wire:model="priority" class="mt-2 block w-full text-sm py-1 px-2 border-gray-300 rounded-md">
         <option value="">Öncelik Seç</option>
         <option value="low">Düşük</option>
         <option value="medium">Orta</option>
         <option value="high">Yüksek</option>
     </select>
-    <select wire:model="status">
+    <select wire:model="status" class="mt-2 block w-full text-sm py-1 px-2 border-gray-300 rounded-md">
         <option value="">Durum</option>
-        <option value="low">Açık</option>
-        <option value="medium">İşlemde</option>
-        <option value="high">Bitti</option>
+        <option value="open">Açık</option>
+        <option value="in-progress">İşlemde</option>
+        <option value="closed">Bitti</option>
     </select>
-    <button type="button" wire:click="create">Arıza Kaydı Oluştur</button>
+    <div class="flex justify-between mt-4">
+        <button type="button" wire:click="create" class="py-1 px-3 bg-green-500 hover:bg-green-600 text-sm text-white rounded-md">
+            Arıza Kaydı Oluştur
+        </button>
+    </div>
 </div>
