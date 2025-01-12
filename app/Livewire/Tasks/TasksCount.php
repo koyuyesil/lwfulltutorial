@@ -2,8 +2,8 @@
 
 namespace App\Livewire\Tasks;
 
-use Livewire\Attributes\Reactive;
 use Livewire\Component;
+use Livewire\Attributes\Reactive;
 
 class TasksCount extends Component
 {

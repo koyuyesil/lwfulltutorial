@@ -6,6 +6,8 @@ use App\Models\Client;
 use App\Models\Ticket;
 use App\Models\Product;
 use Livewire\Component;
+use App\Enums\StatusType;
+use App\Enums\PriorityType;
 use App\Models\ClientProduct;
 use Illuminate\Support\Facades\Auth;
 
@@ -40,8 +42,10 @@ class TicketsForm extends Component
 
     // Ticket (Arıza Kaydı) alanları
     public $problem; // Arıza açıklaması
-    public $priority; // Arıza önceliği
-    public $status; // Arıza durumu
+
+    public StatusType $status = StatusType::OPEN;
+
+    public PriorityType $priority = PriorityType::LOW;
 
     // Bileşen yüklendiğinde ilk olarak müşterileri ve ürünleri yükle
     public function mount()
@@ -162,8 +166,8 @@ class TicketsForm extends Component
             'selectedClient' => 'required|exists:clients,id',
             'selectedProduct' => 'required|exists:products,id',
             'problem' => 'required|string|min:5',
-            //'priority' => 'required|string|in:low,medium,high',
-            //'status' => 'required|string|in:open,in_progress,done',
+            'priority' => 'required',
+            'status' => 'required',
         ]);
 
         // Yeni arıza kaydı oluştur

@@ -2,12 +2,12 @@
 
 namespace App\Livewire\Tasks;
 
-use Livewire\Component;
-use Livewire\WithPagination;
-use Livewire\Attributes\On;
 use App\Models\Task;
-use Illuminate\Support\Facades\Auth;
+use Livewire\Component;
+use Livewire\Attributes\On;
+use Livewire\WithPagination;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 
 class TasksList extends Component
 {
@@ -27,6 +27,7 @@ class TasksList extends Component
     {
         $task->delete();
     }
+
     #[On('task-created')]
     public function render()
     {
