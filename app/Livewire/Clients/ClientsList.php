@@ -6,6 +6,9 @@ use App\Models\Client;
 use Livewire\Component;
 use Livewire\Attributes\On;
 use Livewire\WithPagination;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
+
 class ClientsList extends Component
 {
     use WithPagination;
@@ -19,14 +22,17 @@ class ClientsList extends Component
         $client->delete();
     }
 
-    #[On('client-created')]
+    #[On('created')]
     public function render()
     {
-        //$clients = Client::query()->paginate(3)
         // Müşterileri ve her müşterinin cihazlarını alıyoruz.
-        $clients = Client::with('clientsProducts.product')->paginate(3); // Pagination ekleniyor
+        $clients = Auth::user()->clients()->with('clientsProducts.product')->paginate(3); // Pagination ekleniyor
         return view('livewire.clients.clients-list', [
-            'clients' => $clients,  // Eager loading kullanarak ilişkili cihazları alıyoruz
+            'clients' => $clients,  // Eager loading kullanarak ilişkili cihazları alıyoruz.
+            'clientsByCompany' => Auth::user()->clients()->select('company', DB::raw('COUNT(*) as count'))
+                ->groupBy('company')
+                ->orderBy('company', 'desc')
+                ->get()
         ]);
     }
 }

@@ -24,19 +24,13 @@ class TicketsList extends Component
     #[On('ticket-created')]
     public function render()
     {
-        // // Müşterileri ve her bir cihazı ve her cihazın ticket'larını alıyoruz
-        // $client = Client::with([
-        //     'clientProduct.product', // Cihaza ait bilgiler
-        //     'clientProduct.client', // Müşteri bilgileri
-        // ])->paginate(3);
-
         // Ticket'ları, müşteri, cihaz ve cihaz bilgisi ile alıyoruz
-        $tickets = Ticket::with([
+        $tickets = auth()->user()->tickets()->with([
             'clientProduct.product', // Cihaza ait bilgiler
             'clientProduct.client', // Müşteri bilgileri
         ])
-        ->orderBy('updated_at', 'desc')
-        ->paginate(10);
+            ->orderBy('updated_at', 'desc')
+            ->paginate(10);
 
         //dd($tickets);
 

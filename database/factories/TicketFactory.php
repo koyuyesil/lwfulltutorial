@@ -18,6 +18,7 @@ class TicketFactory extends Factory
     {
         $status = ['open', 'in_progress', 'done'];
         return [
+            'user_id' => 1,
             'problem' => fake()->jobTitle(),
             'priority' => fake()->colorName(),
             'status' => $status[array_rand($status)],

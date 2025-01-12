@@ -9,7 +9,13 @@ class Ticket extends Model
 {
     /** @use HasFactory<\Database\Factories\TicketFactory> */
     use HasFactory;
-    protected $fillable = ['client_product_id', 'problem', 'priority', 'status'];
+    protected $fillable = ['user_id','client_product_id', 'problem', 'priority', 'status'];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
     public function clientProduct()
     {
         return $this->belongsTo(ClientProduct::class);

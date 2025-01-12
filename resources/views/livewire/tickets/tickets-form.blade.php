@@ -49,5 +49,11 @@
         <option value="medium">Orta</option>
         <option value="high">Yüksek</option>
     </select>
-    <button type="button" wire:click="createTicket">Arıza Kaydı Oluştur</button>
+    <select wire:model="status">
+        <option value="">Durum</option>
+        <option value="low">Açık</option>
+        <option value="medium">İşlemde</option>
+        <option value="high">Bitti</option>
+    </select>
+    <button type="button" wire:click="create">Arıza Kaydı Oluştur</button>
 </div>

@@ -1,5 +1,5 @@
 <?php
-
+use App\Models\User;
 use App\Models\ClientProduct;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
@@ -15,7 +15,8 @@ return new class extends Migration
         Schema::create('tickets', function (Blueprint $table) {
             $table->id();
 
-            $table->foreignIdFor(ClientProduct::class);
+            $table->foreignIdFor(User::class)->constrained()->onDelete('cascade');
+            $table->foreignIdFor(ClientProduct::class)->constrained()->onDelete('cascade');
             $table->string('problem');
             $table->string('priority');
             $table->string('status');

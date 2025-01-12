@@ -13,7 +13,7 @@
                     {{ __('Products') }}
                 </h2>
                 <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
-                    {{ __('List of products') }}
+                    {{ __('This is the base repository for all fundamental device models required for creating new service records. Only devices added here can be selected for service entries.') }}
                 </p>
             </header>
             <livewire:products.products-list lazy />
@@ -27,7 +27,7 @@
                     {{ __('Add New Product') }}
                 </h2>
                 <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
-                    {{ __('Add a new product') }}
+                    {{ __('All fields are mandatory to ensure complete and accurate data for each device.') }}
                 </p>
             </header>
             <livewire:products.products-form />

@@ -41,6 +41,7 @@ class TicketsForm extends Component
     // Ticket (Arıza Kaydı) alanları
     public $problem; // Arıza açıklaması
     public $priority; // Arıza önceliği
+    public $status; // Arıza durumu
 
     // Bileşen yüklendiğinde ilk olarak müşterileri ve ürünleri yükle
     public function mount()
@@ -154,22 +155,24 @@ class TicketsForm extends Component
     }
 
     // Arıza kaydını oluşturma işlemi
-    public function createTicket()
+    public function create()
     {
         // Arıza kaydı için doğrulama
         $this->validate([
             'selectedClient' => 'required|exists:clients,id',
             'selectedProduct' => 'required|exists:products,id',
-            'problem' => 'required|string|min:10',
-            'priority' => 'required|string|in:low,medium,high',
+            'problem' => 'required|string|min:5',
+            //'priority' => 'required|string|in:low,medium,high',
+            //'status' => 'required|string|in:open,in_progress,done',
         ]);
 
         // Yeni arıza kaydı oluştur
         Ticket::create([
+            'user_id' => Auth::id(),
             'client_product_id' => $this->selectedClientProduct,
             'problem' => $this->problem,
             'priority' => $this->priority,
-            'status' => 'pending',
+            'status' => $this->status,
         ]);
 
         // Formu sıfırla ve tekrar yükle
