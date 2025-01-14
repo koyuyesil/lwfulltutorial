@@ -1,13 +1,15 @@
 <?php
 
-use Livewire\Volt\Volt;
-use App\Livewire\Tasks\TasksIndex;
-use Illuminate\Support\Facades\Route;
-use App\Livewire\Products\ProductsIndex;
-use App\Livewire\Tickets\TicketsIndex;
+use App\Http\Controllers\Auth\VerifyEmailController;
+use App\Livewire\BoardIds\BoardIdsIndex;
 use App\Livewire\Clients\ClientsIndex;
 use App\Livewire\Dashboard\DashboardIndex;
-use App\Http\Controllers\Auth\VerifyEmailController;
+use App\Livewire\Products\ProductsIndex;
+use App\Livewire\Tasks\TasksIndex;
+use App\Livewire\Tickets\TicketsIndex;
+use Illuminate\Support\Facades\Route;
+use Livewire\Volt\Volt;
+
 
 
 
@@ -42,6 +44,7 @@ Route::middleware('auth')->group(function () {
     Route::get('tasks', TasksIndex::class)->name('tasks.index');
     Route::get('products', ProductsIndex::class)->name('products.index');
     Route::get('tickets', TicketsIndex::class)->name('tickets.index');
+    Route::get('board-ids', BoardIdsIndex::class)->name('board-ids.index');
 
 
 });

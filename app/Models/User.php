@@ -67,6 +67,11 @@ class User extends Authenticatable
         return $this->hasMany(Ticket::class);
     }
 
+    public function boardIds()
+    {
+        return $this->hasMany(BoardId::class);
+    }
+
     public function tasks(): HasMany
     {
         return $this->hasMany(Task::class);

@@ -30,6 +30,11 @@ class Product extends Model
         return $this->hasMany(ClientProduct::class);
     }
 
+    public function boardIds(): HasMany
+    {
+        return $this->hasMany(BoardId::class);
+    }
+
     // TODO device'dan item silindiğinde customerDevices de başka bilinmeyen aygıt olarak aktarılsın
     protected static function booted()
     {
