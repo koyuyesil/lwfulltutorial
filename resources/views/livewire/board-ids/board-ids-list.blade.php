@@ -3,33 +3,46 @@
         <div class="overflow-x-auto">
             <table class="min-w-full border-collapse border border-gray-300 dark:border-gray-700">
                 <thead>
-                    <tr class="bg-gray-100 dark:bg-gray-800 text-xs font-semibold uppercase text-gray-700 dark:text-gray-300">
+                    <tr
+                        class="bg-gray-100 dark:bg-gray-800 text-xs font-semibold uppercase text-gray-700 dark:text-gray-300">
 
-                        <th class="border border-gray-300 dark:border-gray-700 px-4 py-2 text-left">build_name</th>
-                        <th class="border border-gray-300 dark:border-gray-700 px-4 py-2 text-left">Brand</th>
                         <th class="border border-gray-300 dark:border-gray-700 px-4 py-2 text-left">Model</th>
-                        <th class="border border-gray-300 dark:border-gray-700 px-4 py-2 text-left">Model No</th>
+                        <th class="border border-gray-300 dark:border-gray-700 px-4 py-2 text-left">Build Name</th>
+                        <th class="border border-gray-300 dark:border-gray-700 px-4 py-2 text-left">Mass-Prod. HWID</th>
+                        <th class="border border-gray-300 dark:border-gray-700 px-4 py-2 text-left">Pre-Prod. HWID</th>
+                        <th class="border border-gray-300 dark:border-gray-700 px-4 py-2 text-left">Repair Methods</th>
+                        <th class="border border-gray-300 dark:border-gray-700 px-4 py-2 text-left">Resistances</th>
                         <th class="border border-gray-300 dark:border-gray-700 px-4 py-2 text-left">Description</th>
                         <th class="border border-gray-300 dark:border-gray-700 px-4 py-2 text-center">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach ($boardIds as $boardId)
-                        <tr class="text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition">
+                        <tr
+                            class="text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition">
                             <td class="border border-gray-300 dark:border-gray-700 px-4 py-2">
-                                {{ $boardId->build_name }}
+                                {{ $boardId->product->manufacturer }}
+                                {{ $boardId->product->brand }}
+                                {{ $boardId->product->model_name }}
+                                {{ $boardId->product->model_number }}
                             </td>
                             <td class="border border-gray-300 dark:border-gray-700 px-4 py-2">
                                 {{ $boardId->build_name }}
                             </td>
                             <td class="border border-gray-300 dark:border-gray-700 px-4 py-2">
-                                {{ $boardId->build_name }}
+                                {{ $boardId->mass_production_hwid }}
                             </td>
                             <td class="border border-gray-300 dark:border-gray-700 px-4 py-2">
-                                {{ $boardId->build_name }}
+                                {{ $boardId->pre_production_hwid }}
                             </td>
                             <td class="border border-gray-300 dark:border-gray-700 px-4 py-2">
-                                {{ $boardId->build_name }}
+                                {{ $boardId->repair_methods }}
+                            </td>
+                            <td class="border border-gray-300 dark:border-gray-700 px-4 py-2">
+                                {{ $boardId->resistances }}
+                            </td>
+                            <td class="border border-gray-300 dark:border-gray-700 px-4 py-2">
+                                {{ $boardId->description }}
                             </td>
                             <td class="border border-gray-300 dark:border-gray-700 px-4 py-2 text-center">
                                 <div class="flex justify-center space-x-4">
@@ -43,6 +56,12 @@
                                         Delete
                                     </button>
                                 </div>
+                            </td>
+                        </tr>
+                        <tr
+                            class="text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition">
+                            <td class="border border-gray-300 dark:border-gray-700 px-4 py-2">
+                                Description
                             </td>
                         </tr>
                     @endforeach

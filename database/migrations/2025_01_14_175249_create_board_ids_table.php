@@ -1,10 +1,11 @@
 <?php
 
-use App\Models\Product;
 use App\Models\User;
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
+use App\Models\Product;
+use App\Enums\RepairMethod;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Migrations\Migration;
 
 return new class extends Migration
 {
@@ -20,13 +21,15 @@ return new class extends Migration
             $table->foreignIdFor(Product::class)->constrained()->onDelete('cascade');
 
             $table->string('build_name');
-            $table->json('resistances')->nullable(); // R1 ve R2 değerlerini JSON olarak saklar
-            // $table->string('hwid_for_orginal');
-            // $table->string('hwid_for_rsa');
+            $table->json('resistances'); // R1 ve R2 değerlerini JSON olarak saklar
+            $table->string('repair_methods'); //meta,flash,patch,unlocked,locked,resistor
+            //$table->enum('repair_methods', array_column(RepairMethod::cases(), 'value'));
+            $table->string('mass_production_hwid');
+            $table->string('pre_production_hwid');
             // $table->string('pcb_view'); // Dosya yolu
             // $table->string('schematics'); // Dosya yolu
             // $table->string('solutions'); // Dosya yolu
-            // $table->string('description'); // Açıklama
+            $table->string('description'); // Açıklama
 
             $table->timestamps();
         });
