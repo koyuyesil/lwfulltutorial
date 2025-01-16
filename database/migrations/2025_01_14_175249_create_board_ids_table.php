@@ -22,8 +22,8 @@ return new class extends Migration
 
             $table->string('build_name');
             $table->json('resistances'); // R1 ve R2 değerlerini JSON olarak saklar
-            $table->string('repair_methods'); //meta,flash,patch,unlocked,locked,resistor
-            //$table->enum('repair_methods', array_column(RepairMethod::cases(), 'value'));
+            //$table->string('repair_methods'); //meta,flash,patch,unlocked,locked,resistor
+            $table->json('repair_methods'); //meta,flash,patch,unlocked,locked,resistor
             $table->string('mass_production_hwid');
             $table->string('pre_production_hwid');
             // $table->string('pcb_view'); // Dosya yolu

@@ -14,6 +14,7 @@ class BoardIdsForm extends Component
     public function save()
     {
         $this->form->validate();
+        $this->form->repair_methods = json_encode($this->form->repair_methods);//gpt önerdi çok güzel noktada
         $this->form->store();
 
         $this->dispatch('created');

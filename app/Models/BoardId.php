@@ -25,7 +25,9 @@ class BoardId extends Model
 
     ];
     protected $casts = [
-        'repair_methods' => RepairMethod::class,
+        // 'resistances' => 'array',
+        'repair_methods' => 'array',
+        //'repair_methods' => RepairMethod::class,
     ];
     public function product(): BelongsTo
     {

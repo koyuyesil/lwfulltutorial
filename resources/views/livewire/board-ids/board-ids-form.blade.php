@@ -33,21 +33,14 @@
             <x-input-error :messages="$errors->get('form.repair_methods')" class="mt-1 text-sm" />
         </div> --}}
 
-        <!-- Repair Methods -->
+        <!-- Repair Methods (Multiselect) -->
         <div class="mb-4">
             <x-input-label for="repair_methods" :value="__('Repair Methods')" class="text-sm" />
-            <x-text-input wire:model.live="form.repair_methods" id="repair_methods" name="repair_methods" type="text"
-                class="mt-1 block w-full text-sm py-1 px-2 border-gray-300 rounded-md" />
-            <div class="mt-1">
+            <select wire:model.live="form.repair_methods" id="repair_methods" name="repair_methods" multiple>
                 @foreach (App\Enums\RepairMethod::cases() as $method)
-                    <label class="inline-flex items-center mr-4">
-                        <input type="checkbox" value="{{ $method->value }}"
-                            class="repair-method-checkbox form-checkbox text-indigo-600"
-                            data-method="{{ $method->value }}" onchange="updateRepairMethods()">
-                        <span class="ml-2 text-sm">{{ $method->name }}</span>
-                    </label>
+                    <option value="{{ $method->value }}">{{ $method->name }}</option>
                 @endforeach
-            </div>
+            </select>
             <x-input-error :messages="$errors->get('form.repair_methods')" class="mt-1 text-sm" />
         </div>
 

@@ -27,7 +27,7 @@ class BoardIdForm extends Form
     public ?string $pre_production_hwid;
 
     #[Validate('required')]
-    public ?RepairMethod $repair_methods;
+    public $repair_methods=[];
 
     #[Validate('required')]
     public ?string $resistances;
