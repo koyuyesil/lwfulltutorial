@@ -2,6 +2,8 @@
 
 namespace Database\Factories;
 
+use App\Models\Product;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -17,7 +19,36 @@ class BoardIdFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            //'user_id' => User::factory(), // İlişkili kullanıcı oluşturulur
+            'user_id' => 1, // İlişkili kullanıcı oluşturulur
+            'product_id' => Product::factory(), // İlişkili ürün oluşturulur
+            'build_name' => $this->faker->word(), // Örnek isim oluşturulur
+            'resistances' => json_encode([
+                'R1' => $this->faker->randomFloat(2, 1, 100), // Örnek R1 değeri
+                'R2' => $this->faker->randomFloat(2, 1, 100), // Örnek R2 değeri
+            ]),
+            // 'repair_methods' => json_encode($this->faker->randomElements([
+            //     'meta',
+            //     'flash',
+            //     'patch',
+            //     'unlocked',
+            //     'locked',
+            //     'resistor'
+            // ], rand(2, 6))), // Rastgele tamir yöntemleri seçilir
+            'repair_methods' => $this->faker->randomElements([
+                'meta',
+                'flash',
+                'patch',
+                'unlocked',
+                'locked',
+                'resistor'
+            ], rand(2, 6)), // ["flash","patch","unlocked","locked"] Rastgele tamir yöntemleri dizisi
+            'mass_production_hwid' => $this->faker->uuid(), // Seri üretim HWID
+            'pre_production_hwid' => $this->faker->uuid(), // Ön üretim HWID
+            'description' => $this->faker->sentence(), // Örnek açıklama
+            'created_at' => now(),
+            'updated_at' => now(),
+
         ];
     }
 }
