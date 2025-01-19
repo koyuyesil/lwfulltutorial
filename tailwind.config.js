@@ -7,11 +7,13 @@ export default {
         './vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php',
         './storage/framework/views/*.php',
         './resources/views/**/*.blade.php',
+        './app/Enums/RepairMethod.php',
+        './app/Enums/StatusType.php',
     ],
     safelist: [
-        'border-blue-500',
-        'border-yellow-500',
-        'border-green-500',
+        // 'border-blue-500',
+        // 'border-yellow-500',
+        // 'border-green-500',
         // Diğer dinamik sınıflarınızı buraya ekleyebilirsiniz
       ],
     theme: {

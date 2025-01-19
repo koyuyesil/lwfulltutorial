@@ -45,8 +45,8 @@ new class extends Component
                     <x-nav-link :href="route('board-ids.index')" :active="request()->routeIs('board-ids.index')" wire:navigate>
                         {{ __('Board') }}
                     </x-nav-link>
-                    <x-nav-link :href="route('divider')" :active="request()->routeIs('divider')" wire:navigate>
-                        {{ __('Divider') }}
+                    <x-nav-link :href="route('tools.index')" :active="request()->routeIs('tools.index')" wire:navigate>
+                        {{ __('Tools') }}
                     </x-nav-link>
                     <x-nav-link :href="route('tasks.index')" :active="request()->routeIs('tasks.index')" wire:navigate>
                         {{ __('Tasks') }}

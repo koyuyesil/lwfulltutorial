@@ -50,25 +50,12 @@
                             class="text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition">
                             <td colspan="8" class="border border-gray-300 dark:border-gray-700 px-4 py-2 text-left">
                                 <p><strong>Repair Methods:</strong>
-                                    {{ implode(', ', $boardId->repair_methods ?? []) }}
-                                    @php
-                                        $classes = [
-                                            'meta' => 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300',
-                                            'flash' =>
-                                                'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300',
-                                            'patch' =>
-                                                'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300',
-                                            'unlocked' =>
-                                                'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300',
-                                            'locked' => 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300',
-                                            'resistor' =>
-                                                'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300',
-                                        ];
-                                    @endphp
-
+                                    {{-- {{ implode(', ', $boardId->repair_methods ?? []) }} --}}
                                     @foreach ($boardId->repair_methods as $method)
-                                        <span
-                                            class="text-xs font-medium me-2 px-2.5 py-0.5 rounded {{ $classes[$method] ?? 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300' }}">
+                                        @php
+                                            $class = App\Enums\RepairMethod::from($method)->color();
+                                        @endphp
+                                        <span class="text-xs font-medium me-2 px-2.5 py-0.5 rounded {{ $class }}">
                                             {{ ucfirst($method) }}
                                         </span>
                                     @endforeach

@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Enums\RepairMethod;
 use App\Models\Product;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -35,14 +36,9 @@ class BoardIdFactory extends Factory
             //     'locked',
             //     'resistor'
             // ], rand(2, 6))), // Rastgele tamir yöntemleri seçilir
-            'repair_methods' => $this->faker->randomElements([
-                'meta',
-                'flash',
-                'patch',
-                'unlocked',
-                'locked',
-                'resistor'
-            ], rand(2, 6)), // ["flash","patch","unlocked","locked"] Rastgele tamir yöntemleri dizisi
+            'repair_methods' => $this->faker->randomElements(
+                RepairMethod::cases(),
+                rand(2, 6)), // ["flash","patch","unlocked","locked"] Rastgele tamir yöntemleri dizisi
             'mass_production_hwid' => $this->faker->uuid(), // Seri üretim HWID
             'pre_production_hwid' => $this->faker->uuid(), // Ön üretim HWID
             'description' => $this->faker->sentence(), // Örnek açıklama
