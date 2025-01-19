@@ -12,8 +12,8 @@ Route::view('profile', 'profile')
     ->middleware(['auth'])
     ->name('profile');
 
-Route::view('divider', 'static.voltage-divider')
-    ->name('divider');
+Route::view('test', 'static.test')
+    ->name('test');
 
 // Route::view('tsk', 'livewire.tasks.tasks-index')
 //     ->middleware(['auth'])
