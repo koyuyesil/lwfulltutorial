@@ -15,10 +15,13 @@
             {{-- Cihaz Bilgisi --}}
             <div class="flex items-center text-xs text-gray-600 dark:text-gray-400 mt-1">
                 <span class="mr-2"><strong>Base Product #{{ $ticket->clientProduct->product->id }}</strong></span>
-                <span class="mr-2"><strong>Manufacturer:</strong>{{ $ticket->clientProduct->product->manufacturer }}</span>
+                <span
+                    class="mr-2"><strong>Manufacturer:</strong>{{ $ticket->clientProduct->product->manufacturer }}</span>
                 <span class="mr-2"><strong>Brand:</strong>{{ $ticket->clientProduct->product->brand }}</span>
-                <span class="mr-2"><strong>Model Name:</strong>{{ $ticket->clientProduct->product->model_name }}</span>
-                <span class="mr-2"><strong>Model Number:</strong>{{ $ticket->clientProduct->product->model_number }}</span>
+                <span class="mr-2"><strong>Model
+                        Name:</strong>{{ $ticket->clientProduct->product->model_name }}</span>
+                <span class="mr-2"><strong>Model
+                        Number:</strong>{{ $ticket->clientProduct->product->model_number }}</span>
             </div>
 
             {{-- Cihaz Detaylı Bilgisi --}}
@@ -43,8 +46,10 @@
                 <div>
                     @foreach (App\Enums\StatusType::cases() as $case)
                         <button type="button" wire:click="changeStatus({{ $ticket->id }}, '{{ $case->value }}')"
-                            @class([ 'inline-flex items-center px-4 py-2 bg-white border rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-25 transition ease-in-out duration-150',
-                                $case->color() => true,])
+                            @class([
+                                'inline-flex items-center px-4 py-2 bg-white border rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-25 transition ease-in-out duration-150',
+                                $case->color() => true,
+                            ])
                             {{ $case->value == $ticket->status->value ? 'disabled' : '' }}>
                             {{ Str::of($case->value)->headline() }}
                         </button>
@@ -84,22 +89,20 @@
                         </svg>
                         Print
                     </button>
-                    <button type="button" onclick="openPopup()">pop</button>
-
                 </div>
             </div>
         </div>
     @endforeach
-</div>
+    {{-- Pagination --}}
+    <div class="mt-4">
+        {{ $tickets->links() }}
+    </div>
+    @script
+    <script>
+        window.printTicket = function () {
+            alert('asd');
 
-{{-- Pagination --}}
-<div class="mt-4">
-    {{ $tickets->links() }}
-</div>
-
-<script>
-    function printTicket(ticket) {
-        const ticketContent = `
+            const ticketContent = `
             <div>
                 <h2>Ticket #${ticket.id}</h2>
                 <p><strong>Client:</strong> ${ticket.clientProduct.client.company || (ticket.clientProduct.client.fname + ' ' + ticket.clientProduct.client.lname)}</p>
@@ -111,15 +114,30 @@
                 <p><strong>Status:</strong> ${ticket.status}</p>
                 <p><strong>Issue:</strong> ${ticket.problem}</p>
             </div>
-        `;
-        const newWindow = window.open();
-        newWindow.document.write(ticketContent);
-        newWindow.print();
-        newWindow.close();
-    }
-</script>
-<script>
-    function openPopup() {
-        window.open("https://www.example.com", "Popup", "width=600,height=400");
-    }
-</script>
+            `;
+
+            // Yeni pencere açma
+            const newWindow = window.open('', '_blank', 'width=800,height=600');
+            if (newWindow) {
+                newWindow.document.write(`
+                    <html>
+                    <head>
+                        <title>Ticket Print</title>
+                    </head>
+                    <body>
+                        ${ticketContent}
+                    </body>
+                    </html>
+                `);
+                newWindow.document.close(); // Belgenin yazdırılabilir olması için kapatıyoruz
+                newWindow.focus(); // Pencereyi odaklamak
+                newWindow.print(); // Yazdırma
+                newWindow.close(); // Pencereyi kapatma
+            } else {
+                alert('Pop-up engelleyici açık, lütfen izin verin.');
+            }
+        }
+    </script>
+
+    @endscript
+</div>
