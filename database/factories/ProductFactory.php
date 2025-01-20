@@ -4,6 +4,8 @@ namespace Database\Factories;
 
 use GeminiAPI\Laravel\Facades\Gemini;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Exception;
+use RuntimeException;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Product>
@@ -29,9 +31,13 @@ Samsung|Galaxy|S21 Ultra|SM-G998B|108MP camera, 5000mAh battery, Exynos 2100 chi
 Produce similar data for new devices. Each request will return data for a different product.
 EOT;
         // Yapay zeka tarafından veri oluşturuluyor
-        //$deviceText = Gemini::generateText($examplePrompt);
-        $deviceText = 'Samsung|Galaxy|S21 Ultra|SM-G998B|108MP camera, 5000mAh battery, Exynos 2100 chipset';
-        //dd($deviceText);
+        try {
+            // Gemini API'ye veri oluşturma isteği gönderiyoruz
+            $deviceText = Gemini::generateText($examplePrompt);
+        } catch (RuntimeException $e) {
+            // Herhangi bir hata durumunda (özellikle quota hatası), boş veri döndürüyoruz
+            $deviceText = '';
+        }
         // Metni virgül ile bölerek dizi haline getiriyoruz
         $device = explode('|', $deviceText);
         $man = ['Xiaomi', 'Apple', 'Samsung'];
