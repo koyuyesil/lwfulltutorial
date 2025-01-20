@@ -99,22 +99,22 @@
     </div>
     @script
     <script>
-        window.printTicket = function () {
-            alert('asd');
-
-            const ticketContent = `
-            <div>
-                <h2>Ticket #${ticket.id}</h2>
-                <p><strong>Client:</strong> ${ticket.clientProduct.client.company || (ticket.clientProduct.client.fname + ' ' + ticket.clientProduct.client.lname)}</p>
-                <p><strong>Telefon:</strong> ${ticket.clientProduct.client.phone}</p>
-                <p><strong>E-posta:</strong> ${ticket.clientProduct.client.email}</p>
-                <p><strong>Adres:</strong> ${ticket.clientProduct.client.address}</p>
-                <p><strong>Manufacturer:</strong> ${ticket.clientProduct.product.manufacturer}</p>
-                <p><strong>Model Name:</strong> ${ticket.clientProduct.product.model_name}</p>
-                <p><strong>Status:</strong> ${ticket.status}</p>
-                <p><strong>Issue:</strong> ${ticket.problem}</p>
-            </div>
-            `;
+        window.printTicket = function (ticket) {
+            console.log(ticket);
+            const ticketContent = ticket;
+            // const ticketContent = `
+            // <div>
+            //     <h2>Ticket #${ticket.id}</h2>
+            //     <p><strong>Client:</strong> ${ticket.clientProduct.client.company || (ticket.clientProduct.client.fname + ' ' + ticket.clientProduct.client.lname)}</p>
+            //     <p><strong>Telefon:</strong> ${ticket.clientProduct.client.phone}</p>
+            //     <p><strong>E-posta:</strong> ${ticket.clientProduct.client.email}</p>
+            //     <p><strong>Adres:</strong> ${ticket.clientProduct.client.address}</p>
+            //     <p><strong>Manufacturer:</strong> ${ticket.clientProduct.product.manufacturer}</p>
+            //     <p><strong>Model Name:</strong> ${ticket.clientProduct.product.model_name}</p>
+            //     <p><strong>Status:</strong> ${ticket.status}</p>
+            //     <p><strong>Issue:</strong> ${ticket.problem}</p>
+            // </div>
+            // `;
 
             // Yeni pencere açma
             const newWindow = window.open('', '_blank', 'width=800,height=600');
@@ -132,7 +132,7 @@
                 newWindow.document.close(); // Belgenin yazdırılabilir olması için kapatıyoruz
                 newWindow.focus(); // Pencereyi odaklamak
                 newWindow.print(); // Yazdırma
-                newWindow.close(); // Pencereyi kapatma
+                //newWindow.close(); // Pencereyi kapatma
             } else {
                 alert('Pop-up engelleyici açık, lütfen izin verin.');
             }
