@@ -118,7 +118,7 @@
                 const clientName = client.company || `${client.first_name || 'Unknown'} ${client.last_name || ''}`.trim();
 
                 return `
-            <div style="font-family: Arial, sans-serif; line-height: 1.6;">
+            <div style="font-family: Arial, sans-serif; line-height: 1.6; font-size: 11px;">
                 <h2 style="text-align: center;">Ticket #${ticket.id || 'N/A'}</h2>
                 <hr style="margin: 20px 0;">
                 <p><strong>Client:</strong> ${clientName}</p>
@@ -170,6 +170,12 @@
                 `);
                     newWindow.document.close();
                     newWindow.focus();
+
+                    // Yazdırma işlemi sonrası pencereyi kapat
+                    newWindow.onafterprint = function() {
+                        newWindow.close();
+                    };
+
                     newWindow.print();
                 } else {
                     alert('Pop-up engelleyici açık, lütfen izin verin.');
@@ -214,7 +220,9 @@
                     const {
                         jsPDF
                     } = window.jspdf;
-                    const pdf = new jsPDF({ compress: true }); // Sayfa boyutunu A4 olarak ayarlıyoruz
+                    const pdf = new jsPDF({
+                        compress: true
+                    }); // Sayfa boyutunu A4 olarak ayarlıyoruz
                     //pdf.text("Hello world!", 10, 10);
                     pdf.setDisplayMode(1);
                     pdf.html(newWindow.document.body.innerHTML, {
@@ -230,7 +238,9 @@
                         margin: [10, 10, 10, 10], // PDF sayfası kenar boşlukları
                         x: 10, // İçeriğin x koordinatındaki konumu
                         y: 20, // İçeriğin y koordinatındaki konumu
-                        html2canvas: { scale: 1 },
+                        html2canvas: {
+                            scale: 1
+                        },
                     });
                 } else {
                     alert('Pop-up engelleyici açık, lütfen izin verin.');
