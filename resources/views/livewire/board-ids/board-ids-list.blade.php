@@ -55,12 +55,60 @@
                                         @php
                                             $class = App\Enums\RepairMethod::from($method)->color();
                                         @endphp
-                                        <span class="text-xs font-medium me-2 px-2.5 py-0.5 rounded {{ $class }}">
+                                        <span
+                                            class="text-xs font-medium me-2 px-2.5 py-0.5 rounded {{ $class }}">
                                             {{ ucfirst($method) }}
                                         </span>
                                     @endforeach
                                 </p>
-                                <p><strong>Resistances:</strong> {{ $boardId->resistances ?? 'N/A' }}</p>
+                                <p><strong>Resistances:</strong>
+                                    @if (!empty($boardId->resistances))
+                                        @php
+                                            // Gelen JSON string veriyi diziye çeviriyoruz
+                                            $resistances = json_decode($boardId->resistances, true);
+                                            $resistanceCount = count($resistances);
+                                            $index = 0;
+                                        @endphp
+                                        @foreach ($resistances as $key => $value)
+                                            @php
+                                                // Direnci SMD koduna dönüştür
+                                                $smdCode = convertToSMDCode($value);
+                                                $isFirstInPair = $index % 2 === 0; // Her iki dirençte bir yeni grup başlat
+                                                $index++;
+                                            @endphp
+                                            @if ($isFirstInPair)
+                                                <div style="display: flex; align-items: center;">
+                                                    <span>V_in=1.8V >---</span>
+                                            @endif
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="46" height="24" version="1.1">
+                                                <title>{{ $key }}: {{ $value }}Ω</title>
+                                                <g>
+                                                    <rect style="fill:#aaa;fill-opacity:1;fill-rule:nonzero;stroke:#000;stroke-width:1;stroke-opacity:1"
+                                                        width="43" height="21" y="1.5" x="1.5" />
+                                                    <rect style="fill:#000;fill-opacity:1;fill-rule:nonzero;stroke:none" width="26" height="22"
+                                                        x="10" y="1" />
+                                                    <text
+                                                        style="font-size:14px;text-align:center;text-anchor:middle;fill:#fff;fill-opacity:1;font-family:monospace"
+                                                        x="22.750488" y="17.195312">
+                                                        {{ $smdCode }}
+                                                    </text>
+                                                </g>
+                                            </svg>
+                                            @if ($isFirstInPair)
+                                                    <span>---+V_out+---</span>
+                                            @endif
+
+                                            @if (!$isFirstInPair || $index === $resistanceCount)
+                                                @if ($index % 2 === 0)
+                                                    <span>---> GND</span>
+                                                @endif
+                                                </div>
+                                            @endif
+                                        @endforeach
+                                    @else
+                                        <p>N/A</p>
+                                    @endif
+                                </p>
                                 <p><strong>Description:</strong> {{ $boardId->description ?? 'N/A' }}</p>
                             </td>
                         </tr>

@@ -25,8 +25,8 @@ class BoardIdFactory extends Factory
             'product_id' => Product::factory(), // İlişkili ürün oluşturulur
             'build_name' => $this->faker->word(), // Örnek isim oluşturulur
             'resistances' => json_encode([
-                'R1' => $this->faker->randomFloat(2, 1, 100), // Örnek R1 değeri
-                'R2' => $this->faker->randomFloat(2, 1, 100), // Örnek R2 değeri
+                'R1' => 100000, // Örnek R1 değeri
+                'R2' => $this->faker->randomFloat(2, 1, 100000), // Örnek R2 değeri
             ]),
             // 'repair_methods' => json_encode($this->faker->randomElements([
             //     'meta',
