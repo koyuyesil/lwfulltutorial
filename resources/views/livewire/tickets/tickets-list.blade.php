@@ -78,6 +78,18 @@
                         Delete
                     </button>
 
+                    {{-- Download PDF Butonu --}}
+                    <button type="button" onclick="downloadPdf({{ json_encode($ticket) }})"
+                        class="flex items-center text-indigo-700 hover:text-white border border-indigo-700 hover:bg-indigo-800 focus:ring-4 focus:outline-none focus:ring-indigo-300 font-medium rounded-lg text-sm px-4 py-2  me-2 mb-2 dark:border-indigo-500 dark:text-indigo-500 dark:hover:text-white dark:hover:bg-indigo-600 dark:focus:ring-indigo-900">
+                        <svg class="w-4 h-4 me-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+                            fill="currentColor" aria-hidden="true">
+                            <path fill-rule="evenodd"
+                                d="M6 4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-1v3H5V10H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2zM4 7h16V4H4v3zm7 4h2v3h-2V11z"
+                                clip-rule="evenodd" />
+                        </svg>
+                        Download PDF
+                    </button>
+
                     {{-- Print Butonu --}}
                     <button type="button" onclick="printTicket({{ json_encode($ticket) }})"
                         class="flex items-center text-indigo-700 hover:text-white border border-indigo-700 hover:bg-indigo-800 focus:ring-4 focus:outline-none focus:ring-indigo-300 font-medium rounded-lg text-sm px-4 py-2  me-2 mb-2 dark:border-indigo-500 dark:text-indigo-500 dark:hover:text-white dark:hover:bg-indigo-600 dark:focus:ring-indigo-900">
@@ -100,44 +112,67 @@
     @script
     <script>
         window.printTicket = function (ticket) {
-            console.log(ticket);
-            const ticketContent = ticket;
-            // const ticketContent = `
-            // <div>
-            //     <h2>Ticket #${ticket.id}</h2>
-            //     <p><strong>Client:</strong> ${ticket.clientProduct.client.company || (ticket.clientProduct.client.fname + ' ' + ticket.clientProduct.client.lname)}</p>
-            //     <p><strong>Telefon:</strong> ${ticket.clientProduct.client.phone}</p>
-            //     <p><strong>E-posta:</strong> ${ticket.clientProduct.client.email}</p>
-            //     <p><strong>Adres:</strong> ${ticket.clientProduct.client.address}</p>
-            //     <p><strong>Manufacturer:</strong> ${ticket.clientProduct.product.manufacturer}</p>
-            //     <p><strong>Model Name:</strong> ${ticket.clientProduct.product.model_name}</p>
-            //     <p><strong>Status:</strong> ${ticket.status}</p>
-            //     <p><strong>Issue:</strong> ${ticket.problem}</p>
-            // </div>
-            // `;
+            console.log(ticket); // Gelen ticket yapısını kontrol etmek için
 
-            // Yeni pencere açma
+            const client = ticket.client_product?.client || {};
+            const product = ticket.client_product?.product || {};
+
+            const clientName = client.company || `${client.first_name || 'Unknown'} ${client.last_name || ''}`.trim();
+
+            const ticketContent = `
+                <div style="font-family: Arial, sans-serif; line-height: 1.6;">
+                    <h2 style="text-align: center;">Ticket #${ticket.id || 'N/A'}</h2>
+                    <hr style="margin: 20px 0;">
+                    <p><strong>Client:</strong> ${clientName}</p>
+                    <p><strong>Telefon:</strong> ${client.phone || 'N/A'}</p>
+                    <p><strong>E-posta:</strong> ${client.email || 'N/A'}</p>
+                    <p><strong>Adres:</strong> ${client.address || 'N/A'}</p>
+                    <p><strong>Manufacturer:</strong> ${product.manufacturer || 'N/A'}</p>
+                    <p><strong>Model Name:</strong> ${product.model_name || 'N/A'}</p>
+                    <p><strong>Status:</strong> ${ticket.status || 'N/A'}</p>
+                    <p><strong>Issue:</strong> ${ticket.problem || 'N/A'}</p>
+                    <hr style="margin: 20px 0;">
+                </div>
+            `;
+
             const newWindow = window.open('', '_blank', 'width=800,height=600');
             if (newWindow) {
                 newWindow.document.write(`
                     <html>
                     <head>
                         <title>Ticket Print</title>
+                        <style>
+                            body {
+                                font-family: Arial, sans-serif;
+                                margin: 20px;
+                                padding: 0;
+                            }
+                            h2 {
+                                color: #333;
+                            }
+                            p {
+                                margin: 5px 0;
+                            }
+                            hr {
+                                border: none;
+                                border-top: 1px solid #ccc;
+                            }
+                        </style>
                     </head>
                     <body>
                         ${ticketContent}
                     </body>
                     </html>
                 `);
-                newWindow.document.close(); // Belgenin yazdırılabilir olması için kapatıyoruz
-                newWindow.focus(); // Pencereyi odaklamak
-                newWindow.print(); // Yazdırma
-                //newWindow.close(); // Pencereyi kapatma
+                newWindow.document.close();
+                newWindow.focus();
+                newWindow.print();
             } else {
                 alert('Pop-up engelleyici açık, lütfen izin verin.');
             }
         }
     </script>
+
 
     @endscript
 </div>

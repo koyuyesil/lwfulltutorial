@@ -10,7 +10,8 @@ use App\Enums\StatusType;
 use App\Enums\PriorityType;
 use App\Models\ClientProduct;
 use Illuminate\Support\Facades\Auth;
-
+//TODO BURADA VAROLAN MÜŞTERİ VE CİHAZ YENİDEN OLUŞTURULMADAN KAYIT YAPILACAK AYRICA MEVCUT KAYIT SEÇİMİ DE YAPALIM.
+//ÇOK İLİŞKİLİ UPDATE FORMU OLMASI GEREKLİ
 class TicketsForm extends Component
 {
     public $clients = []; // Kullanıcının sahip olduğu tüm müşteriler
