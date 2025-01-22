@@ -110,34 +110,38 @@
         {{ $tickets->links() }}
     </div>
     @script
-    <script>
-        window.printTicket = function (ticket) {
-            console.log(ticket); // Gelen ticket yapısını kontrol etmek için
+        <script>
+            // Ortak döküman içeriğini hazırlama fonksiyonu
+            window.createTicketContent = function(ticket) {
+                const client = ticket.client_product?.client || {};
+                const product = ticket.client_product?.product || {};
+                const clientName = client.company || `${client.first_name || 'Unknown'} ${client.last_name || ''}`.trim();
 
-            const client = ticket.client_product?.client || {};
-            const product = ticket.client_product?.product || {};
+                return `
+            <div style="font-family: Arial, sans-serif; line-height: 1.6;">
+                <h2 style="text-align: center;">Ticket #${ticket.id || 'N/A'}</h2>
+                <hr style="margin: 20px 0;">
+                <p><strong>Client:</strong> ${clientName}</p>
+                <p><strong>Telefon:</strong> ${client.phone || 'N/A'}</p>
+                <p><strong>E-posta:</strong> ${client.email || 'N/A'}</p>
+                <p><strong>Adres:</strong> ${client.address || 'N/A'}</p>
+                <p><strong>Manufacturer:</strong> ${product.manufacturer || 'N/A'}</p>
+                <p><strong>Model Name:</strong> ${product.model_name || 'N/A'}</p>
+                <p><strong>Status:</strong> ${ticket.status || 'N/A'}</p>
+                <p><strong>Issue:</strong> ${ticket.problem || 'N/A'}</p>
+                <hr style="margin: 20px 0;">
+            </div>
+        `;
+            }
 
-            const clientName = client.company || `${client.first_name || 'Unknown'} ${client.last_name || ''}`.trim();
+            // window.printTicket fonksiyonu ile yazdırma işlemi
+            window.printTicket = function(ticket) {
+                const ticketContent = createTicketContent(ticket);
 
-            const ticketContent = `
-                <div style="font-family: Arial, sans-serif; line-height: 1.6;">
-                    <h2 style="text-align: center;">Ticket #${ticket.id || 'N/A'}</h2>
-                    <hr style="margin: 20px 0;">
-                    <p><strong>Client:</strong> ${clientName}</p>
-                    <p><strong>Telefon:</strong> ${client.phone || 'N/A'}</p>
-                    <p><strong>E-posta:</strong> ${client.email || 'N/A'}</p>
-                    <p><strong>Adres:</strong> ${client.address || 'N/A'}</p>
-                    <p><strong>Manufacturer:</strong> ${product.manufacturer || 'N/A'}</p>
-                    <p><strong>Model Name:</strong> ${product.model_name || 'N/A'}</p>
-                    <p><strong>Status:</strong> ${ticket.status || 'N/A'}</p>
-                    <p><strong>Issue:</strong> ${ticket.problem || 'N/A'}</p>
-                    <hr style="margin: 20px 0;">
-                </div>
-            `;
 
-            const newWindow = window.open('', '_blank', 'width=800,height=600');
-            if (newWindow) {
-                newWindow.document.write(`
+                const newWindow = window.open('', '_blank', 'width=800,height=600');
+                if (newWindow) {
+                    newWindow.document.write(`
                     <html>
                     <head>
                         <title>Ticket Print</title>
@@ -164,15 +168,76 @@
                     </body>
                     </html>
                 `);
-                newWindow.document.close();
-                newWindow.focus();
-                newWindow.print();
-            } else {
-                alert('Pop-up engelleyici açık, lütfen izin verin.');
+                    newWindow.document.close();
+                    newWindow.focus();
+                    newWindow.print();
+                } else {
+                    alert('Pop-up engelleyici açık, lütfen izin verin.');
+                }
+
             }
-        }
-    </script>
+
+            // window.downloadPdf fonksiyonu ile indirme işlemi
+            window.downloadPdf = function(ticket) {
+                const ticketContent = createTicketContent(ticket);
 
 
+                const newWindow = window.open('', '_blank', 'width=800,height=600');
+                if (newWindow) {
+                    newWindow.document.write(`
+                    <html>
+                    <head>
+                        <title>Ticket Print</title>
+                        <style>
+                            body {
+                                font-family: Arial, sans-serif;
+                                margin: 20px;
+                                padding: 0;
+                            }
+                            h2 {
+                                color: #333;
+                            }
+                            p {
+                                margin: 5px 0;
+                            }
+                            hr {
+                                border: none;
+                                border-top: 1px solid #ccc;
+                            }
+                        </style>
+                    </head>
+                    <body>
+                        ${ticketContent}
+                    </body>
+                    </html>
+                `);
+                    const {
+                        jsPDF
+                    } = window.jspdf;
+                    const pdf = new jsPDF({ compress: true }); // Sayfa boyutunu A4 olarak ayarlıyoruz
+                    //pdf.text("Hello world!", 10, 10);
+                    pdf.setDisplayMode(1);
+                    pdf.html(newWindow.document.body.innerHTML, {
+                        callback: function(pdf) {
+                            // HTML içeriği PDF'e eklendikten sonra dosya adını belirle
+                            const fileName = `${ticket.id || 'UNKNOWN'}_A4.pdf`;
+
+                            // PDF dosyasını kaydet
+                            pdf.save(fileName);
+                            setMode("html");
+                            dispatch(hideLoaderUI());
+                        },
+                        margin: [10, 10, 10, 10], // PDF sayfası kenar boşlukları
+                        x: 10, // İçeriğin x koordinatındaki konumu
+                        y: 20, // İçeriğin y koordinatındaki konumu
+                        html2canvas: { scale: 1 },
+                    });
+                } else {
+                    alert('Pop-up engelleyici açık, lütfen izin verin.');
+                }
+
+
+            }
+        </script>
     @endscript
 </div>
