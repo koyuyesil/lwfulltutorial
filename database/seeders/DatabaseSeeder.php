@@ -61,8 +61,8 @@ class DatabaseSeeder extends Seeder
 
 
         User::factory(1)->create()->each(function ($user) {
-            Client::factory(10)->create()->each(function ($client) use ($user) {
-                $products = Product::factory(3)->create([
+            Client::factory(3)->create()->each(function ($client) use ($user) {
+                $products = Product::factory(1)->create([
                     'user_id' => $user->id,
                 ]);
                 foreach ($products as $product) {

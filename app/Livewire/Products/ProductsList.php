@@ -30,7 +30,7 @@ class ProductsList extends Component
     #[On('product-created')]
     public function render()
     {
-         //TODO burada formları oluşturuken tüm tabloyu açsan iyi olur.
+         //TODO burada PRODUCTS oluşturuken tüm tabloyu erişime açsan iyi olur. ortak database
         return view('livewire.products.products-list', [
             //'devices' => Device::query()->paginate(3), // Tüm tabloyu çeker.
             'products' => Auth::user()->products()->paginate(5), // User ilişkili tabloyu çeker

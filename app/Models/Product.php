@@ -14,11 +14,24 @@ class Product extends Model
     use HasFactory;
     protected $fillable = ['manufacturer', 'brand', 'model_name', 'model_number', 'description'];
 
-    // TODO multiple yap key value olarak. Başlık formatı mutator kullanımı. (Methot ismi rastgele değildir.)
+    // Single mutator. (Methot ismi rastgele değildir.)
+
     public function setManufacturerAttribute($value)
     {
         $this->attributes['manufacturer'] = Str::title($value);
     }
+
+    // TODO Multi attiribute mutator
+    // public function setAttribute($key, $value)
+    // {
+    //     if ($key === 'manufacturer' || $key === 'brand') {
+    //         $value = mb_convert_case($value, MB_CASE_TITLE, "UTF-8"); // İlk harf büyük, geri kalanı küçük.
+    //     } elseif ($key === 'model_number' || $key === 'model_name') {
+    //         $value = mb_strtoupper($value, "UTF-8"); // Tamamını büyük harfe çevir.
+    //     }
+
+    //     parent::setAttribute($key, $value);
+    // }
 
     public function user(): BelongsTo
     {
@@ -35,10 +48,9 @@ class Product extends Model
         return $this->hasMany(BoardId::class);
     }
 
-    // TODO device'dan item silindiğinde customerDevices de başka bilinmeyen aygıt olarak aktarılsın
+    //TODO Clients modelden aynısını yap.
     protected static function booted()
     {
-        //TODO Clients modelden aynısını yap.
         static::deleting(function ($device) {
             $device->clientProducts()->delete();
         });

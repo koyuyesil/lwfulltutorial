@@ -8,7 +8,7 @@ use Livewire\Attributes\Reactive;
 class BoardIdsCount extends Component
 {
     #[Reactive]
-    public $boardIdCount; //TODO
+    public $boardIdCount;
     public function render()
     {
         return view('livewire.board-ids.board-ids-count');

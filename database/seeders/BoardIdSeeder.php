@@ -15,18 +15,18 @@ class BoardIdSeeder extends Seeder
      */
     public function run(): void
     {
-        BoardId::factory()
-            ->count(10) // 10 BoardId oluşturur
-            ->has(User::factory()) // Her BoardId için 1 kullanıcı
-            ->has(Product::factory()) // Her BoardId için 3 cihaz
-            ->create();
+        // //tüm kullanıcıya rastgele user ve board
+        // BoardId::factory()
+        // ->count(10) // 10 BoardId oluşturur
+        // ->has(User::factory()) // Her BoardId için 1 kullanıcı
+        // ->has(Product::factory()) // Her BoardId için 3 cihaz
+        // ->create();
 
+        //user 1 e boardid
         BoardId::factory()
             ->count(10) // 10 BoardId oluşturur
             ->has(Product::factory()) // Her BoardId için 3 cihaz
-            ->create([
-                'user_id' => 1,
-            ]);
+            ->create([ 'user_id' => 1, ]);
 
 
 
