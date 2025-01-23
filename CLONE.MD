@@ -48,3 +48,12 @@ npm run dev
 ```
 
 
+## "last changes add gemni api key required"
+```bash
+composer dump-autoload
+```
+npm packages
+"dompurify": "^3.2.3",
+"html2canvas": "^1.4.1",
+"jspdf": "^2.5.2",
+"mathjax": "^3.2.2"
