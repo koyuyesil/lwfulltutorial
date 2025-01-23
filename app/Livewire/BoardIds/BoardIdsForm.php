@@ -11,9 +11,11 @@ class BoardIdsForm extends Component
 {
     public BoardIdForm $form;
 
+    public function addResistance(){$this->form->addResistance();}
+    public function removeResistance($index){$this->form->removeResistance($index);}
     public function save()
     {
-        $this->form->validate();
+
         //$this->form->repair_methods = json_encode($this->form->repair_methods);//gpt önerdi çok güzel noktada
         $this->form->store();
 

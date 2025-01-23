@@ -46,12 +46,38 @@
 
 
         <!-- Resistances -->
-        <div class="mb-4">
-            <x-input-label for="resistances" :value="__('Resistances')" class="text-sm" />
-            <x-text-input wire:model.live="form.resistances" id="resistances" name="resistances" type="text"
-                class="mt-1 block w-full text-sm py-1 px-2 border-gray-300 rounded-md" />
-            <x-input-error :messages="$errors->get('form.resistances')" class="mt-1 text-sm" />
-        </div>
+<div class="mb-4">
+    <x-input-label for="resistances" :value="__('Resistances')" class="text-sm" />
+
+    <div id="resistances-list">
+        @foreach ($form->resistances as $key => $item)
+            <div class="resistance-item mb-2 flex items-center">
+                {{-- {{ dd($key) }} --}}
+                {{-- {{ dd($item) }} --}}
+                {{-- {{ dd($form->resistances) }} --}}
+                <!-- Value Input (1000, 82000, ...) -->
+                {{ $key }}
+                <x-text-input wire:model="form.resistances.{{ $key }}"
+
+                    type="text"
+                    class="mt-1 block w-full text-sm py-1 px-2 border-gray-300 rounded-md"
+                    placeholder="Value (Ohm)" />
+
+                <button type="button" wire:click="removeResistance('{{ $key }}')"
+                    class="ml-2 text-red-500">
+                    Remove
+                </button>
+            </div>
+        @endforeach
+    </div>
+
+    <button type="button" wire:click="addResistance" class="mt-2 text-blue-500">
+        Add Resistance
+    </button>
+
+    <x-input-error :messages="$errors->get('form.resistances')" class="mt-1 text-sm" />
+</div>
+
 
         <!-- Description -->
         <div class="mb-4">

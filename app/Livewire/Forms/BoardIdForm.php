@@ -27,10 +27,10 @@ class BoardIdForm extends Form
     public ?string $pre_production_hwid;
 
     #[Validate('required')]
-    public $repair_methods=[];
+    public $repair_methods = [];
 
     #[Validate('required')]
-    public ?string $resistances;
+    public $resistances = [];
 
     #[Validate('required')]
     public ?string $description;
@@ -49,8 +49,46 @@ class BoardIdForm extends Form
 
     }
 
+    // Yeni bir key-value çifti eklemek
+    public function aRddResistance()
+    {
+        $this->resistances[] = ['key' => '', 'value' => ''];
+    }
+
+    // Bir key-value çiftini silmek
+    public function rRemoveResistance($index)
+    {
+        unset($this->resistances[$index]);
+        $this->resistances = array_values($this->resistances); // Dizinin sırasını yeniden düzenle
+    }
+    // Yeni bir key-value çifti eklemek
+    public function addResistance()
+    {
+        // 'resistances' alanını bir anahtar-değer biçiminde saklıyoruz
+        $this->resistances["R" . (count($this->resistances) + 1)] = 0;
+    }
+
+    // Bir key-value çiftini silmek
+    public function removeResistance($key)
+    {
+        unset($this->resistances[$key]);
+    }
+
+
     public function store()
     {
+        // $this->validate();
+
+        // // Veriyi işle ve kaydet
+        // foreach ($this->resistances as $key => $value) {
+        //     $this->validate([
+        //         "resistances.$key" => 'required|string',
+        //         "resistances.$value" => 'required|numeric',
+        //     ]);
+        // }
+
+
+
         if ($this->editMode) {
             $this->boardId->update($this->all());
             $this->reset();

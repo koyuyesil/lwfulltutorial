@@ -65,7 +65,8 @@
                                     @if (!empty($boardId->resistances))
                                         @php
                                             // Gelen JSON string veriyi diziye çeviriyoruz
-                                            $resistances = json_decode($boardId->resistances, true);
+                                            //$resistances = json_decode($boardId->resistances, true);
+                                            $resistances = $boardId->resistances;
                                             $resistanceCount = count($resistances);
                                             $index = 0;
                                         @endphp

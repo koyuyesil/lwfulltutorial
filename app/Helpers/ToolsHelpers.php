@@ -7,9 +7,15 @@ if (!function_exists('convertToSMDCode')) {
      * @param float $resistance Direnç değeri
      * @return string SMD kodu
      */
-    function convertToSMDCode($resistance) {
+    function convertToSMDCode($resistance)
+    {
         // Sayısal bir değer elde et
         $resistance = floatval($resistance);
+
+        // 0 ve 0'dan küçük değerler için 0 döndür
+        if ($resistance <= 0) {
+            return '0';
+        }
 
         // 10'dan küçük değerler için 'R' formatı
         if ($resistance < 10 && $resistance > 0) {

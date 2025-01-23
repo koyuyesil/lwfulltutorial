@@ -25,7 +25,7 @@ class BoardId extends Model
 
     ];
     protected $casts = [
-        // 'resistances' => 'array',
+        'resistances' => 'array',
         'repair_methods' => 'array',
         //'repair_methods' => RepairMethod::class,
     ];
