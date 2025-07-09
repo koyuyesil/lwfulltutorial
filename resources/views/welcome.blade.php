@@ -28,7 +28,7 @@
             </div>
 
             <!-- Slayt Sistemi -->
-            <div id="slider" class="relative">
+            <div id="slider" class="p-14 relative">
                 <div class="slide">
                     @include('partials.ekran-degisimi-rehberi')
                 </div>
