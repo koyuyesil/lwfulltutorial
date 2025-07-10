@@ -1,4 +1,36 @@
+# Eğer mod_rewrite yüklüyse URL yönlendirme motorunu başlat
 <IfModule mod_rewrite.c>
     RewriteEngine On
+
+    # Tüm istekleri public/ klasörü altına yönlendir
+    # Örneğin: /css/style.css → public/css/style.css
     RewriteRule ^(.*)$ public/$1 [L]
+</IfModule>
+
+# Nokta ile başlayan (gizli) dosyalara erişimi engelle
+# Örnek: .env, .gitignore gibi dosyalar tarayıcıdan erişilemez
+<FilesMatch "^\\.">
+    Require all denied
+</FilesMatch>
+
+# Belirli dosya ve klasörlere erişimi tamamen yasakla
+# 403 Forbidden hatası döner
+RedirectMatch 403 ^/(\\.env|\\.git|vendor|config|storage|tests|node_modules|composer\\.lock|package\\.json)
+
+# Dizin indexlemesini aktif et (index.html/index.php yoksa içerik listelenir)
+Options -Indexes
+
+# Eğer mod_headers modülü yüklüyse bazı güvenlik başlıklarını ayarla
+<IfModule mod_headers.c>
+    # Tarayıcının içerik türünü tahmin etmesini engelle
+    Header always set X-Content-Type-Options "nosniff"
+
+    # Sayfanın sadece aynı origin’den iframe ile açılmasına izin ver (clickjacking koruması)
+    Header always set X-Frame-Options "SAMEORIGIN"
+
+    # XSS filtrelerini etkinleştir (eski tarayıcılar için geçerlidir)
+    Header always set X-XSS-Protection "1; mode=block"
+
+    # HTTPS'den HTTP'ye geçerken referer bilgisinin gönderilmesini engelle
+    Header always set Referrer-Policy "no-referrer-when-downgrade"
 </IfModule>
