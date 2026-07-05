@@ -26,17 +26,19 @@
                         Müşteri, cihaz ve onarım kayıtlarını tek merkezden yönetin.
                     </h1>
                     <p class="mt-4 max-w-2xl text-sm leading-7 text-slate-300 sm:text-base">
-                        Dashboard ana sayfası mevcut Livewire liste işleyişini korurken servis yoğunluğu, aktif talepler ve hızlı işlem alanlarını daha okunabilir bir yapıda sunar.
+                        Dashboard ana sayfası mevcut Livewire liste işleyişini korurken toplam kayıtları ve oturumdaki yetkiliye ait kayıtları aynı anda gösterir.
                     </p>
                 </div>
                 <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-1">
                     <div class="rounded-3xl border border-white/10 bg-white/10 p-5 backdrop-blur">
                         <p class="text-sm text-blue-100">Aktif servis talepleri</p>
                         <p class="mt-2 text-4xl font-black">{{ $activeTickets }}</p>
+                        <p class="mt-1 text-xs font-semibold text-blue-100/80">Bendeki: {{ $myActiveTickets }}</p>
                     </div>
                     <div class="rounded-3xl border border-white/10 bg-white/10 p-5 backdrop-blur">
                         <p class="text-sm text-blue-100">Açık görevler</p>
                         <p class="mt-2 text-4xl font-black">{{ $openTasks }}</p>
+                        <p class="mt-1 text-xs font-semibold text-blue-100/80">Bendeki: {{ $myOpenTasks }}</p>
                     </div>
                 </div>
             </div>
@@ -47,8 +49,14 @@
                 <article class="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-xl dark:border-gray-700 dark:bg-gray-800">
                     <p class="text-sm font-semibold text-gray-500 dark:text-gray-400">{{ $stat['label'] }}</p>
                     <div class="mt-3 flex items-end justify-between gap-4">
-                        <p class="text-4xl font-black text-gray-900 dark:text-white">{{ $stat['value'] }}</p>
-                        <span class="rounded-2xl bg-blue-50 px-3 py-1 text-xs font-bold text-blue-700 dark:bg-blue-500/10 dark:text-blue-300">Kayıt</span>
+                        <div>
+                            <p class="text-xs font-bold uppercase tracking-wide text-gray-400 dark:text-gray-500">Toplam</p>
+                            <p class="text-4xl font-black text-gray-900 dark:text-white">{{ $stat['total'] }}</p>
+                        </div>
+                        <div class="rounded-2xl bg-sky-50 px-3 py-2 text-right dark:bg-sky-500/10">
+                            <p class="text-xs font-bold uppercase tracking-wide text-sky-600 dark:text-sky-300">Bendeki</p>
+                            <p class="text-2xl font-black text-sky-700 dark:text-sky-200">{{ $stat['mine'] }}</p>
+                        </div>
                     </div>
                     <p class="mt-3 text-sm text-gray-600 dark:text-gray-300">{{ $stat['hint'] }}</p>
                 </article>
