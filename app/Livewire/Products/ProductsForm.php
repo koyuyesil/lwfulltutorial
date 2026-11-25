@@ -7,10 +7,16 @@ use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\On;
 use Livewire\Component;
+use Livewire\WithFileUploads;
 
 class ProductsForm extends Component
 {
+    use WithFileUploads;
+
     public ProductForm $form;
+
+    /** Yüklenen görsel; base64 data URI'ye çevrilip forma yazılır. */
+    public $photo;
 
     #[On('create-product')]
     public function newProduct(): void
@@ -51,6 +57,30 @@ class ProductsForm extends Component
             ->whereRaw('LOWER(model_name) = ?', [mb_strtolower(trim($this->form->model_name))])
             ->when($this->form->product, fn ($q, $p) => $q->whereKeyNot($p->id))
             ->first();
+    }
+
+    public function updatedPhoto(\App\Services\DeviceCatalog $catalog): void
+    {
+        $this->validate(['photo' => ['image', 'mimes:png,jpg,jpeg,webp,gif', 'max:2048']], [
+            'photo.image' => 'Lütfen bir görsel seçin.',
+            'photo.max' => 'Görsel en fazla 2 MB olabilir.',
+        ]);
+
+        [$dataUri, $error] = $catalog->normalizeImage(base64_encode(file_get_contents($this->photo->getRealPath())));
+        $this->photo = null;
+
+        if ($error) {
+            $this->addError('photo', $error);
+
+            return;
+        }
+
+        $this->form->image = $dataUri;
+    }
+
+    public function removeImage(): void
+    {
+        $this->form->image = null;
     }
 
     public function save(): void

@@ -1,80 +1,189 @@
-<div>
-    <form wire:submit="save" class="mt-6 space-y-6">
-        <div>
-            <x-input-label for="update_title" :value="__('Title')" />
-            <x-text-input wire:model.live="form.title" id="update_title" name="fname" type="text"
-                class="mt-1 block w-full" />
-            <x-input-error :messages="$errors->get('form.title')" class="mt-2" />
-        </div>
-        <div>
-            <x-input-label for="update_slug" :value="__('Slug')" />
-            <x-text-input wire:model.live="form.slug" id="update_slug" name="lname" type="text"
-                class="mt-1 block w-full" />
-            <x-input-error :messages="$errors->get('form.slug')" class="mt-2" />
-        </div>
-        <div>
-            <x-input-label for="update_description" :value="__('Description')" />
-            <x-text-input wire:model.live="form.description" id="update_description" name="given-name" type="text"
-                class="mt-1 block w-full" />
-            <x-input-error :messages="$errors->get('form.description')" class="mt-2" />
-        </div>
-        <div>
-            <x-input-label for="update_status" :value="__('Status')" />
-            {{-- <x-text-input wire:model.live="status" id="update_status" name="given-name" type="text" class="mt-1 block w-full" /> --}}
-            <select wire:model.live="form.status" name="" id="status">
-                @foreach (\App\Enums\StatusType::cases() as $status)
-                    <option value="{{ $status->value }}">{{ $status->name }}</option>
-                @endforeach
-            </select>
-            <x-input-error :messages="$errors->get('form.status')" class="mt-2" />
-        </div>
-        <div>
-            <x-input-label for="update_priority" :value="__('priority')" />
-            {{-- <x-text-input wire:model.live="priority" id="update_priority" name="priority" type="text" class="mt-1 block w-full"/> --}}
-            <select wire:model.live="form.priority" name="" id="priority">
-                @foreach (\App\Enums\PriorityType::cases() as $priority)
-                    <option value="{{ $priority->value }}">{{ $priority->name }}</option>
-                @endforeach
-            </select>
-            <x-input-error :messages="$errors->get('form.priority')" class="mt-2" />
-        </div>
-        <div>
-            <x-input-label for="update_deadline" :value="__('Deadline')" />
-            <x-text-input wire:model.live="form.deadline" id="update_deadline" name="deadline" type="date"
-                class="mt-1 block w-full" />
-            <x-input-error :messages="$errors->get('form.deadline')" class="mt-2" />
+@use('App\Enums\TaskCategory')
+@use('App\Enums\Recurrence')
+@use('App\Enums\PriorityType')
+@php
+    $category = TaskCategory::tryFrom($form->category) ?? TaskCategory::GENERAL;
+    $recurrence = Recurrence::tryFrom($form->recurrence) ?? Recurrence::NONE;
+    $textarea = 'block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 dark:bg-slate-950 dark:text-white dark:ring-white/10';
+    $select = 'block w-full rounded-lg border-0 bg-white py-2 pl-3 pr-8 text-sm text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 dark:bg-slate-950 dark:text-white dark:ring-white/10';
+
+    // Tekrar önizlemesi: sonraki 3 tarih
+    $preview = [];
+    if ($recurrence !== Recurrence::NONE && $form->due_date) {
+        try {
+            $cursor = \Illuminate\Support\Carbon::parse($form->due_date . ' ' . ($form->due_time ?: '09:00'));
+            $anchor = $cursor->day;
+            $until = $form->recurrence_until ? \Illuminate\Support\Carbon::parse($form->recurrence_until)->endOfDay() : null;
+            $preview[] = $cursor->copy();
+            for ($i = 0; $i < 3; $i++) {
+                $cursor = $recurrence->next($cursor, max(1, (int) $form->recurrence_interval), $anchor);
+                if (! $cursor || ($until && $cursor->gt($until))) break;
+                $preview[] = $cursor->copy();
+            }
+        } catch (\Throwable) {
+            $preview = [];
+        }
+    }
+@endphp
+
+<form wire:submit="save" class="flex min-h-0 flex-1 flex-col">
+    <div class="relative flex-1 space-y-6 overflow-y-auto px-6 py-6">
+        <div wire:loading.flex wire:target="editTask,newTask" class="absolute inset-0 z-10 items-center justify-center bg-white/70 dark:bg-slate-900/70">
+            <x-koyu-svg-loading />
         </div>
 
-        <div class="mb-3 flex justify-between">
-            <button type="submit"
-                class="flex py-2 px-4 bg-indigo-500 hover:bg-indigo-600 text-white rounded-md">
-                Submit
-                <div wire:loading>
-                    <svg aria-hidden="true"
-                        class="w-5 h-5 mx-2 text-gray-200 animate-spin dark:text-gray-600 fill-blue-600"
-                        viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path
-                            d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
-                            fill="currentColor" />
-                        <path
-                            d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
-                            fill="currentFill" />
-                    </svg>
-                    <span class="sr-only">Loading...</span>
+        {{-- Hazır şablonlar --}}
+        @unless ($form->isEditing())
+            <section>
+                <p class="text-xs font-bold uppercase tracking-wider text-slate-500">Hazır şablonlar</p>
+                <div class="-mx-1 mt-2 flex gap-2 overflow-x-auto px-1 pb-2">
+                    @foreach (\App\Support\TaskTemplates::all() as $key => $tpl)
+                        <button type="button" wire:click="useTemplate('{{ $key }}')"
+                            @class(['flex w-40 shrink-0 flex-col items-start rounded-xl p-3 text-left ring-1 transition hover:-translate-y-0.5',
+                                'bg-indigo-50 ring-2 ring-indigo-500 dark:bg-indigo-500/10' => $form->title === $tpl['title'],
+                                'bg-white ring-slate-200 hover:shadow-md dark:bg-slate-800 dark:ring-white/10' => $form->title !== $tpl['title']])>
+                            <span class="text-lg">{{ $tpl['category']->emoji() }}</span>
+                            <span class="mt-1 line-clamp-2 text-xs font-semibold text-slate-900 dark:text-white">{{ $tpl['title'] }}</span>
+                            <span class="mt-1 text-[11px] text-slate-500">{{ $tpl['recurrence']->describe() }}</span>
+                        </button>
+                    @endforeach
                 </div>
-            </button>
-            <button type="button" wire:click="refresh"
-                class="flex py-2 px-4 bg-slate-400 hover:bg-slate-500 text-white rounded-md">Refresh
-            </button>
-        </div>
+            </section>
+        @endunless
+
+        <x-ui.field label="Görev" for="tk-title" error="form.title">
+            <x-ui.input id="tk-title" wire:model.blur="form.title" placeholder="Örn. Ahmet Bey'den kalan ödemeyi tahsil et" :invalid="$errors->has('form.title')" class="text-base" />
+        </x-ui.field>
+
+        {{-- Tür --}}
         <div>
-            {{-- @if (session('message')) --}}
-            @if (session()->has('message'))
-            <div class="p-4 mb-4 text-sm text-green-800 rounded-lg bg-green-50 dark:bg-gray-800 dark:text-green-400"
-                role="alert">
-                <span class="font-medium">{{ session('message') }}</span>
+            <p class="text-sm font-medium text-slate-700 dark:text-slate-200">Tür</p>
+            <div class="mt-1.5 grid grid-cols-2 gap-2 sm:grid-cols-5">
+                @foreach (TaskCategory::cases() as $c)
+                    <button type="button" wire:click="$set('form.category', '{{ $c->value }}')"
+                        @class(['flex items-center gap-2 rounded-lg px-2.5 py-2 text-left text-xs font-semibold ring-1 transition',
+                            'ring-2 ring-indigo-500 bg-indigo-50 text-indigo-900 dark:bg-indigo-500/10 dark:text-indigo-100' => $category === $c,
+                            'text-slate-600 ring-slate-200 hover:bg-slate-50 dark:text-slate-300 dark:ring-white/10 dark:hover:bg-white/5' => $category !== $c])>
+                        <span class="text-base leading-none">{{ $c->emoji() }}</span>
+                        <span class="truncate">{{ $c->label() }}</span>
+                    </button>
+                @endforeach
             </div>
+        </div>
+
+        {{-- Zaman --}}
+        <div class="grid gap-4 sm:grid-cols-3">
+            <x-ui.field label="Tarih" for="tk-date" error="form.due_date">
+                <x-ui.input id="tk-date" type="date" wire:model.live="form.due_date" :invalid="$errors->has('form.due_date')" />
+            </x-ui.field>
+            <x-ui.field label="Saat" for="tk-time" error="form.due_time">
+                <x-ui.input id="tk-time" type="time" wire:model.live="form.due_time" />
+            </x-ui.field>
+            <x-ui.field label="Hatırlatma" for="tk-remind" error="form.remind_before">
+                <select id="tk-remind" wire:model="form.remind_before" class="{{ $select }}">
+                    @foreach (\App\Models\Task::REMIND_OPTIONS as $value => $label)
+                        <option value="{{ $value }}">{{ $label }}</option>
+                    @endforeach
+                </select>
+            </x-ui.field>
+        </div>
+        <div class="-mt-3 flex flex-wrap gap-1.5">
+            @foreach (['Bugün' => now(), 'Yarın' => now()->addDay(), 'Pazartesi' => now()->next(\Illuminate\Support\Carbon::MONDAY), 'Ay sonu' => now()->endOfMonth(), '1 ay sonra' => now()->addMonthNoOverflow()] as $label => $date)
+                <button type="button" wire:click="$set('form.due_date', '{{ $date->format('Y-m-d') }}')"
+                    @class(['rounded-full px-2.5 py-1 text-xs font-medium ring-1 transition',
+                        'bg-slate-900 text-white ring-slate-900 dark:bg-white dark:text-slate-900' => $form->due_date === $date->format('Y-m-d'),
+                        'text-slate-600 ring-slate-200 hover:bg-slate-50 dark:text-slate-300 dark:ring-white/10 dark:hover:bg-white/5' => $form->due_date !== $date->format('Y-m-d')])>{{ $label }}</button>
+            @endforeach
+            @if ($form->due_date)
+                <button type="button" wire:click="$set('form.due_date', '')" class="rounded-full px-2.5 py-1 text-xs font-medium text-slate-400 hover:text-slate-700">Tarihsiz</button>
             @endif
         </div>
-    </form>
-</div>
+
+        {{-- Tekrar --}}
+        <div class="rounded-xl bg-slate-50 p-4 ring-1 ring-slate-200 dark:bg-white/5 dark:ring-white/10">
+            <p class="text-sm font-medium text-slate-700 dark:text-slate-200">Tekrar</p>
+            <div class="mt-2 grid grid-cols-5 gap-1 rounded-lg bg-white p-1 ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-white/10">
+                @foreach (Recurrence::cases() as $r)
+                    <button type="button" wire:click="$set('form.recurrence', '{{ $r->value }}')"
+                        @class(['rounded-md px-2 py-1.5 text-xs font-semibold transition',
+                            'bg-indigo-600 text-white shadow-sm' => $recurrence === $r,
+                            'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200' => $recurrence !== $r])>
+                        {{ $r === Recurrence::NONE ? 'Yok' : $r->label() }}
+                    </button>
+                @endforeach
+            </div>
+
+            @if ($recurrence !== Recurrence::NONE)
+                <div class="mt-4 grid gap-4 sm:grid-cols-2">
+                    <x-ui.field label="Sıklık" for="tk-interval" error="form.recurrence_interval">
+                        <div class="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300">
+                            <span>Her</span>
+                            <x-ui.input id="tk-interval" type="number" min="1" max="365" wire:model.live.debounce.400ms="form.recurrence_interval" class="w-20 text-center" />
+                            <span>{{ ['daily' => 'günde', 'weekly' => 'haftada', 'monthly' => 'ayda', 'yearly' => 'yılda'][$recurrence->value] }} bir</span>
+                        </div>
+                    </x-ui.field>
+                    <x-ui.field label="Bitiş tarihi" for="tk-until" error="form.recurrence_until" optional hint="Boş bırakılırsa süresiz tekrarlar">
+                        <x-ui.input id="tk-until" type="date" wire:model.live="form.recurrence_until" />
+                    </x-ui.field>
+                </div>
+                @if ($preview)
+                    <div class="mt-3 rounded-lg bg-white p-3 text-xs ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-white/10">
+                        <p class="font-semibold text-slate-700 dark:text-slate-200">🔁 {{ $recurrence->describe((int) $form->recurrence_interval) }} — sıradaki tarihler:</p>
+                        <ul class="mt-1.5 flex flex-wrap gap-1.5">
+                            @foreach ($preview as $i => $date)
+                                <li class="rounded-md bg-slate-100 px-2 py-1 font-medium text-slate-700 dark:bg-white/10 dark:text-slate-200">{{ $date->locale('tr')->translatedFormat('d M Y, D') }}</li>
+                            @endforeach
+                        </ul>
+                        <p class="mt-2 text-slate-500">Görev tamamlandığında bir sonraki otomatik oluşturulur.</p>
+                    </div>
+                @endif
+            @endif
+        </div>
+
+        {{-- Detaylar --}}
+        <div class="grid gap-4 sm:grid-cols-2">
+            @if ($category->hasAmount())
+                <x-ui.field label="Tutar (₺)" for="tk-amount" error="form.amount" optional
+                    :hint="$category->isIncome() ? 'Tahsil edilecek / faturalanacak tutar' : 'Ödenecek tutar'">
+                    <x-ui.input id="tk-amount" type="number" step="0.01" min="0" inputmode="decimal" wire:model.blur="form.amount" placeholder="0,00" :invalid="$errors->has('form.amount')" />
+                </x-ui.field>
+            @endif
+            <x-ui.field label="Müşteri" for="tk-client" error="form.client_id" optional :class="$category->hasAmount() ? '' : 'sm:col-span-2'">
+                <select id="tk-client" wire:model="form.client_id" class="{{ $select }}">
+                    <option value="">— Müşteriye bağlı değil —</option>
+                    @foreach ($this->clients as $c)
+                        <option value="{{ $c->id }}">{{ $c->full_name }}{{ $c->company ? ' · ' . $c->company : '' }}</option>
+                    @endforeach
+                </select>
+            </x-ui.field>
+        </div>
+
+        <div>
+            <p class="text-sm font-medium text-slate-700 dark:text-slate-200">Öncelik</p>
+            <div class="mt-1.5 grid grid-cols-3 gap-2">
+                @foreach (PriorityType::cases() as $p)
+                    <button type="button" wire:click="$set('form.priority', '{{ $p->value }}')"
+                        @class(['rounded-lg px-3 py-2 text-xs font-semibold ring-1 transition',
+                            'ring-2 ring-indigo-500 bg-indigo-50 text-indigo-900 dark:bg-indigo-500/10 dark:text-indigo-100' => $form->priority === $p->value,
+                            'text-slate-600 ring-slate-200 hover:bg-slate-50 dark:text-slate-300 dark:ring-white/10' => $form->priority !== $p->value])>
+                        {{ $p->label() }}
+                    </button>
+                @endforeach
+            </div>
+        </div>
+
+        <x-ui.field label="Not" for="tk-desc" error="form.description" optional>
+            <textarea id="tk-desc" wire:model.blur="form.description" rows="3" class="{{ $textarea }}" placeholder="Detaylar, hesap bilgisi, aranacak numara…"></textarea>
+        </x-ui.field>
+    </div>
+
+    <footer class="flex items-center justify-end gap-3 border-t border-slate-200 bg-slate-50 px-6 py-4 dark:border-white/10 dark:bg-slate-950/50">
+        <button type="button" x-on:click="$dispatch('close-drawer', { name: 'task-form' })"
+            class="rounded-lg px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-200 dark:text-slate-200 dark:hover:bg-white/10">Vazgeç</button>
+        <button type="submit" wire:loading.attr="disabled" wire:target="save"
+            class="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-5 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 disabled:opacity-60">
+            <span wire:loading.remove wire:target="save">{{ $form->isEditing() ? 'Değişiklikleri kaydet' : 'Görevi ekle' }}</span>
+            <span wire:loading wire:target="save">Kaydediliyor…</span>
+        </button>
+    </footer>
+</form>

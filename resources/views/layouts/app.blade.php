@@ -7,6 +7,9 @@
 
         <title>{{ isset($title) ? $title . ' · ' : '' }}{{ config('app.name', 'KoyuMavi') }} Servis</title>
 
+        <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+        <link rel="alternate icon" href="/favicon.ico">
+        <meta name="theme-color" content="#0B1E4D">
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=figtree:400,500,600,700,800,900&display=swap" rel="stylesheet" />
 
@@ -38,6 +41,8 @@
                     <div class="hidden md:block">
                         <livewire:search />
                     </div>
+
+                    <livewire:notification-bell />
 
                     <a href="{{ route('tickets.index', ['yeni' => 1]) }}" wire:navigate
                         class="inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-500">

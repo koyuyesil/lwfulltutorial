@@ -5,7 +5,7 @@ namespace App\Livewire\BoardIds;
 use Livewire\Component;
 use Livewire\Attributes\Title;
 
-#[Title('Board Id\'s')]
+#[Title('Board ID kütüphanesi')]
 class BoardIdsIndex extends Component
 {
     public function render()

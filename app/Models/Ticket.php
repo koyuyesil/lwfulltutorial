@@ -44,7 +44,7 @@ class Ticket extends Model
             $ticket->tracking_code ??= self::generateTrackingCode();
             $ticket->status ??= TicketStatus::RECEIVED;
             $ticket->status_changed_at ??= now();
-            $ticket->due_at ??= now()->addHours(self::slaHoursFor($ticket->priority));
+            $ticket->due_at ??= now()->addHours(self::slaHoursFor($ticket->priority, User::find($ticket->user_id)));
         });
 
         static::created(function (Ticket $ticket) {
@@ -83,11 +83,19 @@ class Ticket extends Model
         return str_starts_with($clean, 'KM') ? 'KM-'.substr($clean, 2) : 'KM-'.$clean;
     }
 
-    public static function slaHoursFor(PriorityType|string|null $priority): int
+    /** Firmanın ayarladığı SLA süresi; ayar yoksa varsayılan. */
+    public static function slaHoursFor(PriorityType|string|null $priority, ?User $user = null): int
     {
         $key = $priority instanceof PriorityType ? $priority->value : (string) $priority;
+        $hours = self::slaTable($user ?? Auth::user());
 
-        return self::SLA_HOURS[$key] ?? self::SLA_HOURS['normal'];
+        return (int) ($hours[$key] ?? $hours['normal'] ?? self::SLA_HOURS['normal']);
+    }
+
+    /** @return array<string, int> */
+    public static function slaTable(?User $user): array
+    {
+        return $user ? array_map('intval', (array) $user->setting('tickets.sla_hours', self::SLA_HOURS)) : self::SLA_HOURS;
     }
 
     public function user()
@@ -169,7 +177,8 @@ class Ticket extends Model
             return 'overdue';
         }
 
-        $warningSeconds = self::slaHoursFor($this->priority) * 3600 * self::SLA_WARNING_RATIO;
+        $owner = $this->user_id === Auth::id() ? Auth::user() : $this->user;
+        $warningSeconds = self::slaHoursFor($this->priority, $owner) * 3600 * self::SLA_WARNING_RATIO;
 
         return now()->diffInSeconds($this->due_at) <= $warningSeconds ? 'warning' : 'ok';
     }
@@ -198,7 +207,7 @@ class Ticket extends Model
     {
         // slaState() ile aynı kural: kalan süre, önceliğin SLA süresinin %25'inin altında
         return $query->open()->where(function (Builder $q) {
-            foreach (self::SLA_HOURS as $priority => $hours) {
+            foreach (self::slaTable(Auth::user()) as $priority => $hours) {
                 $q->orWhere(fn (Builder $p) => $p->where('priority', $priority)->whereBetween('due_at', [
                     now(),
                     now()->addSeconds((int) ($hours * 3600 * self::SLA_WARNING_RATIO)),

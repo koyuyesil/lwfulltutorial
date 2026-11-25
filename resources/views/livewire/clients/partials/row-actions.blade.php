@@ -12,6 +12,7 @@
         <button type="button" role="menuitem" @click="menu = false; $dispatch('open-drawer', { name: 'client-form' }); Livewire.dispatch('edit-client', { id: {{ $client->id }} })"
             class="block w-full px-4 py-2 text-left text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-white/5">Düzenle</button>
         <a role="menuitem" href="{{ route('tickets.index', ['yeni' => 1, 'musteri' => $client->id]) }}" wire:navigate class="block px-4 py-2 text-slate-700 hover:bg-slate-50 sm:hidden dark:text-slate-200 dark:hover:bg-white/5">Servis kaydı aç</a>
+        <a role="menuitem" href="{{ route('clients.vcard', ['client' => $client, 'version' => auth()->user()->setting('clients.vcard_version')]) }}" class="block px-4 py-2 text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-white/5">vCard indir</a>
         <a role="menuitem" href="tel:{{ preg_replace('/[^0-9+]/', '', $client->phone) }}" class="block px-4 py-2 text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-white/5">Ara</a>
         @if ($wa = $client->whatsappNumber())
             <a role="menuitem" href="https://wa.me/{{ $wa }}" target="_blank" rel="noopener" class="block px-4 py-2 text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-white/5">WhatsApp</a>

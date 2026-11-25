@@ -145,7 +145,7 @@
                 </div>
 
                 <div class="flex flex-wrap items-center justify-between gap-3 border-t border-slate-100 bg-slate-50 px-6 py-4 text-sm dark:border-white/5 dark:bg-white/5">
-                    <p class="text-slate-600 dark:text-slate-300">Servis: <strong>{{ $ticket->user->name }}</strong></p>
+                    <p class="text-slate-600 dark:text-slate-300">Servis: <strong>{{ $ticket->user->companyName() }}</strong></p>
                     <button type="button" wire:click="resetSearch" class="font-semibold text-emerald-700 hover:text-emerald-900 dark:text-emerald-400">Başka kayıt sorgula</button>
                 </div>
             </div>

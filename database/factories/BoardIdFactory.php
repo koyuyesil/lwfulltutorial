@@ -2,9 +2,9 @@
 
 namespace Database\Factories;
 
+use App\Enums\DividerType;
 use App\Enums\RepairMethod;
 use App\Models\Product;
-use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -12,40 +12,28 @@ use Illuminate\Database\Eloquent\Factories\Factory;
  */
 class BoardIdFactory extends Factory
 {
-    /**
-     * Define the model's default state.
-     *
-     * @return array<string, mixed>
-     */
     public function definition(): array
     {
         return [
-            //'user_id' => User::factory(), // İlişkili kullanıcı oluşturulur
-            'user_id' => \App\Models\User::factory(), // İlişkili kullanıcı oluşturulur
-            'product_id' => Product::factory(), // İlişkili ürün oluşturulur
-            'build_name' => $this->faker->word(), // Örnek isim oluşturulur
-            // Model 'array' cast kullandığı için json_encode gerekmez (çift kodlanıyordu)
+            'user_id' => \App\Models\User::factory(),
+            'product_id' => Product::factory(),
+            'build_name' => strtoupper($this->faker->bothify('??##')).'_'.$this->faker->randomElement(['MP', 'PVT', 'DVT', 'EVT']),
+            'divider_type' => DividerType::ADC,
+            'chip' => \App\Enums\ChipType::PMIC,
+            'vref' => 1.8,
             'resistances' => [
-                'R1' => 100000, // Örnek R1 değeri
-                'R2' => $this->faker->randomFloat(2, 1, 100000), // Örnek R2 değeri
+                'R1' => 100000,
+                'R2' => $this->faker->randomElement([4700, 10000, 22000, 47000, 100000]),
             ],
-            // 'repair_methods' => json_encode($this->faker->randomElements([
-            //     'meta',
-            //     'flash',
-            //     'patch',
-            //     'unlocked',
-            //     'locked',
-            //     'resistor'
-            // ], rand(2, 6))), // Rastgele tamir yöntemleri seçilir
-            'repair_methods' => $this->faker->randomElements(
-                RepairMethod::cases(),
-                rand(2, 6)), // ["flash","patch","unlocked","locked"] Rastgele tamir yöntemleri dizisi
-            'mass_production_hwid' => $this->faker->uuid(), // Seri üretim HWID
-            'pre_production_hwid' => $this->faker->uuid(), // Ön üretim HWID
-            'description' => $this->faker->sentence(), // Örnek açıklama
-            'created_at' => now(),
-            'updated_at' => now(),
-
+            'repair_methods' => $this->faker->randomElements(array_map(fn ($m) => $m->value, RepairMethod::cases()), rand(1, 3)),
+            'mass_production_hwid' => strtoupper($this->faker->bothify('HW-####-??')),
+            'pre_production_hwid' => strtoupper($this->faker->bothify('PP-####-??')),
+            'description' => $this->faker->sentence(),
         ];
+    }
+
+    public function type(DividerType $type, ?\App\Enums\ChipType $chip = null): static
+    {
+        return $this->state(array_filter(['divider_type' => $type, 'chip' => $chip]));
     }
 }

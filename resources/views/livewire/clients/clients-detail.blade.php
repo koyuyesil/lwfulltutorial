@@ -3,7 +3,7 @@
         <x-koyu-svg-loading />
     </div>
     @if ($client)
-        @include('livewire.clients.partials.detail', ['client' => $client, 'avatarClass' => $avatarClass])
+        @include('livewire.clients.partials.detail', ['client' => $client, 'avatarClass' => $avatarClass, 'vcards' => $vcards, 'vcardVersion' => $vcardVersion])
     @else
         <div class="flex-1"></div>
     @endif

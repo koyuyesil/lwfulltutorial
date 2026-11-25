@@ -12,7 +12,15 @@ class Product extends Model
 {
     /** @use HasFactory<\Database\Factories\ProductFactory> */
     use HasFactory;
-    protected $fillable = ['manufacturer', 'brand', 'model_name', 'model_number', 'description'];
+    protected $fillable = [
+        'manufacturer', 'brand', 'model_name', 'model_number', 'description',
+        'codename', 'device_type', 'release_year', 'chipset', 'image',
+    ];
+
+    /** Base64 görseller listelerde gereksiz yere taşınmasın. */
+    protected $hidden = ['image'];
+
+    protected $casts = ['release_year' => 'integer'];
 
     // Single mutator. (Methot ismi rastgele değildir.)
 

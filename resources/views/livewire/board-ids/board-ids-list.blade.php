@@ -1,128 +1,105 @@
-<div class="mt-6">
-    @if ($boardIds->count() > 0)
-        <div class="overflow-x-auto">
-            <table class="min-w-full border-collapse border border-gray-300 dark:border-gray-700">
-                <thead>
-                    <tr
-                        class="bg-gray-100 dark:bg-gray-800 text-xs font-semibold uppercase text-gray-700 dark:text-gray-300">
+@use('App\Enums\DividerType')
+@use('App\Support\Si')
+@php
+    $chip = 'inline-flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold transition';
+    $chipOff = 'bg-white text-slate-600 ring-1 ring-slate-200 hover:bg-slate-50 dark:bg-slate-800 dark:text-slate-300 dark:ring-white/10 dark:hover:bg-white/5';
+    $chipOn = 'bg-slate-900 text-white dark:bg-white dark:text-slate-900';
+    $isFiltered = $search !== '' || $type !== '';
+@endphp
 
-                        <th class="border border-gray-300 dark:border-gray-700 px-4 py-2 text-left">Model</th>
-                        <th class="border border-gray-300 dark:border-gray-700 px-4 py-2 text-left">Build Name</th>
-                        <th class="border border-gray-300 dark:border-gray-700 px-4 py-2 text-left">Mass-Prod. HWID</th>
-                        <th class="border border-gray-300 dark:border-gray-700 px-4 py-2 text-left">Pre-Prod. HWID</th>
-                        <th class="border border-gray-300 dark:border-gray-700 px-4 py-2 text-center">Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach ($boardIds as $boardId)
-                        <tr
-                            class="text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition">
-                            <td class="border border-gray-300 dark:border-gray-700 px-4 py-2">
-                                {{ $boardId->product->manufacturer }}
-                                {{ $boardId->product->brand }}
-                                {{ $boardId->product->model_name }}
-                                {{ $boardId->product->model_number }}
-                            </td>
-                            <td class="border border-gray-300 dark:border-gray-700 px-4 py-2">
-                                {{ $boardId->build_name }}
-                            </td>
-                            <td class="border border-gray-300 dark:border-gray-700 px-4 py-2">
-                                {{ $boardId->mass_production_hwid }}
-                            </td>
-                            <td class="border border-gray-300 dark:border-gray-700 px-4 py-2">
-                                {{ $boardId->pre_production_hwid }}
-                            </td>
-                            <td class="border border-gray-300 dark:border-gray-700 px-4 py-2 text-center">
-                                <div class="flex justify-center space-x-4">
-                                    <button wire:click="$dispatch('edit', {id: {{ $boardId->id }}})"
-                                        class="flex py-1 px-3 bg-orange-500 hover:bg-red-600 text-sm text-white rounded-md">
-                                        Edit
-                                    </button>
-                                    <button wire:click="delete({{ $boardId->id }})"
-                                        wire:confirm="Are you sure you want to delete this device?"
-                                        class="flex py-1 px-3 bg-green-500 hover:bg-green-400 text-sm text-white rounded-md">
-                                        Delete
-                                    </button>
+<div class="mt-6 space-y-4">
+    <div class="flex flex-wrap items-center gap-3 rounded-xl bg-white p-3 shadow-sm ring-1 ring-slate-200 dark:bg-slate-800 dark:ring-white/10">
+        <x-ui.search wire:model.live.debounce.300ms="search" placeholder="Model, kod adı, build, HWID…" />
+        <div class="flex flex-wrap gap-1.5">
+            <button type="button" wire:click="$set('type', '')" @class([$chip, $type === '' ? $chipOn : $chipOff])>Tümü</button>
+            @foreach (DividerType::cases() as $t)
+                <button type="button" wire:click="$set('type', '{{ $t->value }}')" @class([$chip, $type === $t->value ? $chipOn : $chipOff])>
+                    {{ $t->label() }} <span class="opacity-60">{{ $typeCounts[$t->value] ?? 0 }}</span>
+                </button>
+            @endforeach
+        </div>
+    </div>
+
+    <div wire:loading.class="opacity-60" wire:target="search,type,gotoPage,nextPage,previousPage">
+        @if ($boards->isEmpty())
+            <div class="rounded-xl border-2 border-dashed border-slate-300 bg-white px-6 py-16 text-center dark:border-white/10 dark:bg-slate-800/50">
+                <p class="text-4xl">🔌</p>
+                <p class="mt-3 font-semibold text-slate-800 dark:text-white">{{ $isFiltered ? 'Bu filtreye uyan kayıt yok' : 'Kütüphane boş' }}</p>
+                <p class="mt-1 text-sm text-slate-500">Anakart kimlik dirençlerini kaydedin; onarımda doğru değeri saniyeler içinde bulun.</p>
+                @unless ($isFiltered)
+                    <button type="button" x-on:click="$dispatch('open-drawer', { name: 'board-form' }); Livewire.dispatch('create-board-id')"
+                        class="mt-4 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500">Yeni Board ID</button>
+                @endunless
+            </div>
+        @else
+            <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+                @foreach ($boards as $board)
+                    @php
+                        $bt = $board->divider_type ?? DividerType::ADC;
+                        $props = ['type' => $bt->value, 'chip' => $board->chip?->value ?? 'pmic', 'vref' => $board->vref, 'r1' => $board->r1(), 'r2' => $board->r2(), 'name' => $board->build_name];
+                        $vout = $board->vout();
+                    @endphp
+                    <article wire:key="board-{{ $board->id }}-{{ $board->updated_at?->timestamp }}"
+                        class="group flex flex-col overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-slate-200 transition hover:-translate-y-0.5 hover:shadow-lg dark:bg-slate-800 dark:ring-white/10">
+                        <button type="button" class="block" title="Detayı aç"
+                            x-on:click="$dispatch('open-drawer', { name: 'board-detail' }); Livewire.dispatch('show-board-id', { id: {{ $board->id }} })">
+                            <x-board-pcb compact :source="'() => (' . json_encode($props) . ')'" class="pointer-events-none" />
+                        </button>
+                        <div class="flex flex-1 flex-col p-4">
+                            <div class="flex items-start justify-between gap-2">
+                                <div class="min-w-0">
+                                    <p class="truncate text-xs text-slate-500">{{ $board->product?->brand }} {{ $board->product?->model_name }}{{ $board->product?->codename ? ' · ' . $board->product->codename : '' }}</p>
+                                    <p class="truncate font-mono text-base font-bold text-slate-900 dark:text-white">{{ $board->build_name }}</p>
                                 </div>
-                            </td>
-                        </tr>
-                        <tr
-                            class="text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition">
-                            <td colspan="8" class="border border-gray-300 dark:border-gray-700 px-4 py-2 text-left">
-                                <p><strong>Repair Methods:</strong>
-                                    {{-- {{ implode(', ', $boardId->repair_methods ?? []) }} --}}
-                                    @foreach ($boardId->repair_methods as $method)
-                                        @php
-                                            $class = App\Enums\RepairMethod::from($method)->color();
-                                        @endphp
-                                        <span
-                                            class="text-xs font-medium me-2 px-2.5 py-0.5 rounded {{ $class }}">
-                                            {{ ucfirst($method) }}
-                                        </span>
-                                    @endforeach
-                                </p>
-                                <p><strong>Resistances:</strong>
-                                    @if (!empty($boardId->resistances))
-                                        @php
-                                            // Gelen JSON string veriyi diziye çeviriyoruz
-                                            //$resistances = json_decode($boardId->resistances, true);
-                                            $resistances = $boardId->resistances;
-                                            $resistanceCount = count($resistances);
-                                            $index = 0;
-                                        @endphp
-                                        @foreach ($resistances as $key => $value)
-                                            @php
-                                                // Direnci SMD koduna dönüştür
-                                                $smdCode = convertToSMDCode($value);
-                                                $isFirstInPair = $index % 2 === 0; // Her iki dirençte bir yeni grup başlat
-                                                $index++;
-                                            @endphp
-                                            @if ($isFirstInPair)
-                                                <div style="display: flex; align-items: center;">
-                                                    <span>V_in=1.8V >---</span>
-                                            @endif
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="46" height="24" version="1.1">
-                                                <title>{{ $key }}: {{ $value }}Ω</title>
-                                                <g>
-                                                    <rect style="fill:#aaa;fill-opacity:1;fill-rule:nonzero;stroke:#000;stroke-width:1;stroke-opacity:1"
-                                                        width="43" height="21" y="1.5" x="1.5" />
-                                                    <rect style="fill:#000;fill-opacity:1;fill-rule:nonzero;stroke:none" width="26" height="22"
-                                                        x="10" y="1" />
-                                                    <text
-                                                        style="font-size:14px;text-align:center;text-anchor:middle;fill:#fff;fill-opacity:1;font-family:monospace"
-                                                        x="22.750488" y="17.195312">
-                                                        {{ $smdCode }}
-                                                    </text>
-                                                </g>
-                                            </svg>
-                                            @if ($isFirstInPair)
-                                                    <span>---+V_out+---</span>
-                                            @endif
+                                <span class="shrink-0 rounded px-1.5 py-0.5 text-[10px] font-bold uppercase {{ $bt->badge() }}">{{ $bt->short() }}</span>
+                            </div>
 
-                                            @if (!$isFirstInPair || $index === $resistanceCount)
-                                                @if ($index % 2 === 0)
-                                                    <span>---> GND</span>
-                                                @endif
-                                                </div>
-                                            @endif
-                                        @endforeach
-                                    @else
-                                        <p>N/A</p>
-                                    @endif
+                            <dl class="mt-3 grid grid-cols-3 gap-2 text-center">
+                                <div class="rounded-lg bg-slate-50 py-1.5 dark:bg-white/5">
+                                    <dt class="text-[10px] font-semibold uppercase text-slate-500">R1{{ $bt->internalR1() ? ' · iç' : '' }}</dt>
+                                    <dd class="font-mono text-sm font-bold text-slate-900 dark:text-white">{{ $board->r1() === null ? 'NC' : Si::format($board->r1()) }}</dd>
+                                </div>
+                                <div class="rounded-lg bg-slate-50 py-1.5 dark:bg-white/5">
+                                    <dt class="text-[10px] font-semibold uppercase text-slate-500">R2</dt>
+                                    <dd class="font-mono text-sm font-bold text-slate-900 dark:text-white">{{ $board->r2() === null ? 'NC' : Si::format($board->r2()) }}</dd>
+                                </div>
+                                <div class="rounded-lg bg-amber-50 py-1.5 dark:bg-amber-500/10">
+                                    <dt class="text-[10px] font-semibold uppercase text-amber-700 dark:text-amber-300">{{ $bt === DividerType::LOGIC ? 'Seviye' : 'Vout' }}</dt>
+                                    <dd class="font-mono text-sm font-bold text-amber-800 dark:text-amber-200">
+                                        @if ($bt === DividerType::LOGIC)
+                                            {{ $board->logicLevel() === null ? '?' : $board->logicLevel() }}
+                                        @else
+                                            {{ $vout === null ? '—' : Si::format($vout, 'V') }}
+                                        @endif
+                                    </dd>
+                                </div>
+                            </dl>
+
+                            @if ($board->mass_production_hwid || $board->pre_production_hwid)
+                                <p class="mt-3 truncate font-mono text-[11px] text-slate-500" title="MP: {{ $board->mass_production_hwid }} · PP: {{ $board->pre_production_hwid }}">
+                                    MP {{ $board->mass_production_hwid ?: '—' }} · PP {{ $board->pre_production_hwid ?: '—' }}
                                 </p>
-                                <p><strong>Description:</strong> {{ $boardId->description ?? 'N/A' }}</p>
-                            </td>
-                        </tr>
-                    @endforeach
-                </tbody>
-            </table>
-        </div>
-        <div class="mt-4">
-            {{ $boardIds->links() }}
-        </div>
-    @else
-        <div class="text-center text-gray-600 dark:text-gray-400 mt-4">
-            No boardIds found.
-        </div>
-    @endif
+                            @endif
+
+                            <div class="mt-3 flex flex-wrap gap-1">
+                                @foreach ($board->methods() as $m)
+                                    <span class="rounded px-1.5 py-0.5 text-[11px] font-medium {{ $m->color() }}">{{ $m->label() }}</span>
+                                @endforeach
+                            </div>
+                        </div>
+                        <div class="flex border-t border-slate-100 text-xs font-semibold dark:border-white/5">
+                            <button type="button" x-on:click="$dispatch('open-drawer', { name: 'board-detail' }); Livewire.dispatch('show-board-id', { id: {{ $board->id }} })"
+                                class="flex-1 py-2.5 text-slate-600 transition hover:bg-slate-50 hover:text-indigo-600 dark:text-slate-300 dark:hover:bg-white/5">Detay · 3D</button>
+                            <button type="button" x-on:click="$dispatch('open-drawer', { name: 'board-form' }); Livewire.dispatch('edit-board-id', { id: {{ $board->id }} })"
+                                class="flex-1 border-s border-slate-100 py-2.5 text-slate-600 transition hover:bg-slate-50 hover:text-indigo-600 dark:border-white/5 dark:text-slate-300 dark:hover:bg-white/5">Düzenle</button>
+                            <button type="button" wire:click="delete({{ $board->id }})" wire:confirm="{{ $board->build_name }} silinsin mi?"
+                                class="flex-1 border-s border-slate-100 py-2.5 text-slate-400 transition hover:bg-rose-50 hover:text-rose-600 dark:border-white/5 dark:hover:bg-rose-500/10">Sil</button>
+                        </div>
+                    </article>
+                @endforeach
+            </div>
+        @endif
+    </div>
+
+    <div>{{ $boards->links() }}</div>
 </div>

@@ -46,9 +46,16 @@ class ClientsDetail extends Component
             ])->find($this->clientId)
             : null;
 
+        $contacts = app(\App\Services\ClientContacts::class);
+
         return view('livewire.clients.clients-detail', [
             'client' => $client,
             'avatarClass' => $client ? self::AVATAR_COLORS[$client->id % count(self::AVATAR_COLORS)] : null,
+            // QR için her sürümün vCard metni (sürüm değiştirince sunucuya gidilmez)
+            'vcards' => $client
+                ? collect(\App\Services\ClientContacts::VCARD_VERSIONS)->mapWithKeys(fn ($v) => [$v => $contacts->vcard($client, $v)])->all()
+                : [],
+            'vcardVersion' => (string) Auth::user()->setting('clients.vcard_version'),
         ]);
     }
 }

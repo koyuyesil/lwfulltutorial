@@ -1,7 +1,7 @@
 <footer class="border-t border-slate-200 bg-slate-50 dark:border-white/10 dark:bg-slate-950">
     <div class="mx-auto grid max-w-7xl gap-8 px-4 py-10 text-sm sm:px-6 md:grid-cols-4 lg:px-8">
         <div class="md:col-span-2">
-            <p class="text-base font-extrabold text-slate-900 dark:text-white">{{ config('app.name', 'KoyuMavi') }} <span class="text-sky-600 dark:text-sky-400">Servis</span></p>
+            <p class="flex items-center gap-2 text-base"><x-application-logo class="h-7 w-7 rounded-lg" /><x-brand-name /></p>
             <p class="mt-2 max-w-md text-slate-600 dark:text-slate-400">
                 Teknik servis firmaları için satış sonrası servis yönetimi: kabulden teslimata kadar tüm süreç, tek panelde.
             </p>

@@ -2,102 +2,145 @@
 
 namespace App\Livewire\Forms;
 
-use Livewire\Form;
-use App\Models\BoardId;
+use App\Enums\DividerType;
 use App\Enums\RepairMethod;
-use Livewire\Attributes\Validate;
+use App\Models\BoardId;
+use App\Support\Si;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
+use Livewire\Form;
 
 class BoardIdForm extends Form
 {
+    public ?BoardId $boardId = null;
 
-    public $editMode = false;
-    public ?BoardId $boardId;
+    public ?int $product_id = null;
 
-    #[Validate('required')]
-    public ?int $product_id = 1;//TODO bu ilişkili tablo keyi
+    public string $build_name = '';
 
-    #[Validate('required|min:5')]
-    public ?string $build_name;
+    public string $divider_type = 'adc';
 
-    #[Validate('required')]
-    public ?string $mass_production_hwid;
+    /** Okuyan entegre: pmic | soc (yalnızca görselde seçilir) */
+    public string $chip = 'pmic';
 
-    #[Validate('required')]
-    public ?string $pre_production_hwid;
+    public string $vref = '1.8';
 
-    #[Validate('required')]
-    public $repair_methods = [];
+    /** SI önekli yazılabilir: 100k, 4k7, 22k1. Boş = takılı değil (NC). */
+    public string $r1 = '100k';
 
-    #[Validate('required')]
-    public $resistances = [];
+    public string $r2 = '10k';
 
-    #[Validate('required')]
-    public ?string $description;
+    public string $mass_production_hwid = '';
 
-    public function setContent(BoardId $boardId)
+    public string $pre_production_hwid = '';
+
+    public array $repair_methods = [];
+
+    public string $description = '';
+
+    public function rules(): array
     {
-        $this->editMode = true;
+        $resistor = fn () => function (string $attribute, mixed $value, \Closure $fail) {
+            if (trim((string) $value) !== '' && ((Si::parse($value) ?? -1) < 0)) {
+                $fail('Geçerli bir direnç girin (örn. 100k, 4k7, 22k1).');
+            }
+        };
+
+        return [
+            'product_id' => ['required', Rule::exists('products', 'id')->where('user_id', Auth::id())],
+            'build_name' => ['required', 'string', 'min:2', 'max:80'],
+            'divider_type' => ['required', Rule::enum(DividerType::class)],
+            'chip' => ['required', Rule::enum(\App\Enums\ChipType::class)],
+            'vref' => ['required', 'numeric', 'min:0.5', 'max:5'],
+            'r1' => ['nullable', 'string', 'max:20', $resistor()],
+            'r2' => ['nullable', 'string', 'max:20', $resistor()],
+            'mass_production_hwid' => ['nullable', 'string', 'max:80'],
+            'pre_production_hwid' => ['nullable', 'string', 'max:80'],
+            'repair_methods' => ['array'],
+            'repair_methods.*' => [Rule::enum(RepairMethod::class)],
+            'description' => ['nullable', 'string', 'max:2000'],
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'product_id.required' => 'Cihaz modelini seçin.',
+            'build_name.required' => 'Build / kart adı zorunludur.',
+            'vref.*' => 'Referans gerilim 0,5 – 5 V arasında olmalıdır.',
+        ];
+    }
+
+    public function isEditing(): bool
+    {
+        return $this->boardId !== null;
+    }
+
+    public function setContent(BoardId $boardId): void
+    {
         $this->boardId = $boardId;
-
-        $this->build_name = $boardId->build_name;
-        $this->mass_production_hwid = $boardId->mass_production_hwid;
-        $this->pre_production_hwid = $boardId->pre_production_hwid;
-        $this->repair_methods = $boardId->repair_methods;
-        $this->resistances = $boardId->resistances;
-        $this->description = $boardId->description;
-
+        $this->product_id = $boardId->product_id;
+        $this->build_name = (string) $boardId->build_name;
+        $this->divider_type = $boardId->divider_type?->value ?? 'adc';
+        $this->chip = $boardId->chip?->value ?? 'pmic';
+        $this->vref = rtrim(rtrim(number_format((float) ($boardId->vref ?: 1.8), 3, '.', ''), '0'), '.');
+        $this->r1 = $this->display($boardId->r1());
+        $this->r2 = $this->display($boardId->r2());
+        $this->mass_production_hwid = (string) $boardId->mass_production_hwid;
+        $this->pre_production_hwid = (string) $boardId->pre_production_hwid;
+        $this->repair_methods = array_map(fn ($m) => $m->value, $boardId->methods());
+        $this->description = (string) $boardId->description;
     }
 
-    // Yeni bir key-value çifti eklemek
-    public function aRddResistance()
+    /** 4700 → "4k7" (formda kısa yazım) */
+    protected function display(?float $ohms): string
     {
-        $this->resistances[] = ['key' => '', 'value' => ''];
-    }
-
-    // Bir key-value çiftini silmek
-    public function rRemoveResistance($index)
-    {
-        unset($this->resistances[$index]);
-        $this->resistances = array_values($this->resistances); // Dizinin sırasını yeniden düzenle
-    }
-    // Yeni bir key-value çifti eklemek
-    public function addResistance()
-    {
-        // 'resistances' alanını bir anahtar-değer biçiminde saklıyoruz
-        $this->resistances["R" . (count($this->resistances) + 1)] = 0;
-    }
-
-    // Bir key-value çiftini silmek
-    public function removeResistance($key)
-    {
-        unset($this->resistances[$key]);
-    }
-
-
-    public function store()
-    {
-        // $this->validate();
-
-        // // Veriyi işle ve kaydet
-        // foreach ($this->resistances as $key => $value) {
-        //     $this->validate([
-        //         "resistances.$key" => 'required|string',
-        //         "resistances.$value" => 'required|numeric',
-        //     ]);
-        // }
-
-
-
-        if ($this->editMode) {
-            $this->boardId->update($this->all());
-            $this->reset();
-            session()->flash('message', 'Form successfully updated.');
-        } else {
-            Auth::user()->boardIds()->create($this->all());
-            session()->flash('message', 'Form successfully created.');
-            //request()->session()->flash('succes',__('Task created successfully'));
-            $this->reset();
+        if ($ohms === null) {
+            return '';
         }
+        foreach ([[1e6, 'M'], [1e3, 'k']] as [$f, $p]) {
+            if ($ohms >= $f) {
+                $v = rtrim(rtrim(number_format($ohms / $f, 3, '.', ''), '0'), '.');
+
+                return str_contains($v, '.') ? str_replace('.', $p, $v) : $v.$p;
+            }
+        }
+
+        return rtrim(rtrim(number_format($ohms, 2, '.', ''), '0'), '.');
+    }
+
+    public function store(): BoardId
+    {
+        $data = $this->validate();
+        $type = DividerType::from($data['divider_type']);
+
+        $attributes = [
+            'product_id' => $data['product_id'],
+            'build_name' => trim($data['build_name']),
+            'divider_type' => $type,
+            'chip' => $data['chip'],
+            'vref' => (float) $data['vref'],
+            'resistances' => [
+                'R1' => trim((string) $data['r1']) === '' ? null : Si::parse($data['r1']),
+                'R2' => trim((string) $data['r2']) === '' ? null : Si::parse($data['r2']),
+            ],
+            'mass_production_hwid' => trim($data['mass_production_hwid']) ?: null,
+            'pre_production_hwid' => trim($data['pre_production_hwid']) ?: null,
+            'repair_methods' => array_values(array_unique($data['repair_methods'])),
+            'description' => trim((string) $data['description']) ?: null,
+        ];
+
+        if ($this->boardId) {
+            // Formda olmayan ek değerler (R1_ORG, R2_ORG) korunur
+            $attributes['resistances'] += array_diff_key((array) $this->boardId->resistances, ['R1' => 1, 'R2' => 1]);
+            $this->boardId->update($attributes);
+            $board = $this->boardId;
+        } else {
+            $board = Auth::user()->boardIds()->create($attributes);
+        }
+
+        $this->reset();
+
+        return $board;
     }
 }

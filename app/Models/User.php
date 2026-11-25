@@ -76,4 +76,15 @@ class User extends Authenticatable
     {
         return $this->hasMany(Task::class);
     }
+
+    public function setting(string $key, mixed $default = null): mixed
+    {
+        return \App\Support\Settings::get($this, $key, $default);
+    }
+
+    /** Müşteriye görünen firma adı (ayarlanmamışsa kullanıcı adı). */
+    public function companyName(): string
+    {
+        return $this->setting('company.name') ?: $this->name;
+    }
 }

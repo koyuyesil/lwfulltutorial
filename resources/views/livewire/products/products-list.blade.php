@@ -70,6 +70,8 @@
                     <p class="mt-1 text-sm text-slate-500">En sık servis verdiğiniz modelleri ekleyin; servis kaydı açarken hazır olsun.</p>
                     <button type="button" x-on:click="$dispatch('open-drawer', { name: 'product-form' }); Livewire.dispatch('create-product')"
                         class="mt-4 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500">Yeni model</button>
+                    <a href="{{ route('settings', 'cihaz-modelleri') }}" wire:navigate
+                        class="ms-2 mt-4 inline-block rounded-lg px-4 py-2 text-sm font-semibold text-indigo-600 ring-1 ring-indigo-200 hover:bg-indigo-50 dark:text-indigo-300 dark:ring-indigo-500/30">CSV'den içe aktar</a>
                 @endif
             </div>
         @elseif ($view === 'cards')
@@ -77,15 +79,27 @@
                 @foreach ($products as $product)
                     <article wire:key="product-{{ $product->id }}"
                         class="group relative flex flex-col overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-slate-200 transition hover:-translate-y-0.5 hover:shadow-lg dark:bg-slate-800 dark:ring-white/10">
-                        <div class="relative h-20 bg-linear-to-br {{ $brandColor($product->brand) }} p-4">
-                            <span class="text-[11px] font-bold uppercase tracking-[0.2em] text-white/80">{{ $product->brand }}</span>
-                            <span class="absolute -bottom-6 right-4 grid h-12 w-12 place-items-center rounded-xl bg-white text-lg font-black text-slate-800 shadow-lg ring-1 ring-slate-200 dark:bg-slate-900 dark:text-white dark:ring-white/10">
-                                {{ mb_strtoupper(mb_substr($product->brand, 0, 1)) }}
-                            </span>
-                        </div>
+                        @if ($product->image)
+                            <div class="relative flex h-36 items-center justify-center bg-slate-50 p-3 dark:bg-white/5">
+                                <img src="{{ $product->image }}" alt="{{ $product->display_name }}" loading="lazy" class="h-full w-full object-contain">
+                                <span class="absolute left-3 top-3 rounded-md bg-white/90 px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.15em] text-slate-700 shadow-sm dark:bg-slate-900/90 dark:text-slate-200">{{ $product->brand }}</span>
+                            </div>
+                        @else
+                            <div class="relative h-20 bg-linear-to-br {{ $brandColor($product->brand) }} p-4">
+                                <span class="text-[11px] font-bold uppercase tracking-[0.2em] text-white/80">{{ $product->brand }}</span>
+                                <span class="absolute -bottom-6 right-4 grid h-12 w-12 place-items-center rounded-xl bg-white text-lg font-black text-slate-800 shadow-lg ring-1 ring-slate-200 dark:bg-slate-900 dark:text-white dark:ring-white/10">
+                                    {{ mb_strtoupper(mb_substr($product->brand, 0, 1)) }}
+                                </span>
+                            </div>
+                        @endif
                         <div class="flex flex-1 flex-col p-4 pt-3">
-                            <h3 class="pr-14 font-bold text-slate-900 dark:text-white">{{ $product->model_name }}</h3>
-                            <p class="font-mono text-xs text-slate-500">{{ $product->model_number ?: '—' }}</p>
+                            <h3 @class(['font-bold text-slate-900 dark:text-white', 'pr-14' => ! $product->image])>{{ $product->model_name }}</h3>
+                            <p class="font-mono text-xs text-slate-500">
+                                {{ $product->model_number ?: '—' }}@if ($product->codename) · <span class="text-indigo-600 dark:text-indigo-300" title="Kod adı">{{ $product->codename }}</span>@endif
+                            </p>
+                            @if ($product->chipset || $product->release_year)
+                                <p class="mt-1 text-xs text-slate-600 dark:text-slate-300">{{ $product->chipset }}{{ $product->chipset && $product->release_year ? ' · ' : '' }}{{ $product->release_year }}</p>
+                            @endif
                             @if ($product->description)
                                 <p class="mt-2 line-clamp-2 text-xs text-slate-600 dark:text-slate-400">{{ $product->description }}</p>
                             @endif
@@ -116,7 +130,7 @@
                     <thead class="bg-slate-50 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 dark:bg-white/5 dark:text-slate-400">
                         <tr>
                             <th class="px-4 py-3">Model</th>
-                            <th class="hidden px-4 py-3 md:table-cell">Model no</th>
+                            <th class="hidden px-4 py-3 md:table-cell">Model no / kod adı</th>
                             <th class="hidden px-4 py-3 lg:table-cell">Üretici</th>
                             <th class="px-4 py-3 text-right">Cihaz</th>
                             <th class="px-4 py-3 text-right">Servis</th>
@@ -128,14 +142,21 @@
                             <tr wire:key="product-row-{{ $product->id }}" class="hover:bg-slate-50 dark:hover:bg-white/5">
                                 <td class="px-4 py-2.5">
                                     <div class="flex items-center gap-3">
-                                        <span class="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-linear-to-br text-xs font-bold text-white {{ $brandColor($product->brand) }}">{{ mb_strtoupper(mb_substr($product->brand, 0, 1)) }}</span>
+                                        @if ($product->image)
+                                            <img src="{{ $product->image }}" alt="" loading="lazy" class="h-8 w-8 shrink-0 rounded-lg bg-slate-50 object-contain ring-1 ring-slate-200 dark:bg-white/5 dark:ring-white/10">
+                                        @else
+                                            <span class="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-linear-to-br text-xs font-bold text-white {{ $brandColor($product->brand) }}">{{ mb_strtoupper(mb_substr($product->brand, 0, 1)) }}</span>
+                                        @endif
                                         <div class="min-w-0">
                                             <p class="truncate font-semibold text-slate-900 dark:text-white">{{ $product->model_name }}</p>
                                             <p class="truncate text-xs text-slate-500">{{ $product->brand }}</p>
                                         </div>
                                     </div>
                                 </td>
-                                <td class="hidden px-4 py-2.5 font-mono text-xs text-slate-600 md:table-cell dark:text-slate-300">{{ $product->model_number ?: '—' }}</td>
+                                <td class="hidden px-4 py-2.5 font-mono text-xs text-slate-600 md:table-cell dark:text-slate-300">
+                                    {{ $product->model_number ?: '—' }}
+                                    @if ($product->codename) <span class="block text-indigo-600 dark:text-indigo-300">{{ $product->codename }}</span> @endif
+                                </td>
                                 <td class="hidden px-4 py-2.5 text-slate-600 lg:table-cell dark:text-slate-300">{{ $product->manufacturer }}</td>
                                 <td class="px-4 py-2.5 text-right tabular-nums">{{ $product->devices_count }}</td>
                                 <td class="px-4 py-2.5 text-right tabular-nums">

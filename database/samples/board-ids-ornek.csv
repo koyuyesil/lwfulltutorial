@@ -1,0 +1,118 @@
+﻿codename,brand,model_name,build_name,divider_type,chip,vref,r1,r2,r1_original,r2_original,mass_production_hwid,pre_production_hwid,repair_methods,description
+apollo,,,apollo,pullup,pmic,1.8,,100k,,11k,GLOBAL-MP-8.19.6,CN-P1.6-8.1.6,resistor,"Durum: ok"
+biloba,,,biloba,pullup,pmic,1.8,,open,,100k,global-MP-9.19.0,global--1-0.00.0,resistor,"null resistance 3.3k r2 27k r1 100k
+Durum: ok"
+corot,,,corot,pullup,pmic,1.8,,11k,,353k,GL-MP-2.19.0,GL-P0.1-2.10.1,resistor,"pmt changed, eng fw network ok, engde nv yedek alınabilir.
+Durum: ok"
+corot,,,corot,pullup,pmic,1.8,,18k,,353k,GL-MP-2.19.0,CN-P0.1-2.0.1,resistor,"512 modeli için repair 18k ile yapılır 47k takıp global yüklenir.(nvram silmeden dene)
+Durum: ok"
+corot,,,corot,pullup,pmic,1.8,,25k,,353k,GL-MP-2.19.0,GL-P1-2.11.0,resistor,"pmt changed, eng fw network ok, engde nv yedek alınabilir.
+Durum: ok"
+corot,,,corot,pullup,pmic,1.8,,43k,,353k,GL-MP-2.19.0,GL-P1.1-2.11.1,resistor,"pmt changed, eng fw network ok, engde nv yedek alınabilir.
+Durum: ok"
+corot,,,corot,pullup,pmic,1.8,,7.2k,,353k,GL-MP-2.19.0,GL-P0-2.10.0,resistor,"pmt changed, eng fw network ok, engde nv yedek alınabilir.
+Durum: ok"
+emerald,,,emerald,pullup,pmic,1.8,,10k,,,glb-MP-5191.19.0,glb-P0.1-8221.10.1,resistor|patch|locked,"sökmeden paralel 18k 256gb
+BOOTLOADERUNLOCK NEED RESET AND PATCH-BL_LOCK
+Durum: ok"
+emerald,,,emerald,pullup,pmic,1.8,,10k,,,glb-MP-8221.19.0,glb-P0.1-8221.10.1,resistor|patch|locked,"sökmeden paralel 15k 256gb
+BOOTLOADERUNLOCK NEED RESET AND PATCH-BL_LOCK
+Durum: ok"
+emerald,,,emerald,pullup,pmic,1.8,,"11,4k",,,glb-MP-8221.19.0,glb-P0.1-8221.10.1,resistor|patch|locked,"sökmeden paralel 18k 256gb
+BOOTLOADERUNLOCK NEED RESET AND PATCH-BL_LOCK
+Durum: ok"
+emerald,,,emerald,pullup,pmic,1.8,,18k,,,glb-MP-8221.19.0,glb-P1.1-8221.11.1,resistor|patch|locked,"sökmeden paralel 43k 512gb
+BOOTLOADERUNLOCK NEED RESET AND PATCH-BL_LOCK
+Durum: ok"
+fog,,,fog,pullup,pmic,1.8,,open,,100k,Global-MP-3.29.0,Global-0-3.20.0,resistor|locked,"koruma yok bl kapalı eng olmadan. null reading 4m
+Durum: ok"
+fog,,,fog,pullup,pmic,1.8,,open,,100k,Global-MP-5.39.0,Global-0-5.30.0,resistor|locked,"koruma yok bl kapalı eng olmadan. null reading 4m
+Durum: ok"
+fog,,,fog,pullup,pmic,1.8,,open,,100k,India-MP-3.19.2,Unknown-Unknown-Unknown,resistor|locked,"koruma yok bl kapalı eng olmadan. null reading 4m
+Durum: test"
+garnet,,,garnet,pullup,pmic,1.8,,3.3?k,,?k,,Global-P1-17.1.9,resistor,"bilinmeyen. LİSTEDE YOK"
+garnet,,,garnet,pullup,pmic,1.8,,43k,,10k,CN-MP-17.9.0,GL-P1-17.11.0,resistor|tmp_root|tmp_bl_unlock|flash,"garnet geçici unlock olur tmproot ile destroyedde fastboot eng rom yükle. nfc. sadece global cihazda olur.
+Durum: ok"
+garnet,,,garnet,pullup,pmic,1.8,,62k,,10k,CN-MP-17.9.0,IN-P1-17.21.0,resistor|tmp_root|tmp_bl_unlock|flash,"garnet geçici unlock olur tmproot ile destroyedde fastboot eng rom yükle. nfc yok. india roma uyumlu çin anakarta parmakizi ve nfc gider ona convert rom kullan.
+Durum: ok"
+garnet,,,garnet,pullup,pmic,1.8,,82k,,10k,CN-MP-17.9.0,CN-P1.1-17.1.1,resistor|tmp_root|tmp_bl_unlock|flash,"garnet geçici unlock olur tmproot ile destroyedde fastboot eng rom yükle. çin anakarta ve çin roma uyumlu. convert rom ile.
+Durum: err"
+joyeuse,,,joyeuse,pullup,pmic,1.8,,20k,,232k,VDF_TWO-MP-4.90.0,VDF_ONE-0-4.1.0,resistor,"Durum: ok"
+merlin,,,merlin,pullup,pmic,1.8,,22-27k,,11k,merlingl-MP-2522.29.0,merlingl-P0-2522.20.0,resistor,"Board_ID Change R1251 - REMOVE R1265 - Voltage Divider R1251 (null 115k read 10k) Divider voltage 0,38v
+Durum: ok"
+merlin,,,merlin,pullup,pmic,1.8,,22-27k,,230k,merlin[cn]-MP-2522.9.0,merlingl-P0-2522.20.0,resistor,"Board_ID Change R1251 - REMOVE R1264 - Voltage Divider R1251 (null 117k read 78k) Divider voltage 0,38v
+Durum: ok"
+obsidian,,,obsidian,pullup,pmic,1.8,,?k,,?k,obsidian_gl-MP-7286.19.0,,resistor|tmp_root|brom_bypass|meta|locked|flash,"resistor basit sök metamode repair. OS3.0.3.0.WOFMIXM TmpRoot ile preloader yukle a ve b kullanılmayan slota. flashmode BL_LOCK repair olur. OS3.0.304.0.WOFMIXM burom unlock? oldu, OS3.0.302.0.WOFMIXM unlock olmadı.
+Durum: ok"
+plato,,,plato,pullup,pmic,1.8,,33k,,open,GL-MP-5.19.0,GL-P1-5.11.0,resistor,"null resistance 0.6m
+Durum: ok"
+redwood,,,redwood,pullup,pmic,1.8,,47k,,150k,CN-MP-14.9.0,IN-P1-14.21.0,resistor,"paralel 60-62k takılabilir. farklı rom denendi poco oluyor
+Durum: ok"
+rothko,,,rothko,pullup,pmic,1.8,,3.3k,,33.2k,GL-MP-4.19.0,GL-P1-4.11.0,resistor,"engrom mutlaka upgrade edilmeli.
+Durum: ok"
+ruby,,,ruby,pullup,pmic,1.8,,43k,,25k,CN-MP-1.9.0,,resistor,"cn? 99,5k india rom nfc yok
+Durum: ok"
+ruby,,,ruby,pullup,pmic,1.8,,62k,,25k,CN-MP-1.9.0,GL-P2.1-1.12.1,resistor,"? 121,7k şebeke vermez
+Model no: 22101316C"
+ruby,,,ruby,pullup,pmic,1.8,,66k,,25k,CN-MP-1.9.0,GL-P1-1.11.0,resistor,"121,7k global rom nfc ok
+Durum: ok"
+ruby,,,ruby,pullup,pmic,1.8,,66k,,25k,CN-MP-1.9.0,GL-P1-1.11.0,resistor,"99,5k global rom nfc ok
+Durum: ok"
+ruby,,,ruby,pullup,pmic,1.8,,68k,,25k,CN-MP-1.9.0,GL-P1-1.11.0,resistor,"121,7k global rom nfc ok
+Durum: ok"
+ruby,,,ruby,pullup,pmic,1.8,,68k,,33k,GL-MP-1.19.0,GL-P1-1.11.0,resistor,"118.4k global rom nfc ok
+Durum: ok"
+ruby,,,ruby,pullup,pmic,1.8,,82k,,25k,CN-MP-1.9.0,IN-P1-1.21.0,resistor,"121,7k india rom nfc yok
+Durum: ok"
+ruby,,,ruby,pullup,pmic,1.8,,82k,,25k,CN-MP-1.9.0,IN-P1-1.21.0,resistor,"99,5k india rom nfc yok
+Durum: ok"
+rubypro,,,rubypro,pullup,pmic,1.8,,43k,,11k,CN-MP-2.9.0,IN-P1-2.21.0,resistor,"Durum: ok"
+rubypro,,,rubypro,pullup,pmic,1.8,,43k,,11k,CN-MP-2.9.0,IN-P1-2.21.0,resistor,"118,3k
+Durum: ok"
+rubypro,,,rubypro,pullup,pmic,1.8,,47k,,18k,GB-MP-2.19.0,IN-P1-2.19.0,resistor,"Durum: ok"
+sapphiren,,,sapphiren,pullup,pmic,1.8,,open,,100k,Global-MP-2.39.0,Global-P0-2.30.0,resistor|qc_diag|unlocked|flash,"Direct Bootloader Unlock Destekliyor, fastboot reboot edl var, mavi çizgili gri ekran nvram error sorunu için fix qcn kullan
+Durum: ok"
+star,,,star,pullup,pmic,1.8,,,,,,GL-P1.1-2.11.1,,"direncli geldi
+Durum: ok"
+surya,,,surya,pullup,pmic,1.8,,open,,909K,INT-0-4.0.0,INT-0-4.0.0,resistor,"null resistance m
+Durum: ok
+Model no: M2007J20CG"
+surya,,,surya,pullup,pmic,1.8,,open,,909K,INT-0-4.0.0,INT-1-4.10.0,resistor,"null resistance m
+Durum: ok
+Model no: M2007J20CG"
+sweet,,,sweet,pullup,pmic,1.8,,220k,,25k,GLOBAL-MP-10.19.6,JAPAN-P1.1-10.41.1,resistor,"Modemsiz olur. unlock değilse sim1 efs silmeden nvresistant repair.
+Durum: ok
+Model no: M2101K6G"
+sweet_k6a,,,sweet_k6a,pullup,pmic,1.8,,10k,,open,Global-MP-16.19.0,Global-P0.1-16.10.1,resistor,"direct bootlop==>erase nv ok
+Durum: ok"
+sweet_k6a,,,sweet_k6a,pullup,pmic,1.8,,10k,,open,Global-MP-16.19.0,Global-P0.1-16.10.1,resistor,"direct bootlop==>erase nv ok
+Durum: ok"
+sweet_k6a,,,sweet_k6a,pullup,pmic,1.8,,10k????,,open,Global-MP-16.19.0,Global-P0.1-16.10.1,resistor,"1.8 yuksek taraf direnci 12k dokunma sökmeden 10k
+Durum: ok"
+tapas,,,tapas,pullup,pmic,1.8,,open,,100k,Global-MP-1.29.2,Global-0-1.20.2,resistor,"100k sabit pull down direnc kaldırıldı ""0"" oldu. hyperos modem şart. on off resistor proje modu. her anakartta farklı board id veriyor
+Durum: ok"
+tapas,,,tapas,pullup,pmic,1.8,,open,,100k,Global-MP-2.39.2,Global-0-2.30.2,resistor,"100k sabit pull down direnc kaldırıldı ""0"" oldu. hyperos modem şart. on off resistor proje modu. her anakartta farklı board id veriyor
+Durum: ok"
+vayu,,,vayu,pullup,pmic,1.8,,11k,,80k,GLOBAL-MP-6.19.0,GLOBAL-P0-6.10.0,resistor|tmp_root|locked,"tides/moon BL_LOCK_2026 ile,tmp root ile GLOBAL/MP/7015A.19.0 unlock oluyor V816.0.9.0.UNTMIXM
+Durum: ok"
+vayu,,,vayu,pullup,pmic,1.8,,11k,,80k,GLOBAL-MP-6.19.0,GLOBAL-P0-6.10.0,resistor,"Durum: ok"
+vayu,,,vayu,pullup,pmic,1.8,,open,,80k,GLOBAL-MP-6.19.0,CN-P1-6.1.0,resistor,"if repair nvram error
+Durum: err"
+vili,,,vili,pullup,pmic,1.8,,,,,,JP-P1.1-8.31.1,,"direncli geldi
+Durum: ok"
+viva,,,viva,pullup,pmic,1.8,,,,6k,Global-MP-16.19.0,Unknown-Unknown-Unknown,,"null 115k
+Durum: ?
+Model no: 2201116TG"
+zircon,,,zircon,pullup,pmic,1.8,,33k,,7.2k,CN-MP-3.9.0,GL-P1-3.11.0,resistor,"null resistance 4m
+Durum: ok"
+zircon,,,zircon,pullup,pmic,1.8,,,,7.2k,CN-MP-3.9.0,GL-P1-3.11.0,,"33k+10k null resistance 4m R1 Sökülürse boş id CN-P2-3.2.6, R2 10k etkisi yok pull up resistor
+Durum: err"
+zircon,,,zircon,pullup,pmic,1.8,,43k,,7.2k,CN-MP-3.9.0,IN-P1-3.21.0,resistor,"null resistance 4m
+Durum: ok"
+zircon,,,zircon,pullup,pmic,1.8,,47k,,7.2k,CN-MP-3.9.0,IN-P1-3.21.0,resistor,"null resistance 4m
+Durum: ok"
+amethysyt,,,amethysyt,pullup,pmic,1.8,,,,,,,,"çökebilir unlockta"
+creek,,,creek,pullup,pmic,1.8,,,,,,,patch|unlocked,"OS3.0.302.0.WBOMIXM, Direct Bootloader Unlock Destekliyor, EDL DFTSU, REPAIR WITH PATCH."
+gale,,,gale,pullup,pmic,1.8,,,,,,,patch,"rom seçiyor tapas gibi OS2.0.206.0.VGPMIXM PATCHBLLOCK"
+malachite,,,malachite,pullup,pmic,1.8,,,,,,,locked,"bl_loc_2026 Globale dönerken obcust obconfig ve varsa cust dosyalarının tikini kaldırınız."
+sapphire,,,sapphire,pullup,pmic,1.8,,,,,,,patch|unlocked|flash,"Direct Bootloader Unlock Destekliyor, fastboot reboot edl var, DATA SİLER DİKKKAT, OS2.0.213.0.VNGMIXM PATCH OLUYOR."

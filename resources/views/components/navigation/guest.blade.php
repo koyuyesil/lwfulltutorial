@@ -12,12 +12,8 @@
     <div class="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
         {{-- Logo --}}
         <a href="{{ route('home') }}" wire:navigate class="flex items-center gap-2.5">
-            <span class="grid h-9 w-9 place-items-center rounded-xl bg-linear-to-br from-sky-500 to-indigo-600 text-white shadow-lg shadow-sky-500/30">
-                <x-application-logo class="h-5 w-5 fill-current" />
-            </span>
-            <span class="text-base font-extrabold tracking-tight text-slate-900 dark:text-white">
-                {{ config('app.name', 'KoyuMavi') }}<span class="font-semibold text-sky-600 dark:text-sky-400"> Servis</span>
-            </span>
+            <x-application-logo class="h-9 w-9 shrink-0 rounded-xl shadow-lg shadow-sky-900/30" />
+            <x-brand-name class="text-base" />
         </a>
 
         {{-- Masaüstü linkleri --}}

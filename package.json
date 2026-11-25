@@ -3,7 +3,8 @@
     "type": "module",
     "scripts": {
         "build": "vite build",
-        "dev": "vite"
+        "dev": "vite",
+        "test": "node --test tests/js/"
     },
     "devDependencies": {
         "@tailwindcss/forms": "^0.5.11",
@@ -17,6 +18,7 @@
     "dependencies": {
         "apexcharts": "^8.9.1",
         "html2canvas": "^1.4.1",
-        "jspdf": "^4.2.1"
+        "jspdf": "^4.2.1",
+        "qrcode": "^1.5.4"
     }
 }

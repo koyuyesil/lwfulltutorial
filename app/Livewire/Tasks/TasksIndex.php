@@ -5,7 +5,7 @@ namespace App\Livewire\Tasks;
 use Livewire\Component;
 use Livewire\Attributes\Title;
 
-#[Title('Tasks')]
+#[Title('Görevler')]
 class TasksIndex extends Component
 {
     public function render()

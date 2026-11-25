@@ -28,6 +28,14 @@ class ProductsList extends Component
     #[Url(as: 'gorunum', except: 'cards')]
     public string $view = 'cards';
 
+    public function mount(): void
+    {
+        // Adreste görünüm yoksa firmanın varsayılan tercihi kullanılır
+        if (! request()->has('gorunum')) {
+            $this->view = (string) Auth::user()->setting('products.default_view');
+        }
+    }
+
     public function placeholder()
     {
         return view('skeleton');
@@ -67,7 +75,7 @@ class ProductsList extends Component
                 'boardIds as board_ids_count',
             ])
             ->when($term !== '', fn (Builder $q) => $q->where(function (Builder $q) use ($term) {
-                foreach (['brand', 'model_name', 'model_number', 'manufacturer', 'description'] as $column) {
+                foreach (['brand', 'model_name', 'model_number', 'codename', 'chipset', 'manufacturer', 'description'] as $column) {
                     $q->orWhere($column, 'like', '%'.$term.'%');
                 }
             }))

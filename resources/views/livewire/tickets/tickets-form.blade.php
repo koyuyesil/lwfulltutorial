@@ -275,7 +275,7 @@
                                 'ring-2 ring-indigo-500 bg-indigo-50 dark:bg-indigo-500/10' => $priority === $p,
                                 'ring-slate-200 hover:bg-slate-50 dark:ring-white/10 dark:hover:bg-white/5' => $priority !== $p])>
                             <span class="block text-sm font-semibold text-slate-900 dark:text-white">{{ $p->label() }}</span>
-                            <span class="block text-xs text-slate-500">Teslim hedefi {{ \App\Models\Ticket::slaHoursFor($p) }} saat</span>
+                            <span class="block text-xs text-slate-500">Teslim hedefi {{ \App\Models\Ticket::slaHoursFor($p, auth()->user()) }} saat</span>
                         </button>
                     @endforeach
                 </div>

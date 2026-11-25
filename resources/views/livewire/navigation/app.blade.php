@@ -13,6 +13,14 @@ new class extends Component
         $this->redirect('/', navigate: true);
     }
 
+    /** Görev ya da servis kaydı değişince menü sayaçları yenilenir. */
+    #[\Livewire\Attributes\On('tasks-changed')]
+    #[\Livewire\Attributes\On('task-saved')]
+    #[\Livewire\Attributes\On('ticket-created')]
+    public function refreshCounts(): void
+    {
+    }
+
     /**
      * Tek kaynaktan beslenen menü. 'match' aktif durumu belirleyen route desenidir.
      */
@@ -20,6 +28,8 @@ new class extends Component
     {
         $overdue = Auth::user()->tickets()->overdue()->count();
         $open = Auth::user()->tickets()->open()->count();
+        $taskAttention = Auth::user()->tasks()->needsAttention()->count();
+        $taskOverdue = Auth::user()->tasks()->overdue()->count();
 
         return [
             'Genel' => [
@@ -30,11 +40,16 @@ new class extends Component
                     'badge' => $overdue ?: $open, 'badgeClass' => $overdue ? 'bg-red-500 text-white' : 'bg-white/10 text-slate-300', 'badgeTitle' => $overdue ? "$overdue geciken iş" : "$open açık iş"],
                 ['route' => 'clients.index', 'match' => 'clients.*', 'label' => 'Müşteriler', 'icon' => 'M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z'],
                 ['route' => 'products.index', 'match' => 'products.*', 'label' => 'Cihaz modelleri', 'icon' => 'M10.5 1.5H8.25A2.25 2.25 0 0 0 6 3.75v16.5a2.25 2.25 0 0 0 2.25 2.25h7.5A2.25 2.25 0 0 0 18 20.25V3.75a2.25 2.25 0 0 0-2.25-2.25H13.5m-3 0V3h3V1.5m-3 0h3m-3 18.75h3'],
-                ['route' => 'tasks.index', 'match' => 'tasks.*', 'label' => 'Görevler', 'icon' => 'M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z'],
+                ['route' => 'tasks.index', 'match' => 'tasks.*', 'label' => 'Görevler', 'icon' => 'M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z',
+                    'badge' => $taskAttention, 'badgeClass' => $taskOverdue ? 'bg-red-500 text-white' : 'bg-amber-400 text-amber-950',
+                    'badgeTitle' => $taskOverdue ? "$taskOverdue gecikmiş, toplam $taskAttention görev dikkat bekliyor" : "$taskAttention görev bugün / hatırlatma"],
             ],
             'Araçlar' => [
                 ['route' => 'tools.index', 'match' => 'tools.index', 'label' => 'Hesaplayıcılar', 'icon' => 'M15.75 15.75V18m-7.5-6.75h.008v.008H8.25v-.008Zm0 2.25h.008v.008H8.25V13.5Zm0 2.25h.008v.008H8.25v-.008Zm0 2.25h.008v.008H8.25V18Zm2.498-6.75h.007v.008h-.007v-.008Zm0 2.25h.007v.008h-.007V13.5Zm0 2.25h.007v.008h-.007v-.008Zm0 2.25h.007v.008h-.007V18Zm2.504-6.75h.008v.008h-.008v-.008Zm0 2.25h.008v.008h-.008V13.5Zm0 2.25h.008v.008h-.008v-.008Zm0 2.25h.008v.008h-.008V18Zm2.498-6.75h.008v.008h-.008v-.008Zm0 2.25h.008v.008h-.008V13.5ZM8.25 6h7.5v2.25h-7.5V6ZM12 2.25c-1.892 0-3.758.11-5.593.322C5.307 2.7 4.5 3.65 4.5 4.757V19.5a2.25 2.25 0 0 0 2.25 2.25h10.5a2.25 2.25 0 0 0 2.25-2.25V4.757c0-1.108-.806-2.057-1.907-2.185A48.507 48.507 0 0 0 12 2.25Z'],
                 ['route' => 'board-ids.index', 'match' => 'board-ids.*', 'label' => 'Board ID kütüphanesi', 'premium' => true, 'icon' => 'M8.25 3v1.5M4.5 8.25H3m18 0h-1.5M4.5 12H3m18 0h-1.5m-15 3.75H3m18 0h-1.5M8.25 19.5V21M12 3v1.5m0 15V21m3.75-18v1.5m0 15V21m-9-1.5h10.5a2.25 2.25 0 0 0 2.25-2.25V6.75a2.25 2.25 0 0 0-2.25-2.25H6.75A2.25 2.25 0 0 0 4.5 6.75v10.5a2.25 2.25 0 0 0 2.25 2.25Zm.75-12h9v9h-9v-9Z'],
+            ],
+            'Sistem' => [
+                ['route' => 'settings', 'match' => 'settings', 'label' => 'Ayarlar', 'icon' => 'M10.343 3.94c.09-.542.56-.94 1.11-.94h1.093c.55 0 1.02.398 1.11.94l.149.894c.07.424.384.764.78.93.398.164.855.142 1.205-.108l.737-.527a1.125 1.125 0 0 1 1.45.12l.773.774c.39.389.44 1.002.12 1.45l-.527.737c-.25.35-.272.806-.107 1.204.165.397.505.71.93.78l.893.15c.543.09.94.559.94 1.109v1.094c0 .55-.397 1.02-.94 1.11l-.894.149c-.424.07-.764.383-.929.78-.165.398-.143.854.107 1.204l.527.738c.32.447.269 1.06-.12 1.45l-.774.773a1.125 1.125 0 0 1-1.449.12l-.738-.527c-.35-.25-.806-.272-1.203-.107-.398.165-.71.505-.781.929l-.149.894c-.09.542-.56.94-1.11.94h-1.094c-.55 0-1.019-.398-1.11-.94l-.148-.894c-.071-.424-.384-.764-.781-.93-.398-.164-.854-.142-1.204.108l-.738.527c-.447.32-1.06.269-1.45-.12l-.773-.774a1.125 1.125 0 0 1-.12-1.45l.527-.737c.25-.35.272-.806.108-1.204-.165-.397-.506-.71-.93-.78l-.894-.15c-.542-.09-.94-.56-.94-1.109v-1.094c0-.55.398-1.02.94-1.11l.894-.149c.424-.07.765-.383.93-.78.165-.398.143-.854-.108-1.204l-.526-.738a1.125 1.125 0 0 1 .12-1.45l.773-.773a1.125 1.125 0 0 1 1.45-.12l.737.527c.35.25.807.272 1.204.107.397-.165.71-.505.78-.929l.15-.894Z M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z'],
             ],
         ];
     }
@@ -50,10 +65,8 @@ new class extends Component
         {{-- Logo --}}
         <div class="flex h-16 shrink-0 items-center justify-between gap-2 px-5">
             <a href="{{ route('dashboard') }}" wire:navigate class="flex items-center gap-2.5">
-                <span class="grid h-9 w-9 place-items-center rounded-xl bg-linear-to-br from-sky-500 to-indigo-600 text-white shadow-lg shadow-sky-500/20">
-                    <x-application-logo class="h-5 w-5 fill-current" />
-                </span>
-                <span class="text-base font-extrabold text-white">{{ config('app.name', 'KoyuMavi') }} <span class="font-semibold text-sky-400">Servis</span></span>
+                <x-application-logo class="h-9 w-9 shrink-0 rounded-xl shadow-lg shadow-sky-900/30" />
+                <x-brand-name dark class="text-base" />
             </a>
             <button type="button" @click="sidebarOpen = false" class="rounded-lg p-1.5 text-slate-400 hover:bg-white/10 lg:hidden" aria-label="Menüyü kapat">
                 <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" /></svg>

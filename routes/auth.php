@@ -50,5 +50,15 @@ Route::middleware('auth')->group(function () {
     Route::get('tools', ToolsIndex::class)->name('tools.index');
     Route::get('tools/board-ids', BoardIdsIndex::class)->name('board-ids.index');
 
+    // Ayarlar (modül bazlı sekmeler) ve cihaz kataloğu içe / dışa aktarma
+    Route::get('settings/{tab?}', \App\Livewire\Settings\SettingsIndex::class)
+        ->whereIn('tab', \App\Livewire\Settings\SettingsIndex::TABS)->name('settings');
+    Route::get('clients/export', [\App\Http\Controllers\ClientContactsController::class, 'export'])->name('clients.export');
+    Route::get('clients/{client}/vcard', [\App\Http\Controllers\ClientContactsController::class, 'vcard'])->name('clients.vcard');
+    Route::get('tools/board-ids/export', [\App\Http\Controllers\BoardIdCatalogController::class, 'export'])->name('board-ids.export');
+    Route::get('tools/board-ids/sample-csv', [\App\Http\Controllers\BoardIdCatalogController::class, 'sample'])->name('board-ids.sample');
+    Route::get('products/export', [\App\Http\Controllers\DeviceCatalogController::class, 'export'])->name('products.export');
+    Route::get('products/sample-csv', [\App\Http\Controllers\DeviceCatalogController::class, 'sample'])->name('products.sample');
+
 
 });
