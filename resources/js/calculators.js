@@ -34,7 +34,10 @@ export function num(value, digits = 4) {
     if (!Number.isFinite(value)) return '—';
     if (value === 0) return '0';
     const abs = Math.abs(value);
-    let out = abs >= 1e15 || abs < 1e-6 ? value.toExponential(digits - 1) : trimZeros(value.toPrecision(digits));
+    let out = abs >= 1e15 || abs < 1e-6
+        ? value.toExponential(digits - 1)
+        // toPrecision basamak sayısını aşan tam sayılarda üstel yazar (1e+5); bunlar yuvarlanıp düz yazılır
+        : abs >= 10 ** digits ? String(Math.round(value)) : trimZeros(value.toPrecision(digits));
     if (!out.includes('e')) {
         const [int, dec] = out.split('.');
         out = int.replace(/\B(?=(\d{3})+(?!\d))/g, '.') + (dec ? ',' + dec : '');
@@ -90,26 +93,7 @@ export function standard(value, series = 'E24', mode = 'nearest') {
 
 const ok = (...values) => values.every((v) => Number.isFinite(v));
 
-/* ------------------------------------------------------------------ Araç tanımları */
-
-export const TOOLS = [
-    { key: 'ohm', group: 'Temel', title: 'Ohm kanunu', desc: 'Gerilim, akım, direnç ve güçten herhangi ikisini girin.', icon: 'Ω', keywords: 'v=ir gerilim akım direnç güç watt' },
-    { key: 'divider', group: 'Temel', title: 'Gerilim bölücü', desc: 'Çıkış gerilimi ya da hedef gerilim için R2.', icon: '⫶', keywords: 'voltage divider r1 r2' },
-    { key: 'network', group: 'Temel', title: 'Seri / paralel', desc: 'Direnç, kondansatör ve bobinlerin eşdeğer değeri.', icon: '∥', keywords: 'seri paralel eşdeğer direnç kapasite' },
-    { key: 'led', group: 'Temel', title: 'LED ön direnci', desc: 'Besleme, LED gerilimi ve akımından direnç ve güç.', icon: '💡', keywords: 'led direnç akım' },
-    { key: 'colors', group: 'Bileşen kodları', title: 'Direnç renk kodu', desc: '4, 5 ve 6 bantlı dirençler; değerden renge de çevirir.', icon: '🎨', keywords: 'renk bant color code' },
-    { key: 'smd', group: 'Bileşen kodları', title: 'SMD direnç kodu', desc: '3 ve 4 haneli kodlar, R notasyonu ve EIA-96.', icon: '▭', keywords: 'smd 103 eia-96 01c' },
-    { key: 'capcode', group: 'Bileşen kodları', title: 'Kondansatör kodu', desc: '104, 4n7, 222J gibi kodları değere çevirir.', icon: '⊣⊢', keywords: 'kapasitör kod 104 seramik' },
-    { key: 'rc', group: 'Devre', title: 'RC zaman sabiti / filtre', desc: 'τ, şarj süreleri ve kesim frekansı.', icon: '⏱', keywords: 'rc tau filtre kesim alçak geçiren' },
-    { key: 'reactance', group: 'Devre', title: 'Reaktans', desc: 'Belirli frekansta bobin ve kondansatör reaktansı, LC rezonansı.', icon: '∿', keywords: 'xl xc rezonans lc empedans' },
-    { key: 'timer555', group: 'Devre', title: '555 astable', desc: 'Frekans, görev oranı ve darbe süreleri.', icon: '⎍', keywords: '555 osilatör astable frekans duty' },
-    { key: 'db', group: 'Devre', title: 'dB / dBm', desc: 'Güç ve gerilim oranları, dBm ↔ mW.', icon: 'dB', keywords: 'desibel dbm mw kazanç' },
-    { key: 'battery', group: 'Güç & batarya', title: 'Batarya süresi ve şarj', desc: 'Çalışma süresi, şarj süresi ve Wh.', icon: '🔋', keywords: 'mah wh pil şarj süresi' },
-    { key: 'power', group: 'Güç & batarya', title: 'Güç tüketimi ve maliyet', desc: 'Watt → günlük / aylık kWh ve elektrik maliyeti.', icon: '⚡', keywords: 'kwh enerji maliyet fatura watt' },
-    { key: 'trace', group: 'PCB & kablo', title: 'PCB yol genişliği', desc: 'IPC-2221: akım için gereken iz genişliği.', icon: '〰', keywords: 'pcb iz trace ipc 2221 bakır' },
-    { key: 'awg', group: 'PCB & kablo', title: 'AWG ↔ mm²', desc: 'Kablo kesiti, çapı ve metre direnci.', icon: '⌀', keywords: 'awg kablo kesit mm2 çap' },
-    { key: 'convert', group: 'Birim dönüştürücü', title: 'Birim dönüştürücü', desc: 'Uzunluk, veri, enerji, sıcaklık, basınç ve elektriksel birimler.', icon: '⇄', keywords: 'çevir dönüştür birim' },
-];
+/* Araç tanımları sunucuda: App\Livewire\Tools\ToolsIndex::GROUPS */
 
 /* ------------------------------------------------------------------ Birim dönüştürücü */
 
@@ -207,38 +191,142 @@ export function decodeCapacitor(code) {
 
 /* ------------------------------------------------------------------ Alpine bileşenleri */
 
+/* ------------------------------------------------------------------ Görsel yardımcıları */
+
+const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
+
+/** Akım akışı animasyonunun bir tur süresi (s): akım arttıkça hızlanır. Akım yoksa 0 (durur). */
+export function flowDuration(amps) {
+    if (!Number.isFinite(amps) || amps <= 0) return 0;
+    return clamp(1.6 / (0.6 + Math.log10(1 + amps * 1000)), 0.18, 3);
+}
+
+/** Direncin ısınma oranı 0…1 (¼ W direnç referansıyla; 0,5 W ve üstü = kırmızı). */
+export function heat(watts) {
+    return Number.isFinite(watts) && watts > 0 ? clamp(watts / 0.5, 0, 1) : 0;
+}
+
+/** 0 (soğuk, gri-mavi) → 1 (kızgın kırmızı) renk */
+export function heatColor(h) {
+    return `hsl(${Math.round(210 - 210 * h)}, ${Math.round(30 + 60 * h)}%, ${Math.round(55 - 5 * h)}%)`;
+}
+
+/** Log ölçek: v değerinin [lo, hi] aralığındaki konumu 0…1 */
+export function logPos(v, lo, hi) {
+    if (!(v > 0) || !(lo > 0) || !(hi > lo)) return NaN;
+    return clamp(Math.log10(v / lo) / Math.log10(hi / lo), 0, 1);
+}
+
+/**
+ * Reaktans grafiği (log-log): XL ∝ f, XC ∝ 1/f. Genişlik w, yükseklik h piksel.
+ * Merkez: rezonans (varsa) ya da seçili frekans; ±3 dekad.
+ */
+export function reactanceChart(f, L, C, w = 360, h = 200) {
+    const center = (L > 0 && C > 0) ? 1 / (2 * Math.PI * Math.sqrt(L * C)) : f;
+    if (!(center > 0)) return null;
+    const [fLo, fHi] = [center / 1000, center * 1000];
+    const xl = (fr) => 2 * Math.PI * fr * L;
+    const xc = (fr) => 1 / (2 * Math.PI * fr * C);
+    const ys = [];
+    if (L > 0) ys.push(xl(fLo), xl(fHi));
+    if (C > 0) ys.push(xc(fLo), xc(fHi));
+    if (!ys.length) return null;
+    const [yLo, yHi] = [Math.min(...ys), Math.max(...ys)];
+    const X = (fr) => logPos(fr, fLo, fHi) * w;
+    const Y = (v) => h - (yHi > yLo ? logPos(v, yLo, yHi) : 0.5) * h;
+    const line = (fn) => `M0 ${Y(fn(fLo)).toFixed(1)} L${w} ${Y(fn(fHi)).toFixed(1)}`;
+    return {
+        xl: L > 0 ? line(xl) : '',
+        xc: C > 0 ? line(xc) : '',
+        f0: L > 0 && C > 0 ? { x: X(center), y: Y(xl(center)) } : null,
+        at: f > 0 && f >= fLo && f <= fHi ? { x: X(f), yl: L > 0 ? Y(xl(f)) : null, yc: C > 0 ? Y(xc(f)) : null } : null,
+        fLo, fHi, yLo, yHi,
+    };
+}
+
+/** Telefon sinyal çubukları (0–5) ve etiketi */
+export function signalBars(dbm) {
+    if (!Number.isFinite(dbm)) return { bars: 0, label: '—' };
+    const steps = [[-50, 5, 'Mükemmel'], [-70, 4, 'Çok iyi'], [-85, 3, 'İyi'], [-100, 2, 'Zayıf'], [-110, 1, 'Çok zayıf']];
+    const hit = steps.find(([limit]) => dbm >= limit);
+    return hit ? { bars: hit[1], label: hit[2] } : { bars: 0, label: 'Sinyal yok' };
+}
+
+/** Renk kodu çizimi: bant x konumları (rakam/çarpan solda, tolerans ve sıcaklık katsayısı sağda) */
+export function bandPositions(layout) {
+    let x = 112;
+    return layout.map((role) => {
+        if (role === 't') return 262;
+        if (role === 'c') return 290;
+        const at = x;
+        x += 30;
+        return at;
+    });
+}
+
 export function registerCalculators(Alpine) {
     // Şablonlarda kullanılan biçimlendiriciler
     Alpine.magic('si', () => si);
     Alpine.magic('num', () => num);
     Alpine.magic('parse', () => parseSI);
 
-    Alpine.data('toolsApp', (initial = 'ohm') => ({
-        tools: TOOLS,
-        active: TOOLS.some((t) => t.key === initial) ? initial : 'ohm',
+    /**
+     * Sayfa: tüm araçlar gruplar halinde alt alta. Sol içindekiler kaydırmayı izler (scroll-spy),
+     * arama kartları süzer, ?arac=… derin bağlantısı ilgili karta kaydırır.
+     */
+    Alpine.data('toolsApp', (initial = 'ohm', tools = []) => ({
+        tools,
+        active: initial,
         query: '',
         favorites: JSON.parse(localStorage.getItem('tools.favorites') || '[]'),
         mobileList: false,
 
+        init() {
+            this._io = new IntersectionObserver((entries) => {
+                const visible = entries.filter((e) => e.isIntersecting).sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+                if (visible[0] && !this._jumping) this.active = visible[0].target.dataset.toolCard;
+            }, { rootMargin: '-15% 0px -60% 0px' });
+            this.$nextTick(() => {
+                this.$root.querySelectorAll('[data-tool-card]').forEach((el) => this._io.observe(el));
+                if (new URL(window.location).searchParams.has('arac')) {
+                    // 3D sahneler ve grafikler boyut aldıkça yerleşim kayar; oturduktan sonra yeniden hizala
+                    this.go(initial, false);
+                    [250, 700].forEach((ms) => setTimeout(() => {
+                        if (this.active === initial) document.getElementById(`arac-${initial}`)?.scrollIntoView({ block: 'start' });
+                    }, ms));
+                }
+            });
+        },
+        destroy() { this._io?.disconnect(); },
+
         get current() { return this.tools.find((t) => t.key === this.active); },
-        get filtered() {
-            const q = this.query.trim().toLocaleLowerCase('tr');
-            return q ? this.tools.filter((t) => `${t.title} ${t.desc} ${t.keywords}`.toLocaleLowerCase('tr').includes(q)) : this.tools;
+        get q() { return this.query.trim().toLocaleLowerCase('tr'); },
+        matches(key) {
+            if (!this.q) return true;
+            const t = this.tools.find((x) => x.key === key);
+            return !!t && `${t.title} ${t.desc} ${t.keywords}`.toLocaleLowerCase('tr').includes(this.q);
         },
-        get groups() {
-            const groups = {};
-            const favs = this.filtered.filter((t) => this.favorites.includes(t.key));
-            if (favs.length && !this.query) groups['★ Favoriler'] = favs;
-            for (const t of this.filtered) (groups[t.group] ??= []).push(t);
-            return groups;
-        },
-        open(key) {
+        groupVisible(group) { return this.tools.some((t) => t.group === group && this.matches(t.key)); },
+        get matchCount() { return this.tools.filter((t) => this.matches(t.key)).length; },
+        get favoriteTools() { return this.tools.filter((t) => this.favorites.includes(t.key)); },
+
+        /** Karta kaydır, URL'yi güncelle, kısa bir vurgu yap. */
+        go(key, smooth = true) {
+            const el = document.getElementById(`arac-${key}`);
+            if (!el) return;
             this.active = key;
             this.mobileList = false;
+            this._jumping = true;
+            el.scrollIntoView({ behavior: smooth ? 'smooth' : 'auto', block: 'start' });
+            setTimeout(() => { this._jumping = false; }, smooth ? 700 : 50);
+            el.classList.remove('calc-focus');
+            void el.offsetWidth;
+            el.classList.add('calc-focus');
             const url = new URL(window.location);
             url.searchParams.set('arac', key);
             history.replaceState(history.state, '', url);
         },
+        open(key) { this.go(key); },
         toggleFavorite(key) {
             this.favorites = this.favorites.includes(key) ? this.favorites.filter((k) => k !== key) : [...this.favorites, key];
             localStorage.setItem('tools.favorites', JSON.stringify(this.favorites));
@@ -249,8 +337,48 @@ export function registerCalculators(Alpine) {
         },
     }));
 
+    /**
+     * Gerçek CSS 3D sahne: sabit w×h düzlem kapsayıcı genişliğine ölçeklenir, sürükleyerek döner.
+     * Çift tık: başlangıç açısı.
+     */
+    Alpine.data('scene3d', (w = 360, h = 220, rx = 58, rz = -30) => ({
+        w, h, rx, rz, base: [rx, rz], drag: null, scale: 1, cw: w,
+        init() {
+            const fit = () => { this.cw = this.$el.clientWidth || w; this.scale = Math.min(1.5, Math.max(0.4, this.cw / w)); };
+            fit();
+            this._ro = new ResizeObserver(fit);
+            this._ro.observe(this.$el);
+        },
+        destroy() { this._ro?.disconnect(); },
+        get wrapStyle() { return { height: `${this.h * this.scale}px` }; },
+        get stageStyle() {
+            return {
+                width: `${this.w}px`, height: `${this.h}px`, transform: `scale(${this.scale})`, transformOrigin: 'top left',
+                left: `${Math.max(0, (this.cw - this.w * this.scale) / 2)}px`,
+            };
+        },
+        get sceneStyle() {
+            return {
+                width: `${this.w}px`, height: `${this.h}px`, transformStyle: 'preserve-3d',
+                transform: `perspective(1100px) rotateX(${this.rx}deg) rotateZ(${this.rz}deg) scale(.82)`,
+                transition: this.drag ? 'none' : 'transform .5s ease-out',
+            };
+        },
+        start(e) { this.drag = { x: e.clientX, y: e.clientY, rx: this.rx, rz: this.rz }; e.currentTarget.setPointerCapture?.(e.pointerId); },
+        move(e) {
+            if (!this.drag) return;
+            this.rz = this.drag.rz + (e.clientX - this.drag.x) * 0.4;
+            this.rx = clamp(this.drag.rx - (e.clientY - this.drag.y) * 0.4, 0, 80);
+        },
+        end() { this.drag = null; },
+        reset() { [this.rx, this.rz] = this.base; },
+    }));
+
     Alpine.data('ohmCalc', () => ({
-        v: '', i: '', r: '', p: '',
+        v: '5', i: '', r: '220', p: '',
+        get flow() { return flowDuration(this.result?.I); },
+        get heat() { return heat(this.result?.P); },
+        get heatColor() { return heatColor(this.heat); },
         get given() { return ['v', 'i', 'r', 'p'].filter((k) => Number.isFinite(parseSI(this[k]))); },
         get result() {
             if (this.given.length !== 2) return null;
@@ -283,6 +411,18 @@ export function registerCalculators(Alpine) {
             const actual = Vin * std / (R1 + std);
             return { R2, std, actual, error: (actual - Vt) / Vt * 100 };
         },
+        /** Çizim için iki moddan bağımsız değerler */
+        get view() {
+            const Vin = parseSI(this.vin);
+            const R1 = parseSI(this.r1);
+            if (this.mode === 'vout') {
+                return this.out ? { Vin, R1, R2: parseSI(this.r2), Vout: this.out.Vout, I: this.out.I, ratio: this.out.ratio } : null;
+            }
+            if (!this.solve) return null;
+            const R2 = this.solve.std;
+            return { Vin, R1, R2, Vout: this.solve.actual, I: Vin / (R1 + R2), ratio: R2 / (R1 + R2) };
+        },
+        get flow() { return flowDuration(this.view?.I); },
     }));
 
     Alpine.data('networkCalc', () => ({
@@ -290,6 +430,11 @@ export function registerCalculators(Alpine) {
         get unit() { return { R: 'Ω', C: 'F', L: 'H' }[this.kind]; },
         get parsed() { return this.values.split(/[\s;+]+|,(?=\s)|,(?![\d])/).map((v) => v.trim()).filter(Boolean).map(parseSI); },
         get invalid() { return this.parsed.some((v) => !Number.isFinite(v) || v <= 0); },
+        /** Şemada gösterilen elemanlar (en fazla 6) */
+        get shown() { return this.parsed.filter((v) => Number.isFinite(v) && v > 0).slice(0, 6); },
+        get extra() { return Math.max(0, this.parsed.filter((v) => Number.isFinite(v) && v > 0).length - 6); },
+        /** i. elemanın x merkezi (n eleman, 40…360 arası eşit aralık) */
+        slot(i) { const n = this.shown.length || 1; return 40 + (i + 0.5) * (320 / n); },
         get result() {
             const vals = this.parsed.filter((v) => Number.isFinite(v) && v > 0);
             if (!vals.length) return null;
@@ -301,8 +446,16 @@ export function registerCalculators(Alpine) {
     }));
 
     Alpine.data('ledCalc', () => ({
-        vs: '5', vf: '2', iF: '20m', count: 1, series: 'E24',
-        presets: [['Kırmızı', 2.0], ['Sarı', 2.1], ['Yeşil', 2.2], ['Mavi', 3.2], ['Beyaz', 3.2], ['IR', 1.3]],
+        vs: '5', vf: '2', iF: '20m', count: 1, series: 'E24', color: '#ef4444',
+        presets: [['Kırmızı', 2.0, '#ef4444'], ['Sarı', 2.1, '#facc15'], ['Yeşil', 2.2, '#22c55e'], ['Mavi', 3.2, '#3b82f6'], ['Beyaz', 3.2, '#f8fafc'], ['IR', 1.3, '#a855f7']],
+        pick([, v, hex]) { this.vf = String(v); this.color = hex; },
+        /** Parlaklık 0…1: gerçek akımın nominal akıma oranı */
+        get glow() {
+            const I = parseSI(this.iF);
+            return this.result && !this.result.error && I > 0 ? clamp(this.result.Ireal / I, 0.15, 1.2) : 0;
+        },
+        get n() { return Math.max(1, Math.min(50, parseInt(this.count, 10) || 1)); },
+        get flow() { return this.result && !this.result.error ? flowDuration(this.result.Ireal) : 0; },
         get result() {
             const [Vs, Vf, I] = [parseSI(this.vs), parseSI(this.vf), parseSI(this.iF)];
             const n = Math.max(1, parseInt(this.count, 10) || 1);
@@ -320,6 +473,7 @@ export function registerCalculators(Alpine) {
 
     Alpine.data('colorCalc', () => ({
         colors: COLORS, bands: 4, b: [1, 0, 2, 10, 1, 1], reverse: '4k7',
+        get bandX() { return bandPositions(this.layout); },
         digitColors() { return COLORS.filter((c) => c.digit !== undefined); },
         multColors() { return COLORS.filter((c) => c.mult !== undefined); },
         tolColors() { return COLORS.filter((c) => c.tol !== undefined); },
@@ -379,6 +533,16 @@ export function registerCalculators(Alpine) {
         code: '104',
         examples: ['104', '473K', '222J', '4n7', '1R5', '330', '475', '109'],
         get result() { return decodeCapacitor(this.code); },
+        /** 1 pF … 10 mF log ölçekte konum (%) */
+        get scale() { const r = this.result; return r && !r.error ? (logPos(r.farad, 1e-12, 1e-2) || 0) * 100 : 0; },
+        get usage() {
+            const F = this.result?.farad;
+            if (!(F > 0)) return '';
+            if (F < 1e-9) return 'pF: RF, osilatör ve kristal yükü';
+            if (F < 1e-6) return 'nF: dekuplaj, filtre ve zamanlama';
+            if (F < 1e-3) return 'µF: besleme filtresi ve ses kuplajı';
+            return 'mF: büyük depolama / güç kaynağı';
+        },
     }));
 
     Alpine.data('rcCalc', () => ({
@@ -388,6 +552,16 @@ export function registerCalculators(Alpine) {
             if (!ok(R, C) || R <= 0 || C <= 0) return null;
             const tau = R * C;
             return { tau, fc: 1 / (2 * Math.PI * tau), t63: tau, t95: 3 * tau, t99: 5 * tau };
+        },
+        /** Normalize şarj / deşarj eğrileri (0…5τ → 0…w piksel); şekil τ'dan bağımsızdır, etiketler değişir. */
+        curve(w = 340, h = 150, discharge = false) {
+            const pts = [];
+            for (let k = 0; k <= 60; k++) {
+                const t = k / 60 * 5;
+                const v = discharge ? Math.exp(-t) : 1 - Math.exp(-t);
+                pts.push(`${k ? 'L' : 'M'}${(t / 5 * w).toFixed(1)} ${(h - v * h).toFixed(1)}`);
+            }
+            return pts.join(' ');
         },
     }));
 
@@ -401,6 +575,7 @@ export function registerCalculators(Alpine) {
                 f0: ok(L, C) && L > 0 && C > 0 ? 1 / (2 * Math.PI * Math.sqrt(L * C)) : NaN,
             };
         },
+        get chart() { return reactanceChart(parseSI(this.f), parseSI(this.l), parseSI(this.c)); },
     }));
 
     Alpine.data('timer555Calc', () => ({
@@ -411,6 +586,12 @@ export function registerCalculators(Alpine) {
             const th = 0.693 * (R1 + R2) * C;
             const tl = 0.693 * R2 * C;
             return { f: 1 / (th + tl), duty: th / (th + tl) * 100, th, tl, period: th + tl };
+        },
+        /** Çıkıştaki LED: 25 Hz altında gözle görülür yanıp söner */
+        get blink() { return this.result && this.result.f < 25 ? this.result.period : 0; },
+        get wave() {
+            if (!this.result) return '';
+            return [0, 1, 2, 3].map((k) => { const p = 85, h = p * this.result.duty / 100, x = 10 + k * p; return `${k ? 'L' : 'M'}${x} 62 V14 H${x + h} V62 H${x + p}`; }).join(' ');
         },
     }));
 
@@ -423,6 +604,9 @@ export function registerCalculators(Alpine) {
         },
         get fromDbm() { const d = parseSI(this.dbm); return Number.isFinite(d) ? 10 ** (d / 10) / 1000 : NaN; },
         get fromMw() { const m = parseSI(this.mw); return m > 0 ? 10 * Math.log10(m) : NaN; },
+        /** Gösterge ibresi: −40…+40 dB → −90…+90° */
+        get needle() { return Number.isFinite(this.ratioDb) ? clamp(this.ratioDb, -40, 40) / 40 * 90 : 0; },
+        get signal() { return signalBars(parseSI(this.dbm)); },
     }));
 
     Alpine.data('batteryCalc', () => ({
@@ -439,6 +623,15 @@ export function registerCalculators(Alpine) {
                 cRate: ok(charge) ? charge / capAh : NaN,
             };
         },
+        /** Çalışma ve şarj süresi çubukları (en uzunu = %100) */
+        get bars() {
+            const r = this.result;
+            if (!r) return { run: 0, charge: 0 };
+            const max = Math.max(r.runtime || 0, r.chargeTime || 0);
+            return max > 0 ? { run: (r.runtime || 0) / max * 100, charge: (r.chargeTime || 0) / max * 100 } : { run: 0, charge: 0 };
+        },
+        /** Şarj hızına göre renk: ≤1C yeşil, ≤2C sarı, üstü kırmızı */
+        get cTone() { const c = this.result?.cRate; return !Number.isFinite(c) ? '#64748b' : c <= 1 ? '#22c55e' : c <= 2 ? '#f59e0b' : '#ef4444'; },
         hours(h) {
             if (!Number.isFinite(h)) return '—';
             const total = Math.round(h * 60);
@@ -458,6 +651,14 @@ export function registerCalculators(Alpine) {
             const monthly = daily * (ok(d) ? d : 30);
             return { daily, monthly, yearly: daily * 365, cost: ok(p) ? monthly * p : NaN, yearlyCost: ok(p) ? daily * 365 * p : NaN };
         },
+        devices: [['Telefon şarjı', 10, '📱'], ['Modem / router', 12, '📶'], ['Monitör', 30, '🖥️'], ['Dizüstü', 65, '💻'], ['Televizyon', 110, '📺'], ['Oyun PC', 450, '🎮'], ['Havya istasyonu', 80, '🔥'], ['Kettle', 2000, '♨️']],
+        /** Cihaz karşılaştırması: log ölçek 1 W … 3 kW */
+        bar(w) { return (logPos(w, 1, 3000) || 0) * 100; },
+        get compare() {
+            const W = parseSI(this.watt);
+            return [...this.devices.map(([name, w, icon]) => ({ name, w, icon, me: false })), ...(W > 0 ? [{ name: 'Sizin cihaz', w: W, icon: '⭐', me: true }] : [])]
+                .sort((a, b) => a.w - b.w);
+        },
     }));
 
     Alpine.data('traceCalc', () => ({
@@ -473,8 +674,11 @@ export function registerCalculators(Alpine) {
             // Direnç: ρ(bakır) = 1,72e-8 Ω·m
             const areaM2 = (widthMm / 1000) * (thicknessMils * 0.0254 / 1000);
             const R = ok(len) ? 1.72e-8 * (len / 1000) / areaM2 : NaN;
-            return { widthMils, widthMm, R, drop: R * I, loss: R * I * I };
+            return { widthMils, widthMm, R, drop: R * I, loss: R * I * I, thicknessUm: oz * 35 };
         },
+        /** 3D kesit: yol genişliği (px), 0,1…5 mm log ölçekte 14…200 px */
+        get tracePx() { return this.result ? 14 + (logPos(this.result.widthMm, 0.1, 5) || 0) * 186 : 40; },
+        get copperPx() { return clamp((parseSI(this.copper) || 1) * 5, 3, 16); },
     }));
 
     Alpine.data('awgCalc', () => ({
@@ -496,6 +700,10 @@ export function registerCalculators(Alpine) {
             const awg = 36 - 39 * Math.log(d / 0.127) / Math.log(92);
             return { awg, d, area: A, rPerM: 0.0172 / A, nearest: Math.round(awg) };
         },
+        /** Kesit çizimi ölçeği (px / mm): ince teller büyütülür, kalınlar sığdırılır */
+        get pxPerMm() { return this.result ? clamp(70 / this.result.d, 6, 160) : 40; },
+        /** Taşıyabileceği yaklaşık akım (kısa kablo, havada; ~4 A/mm² muhafazakâr, ~8 A/mm² kısa jumper) */
+        get ampacity() { return this.result ? { safe: this.result.area * 4, short: this.result.area * 8 } : null; },
     }));
 
     Alpine.data('unitConverter', () => ({
