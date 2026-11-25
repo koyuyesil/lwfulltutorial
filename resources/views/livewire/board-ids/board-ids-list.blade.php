@@ -36,7 +36,7 @@
                 @foreach ($boards as $board)
                     @php
                         $bt = $board->divider_type ?? DividerType::ADC;
-                        $props = ['type' => $bt->value, 'chip' => $board->chip?->value ?? 'pmic', 'vref' => $board->vref, 'r1' => $board->r1(), 'r2' => $board->r2(), 'name' => $board->build_name];
+                        $props = ['type' => $bt->value, 'chip' => $board->chip?->value ?? 'pmic', 'vref' => $board->vref, 'r1' => $board->r1(), 'r2' => $board->r2(), 'r1_org' => $board->r1Original(), 'r2_org' => $board->r2Original(), 'name' => $board->build_name];
                         $vout = $board->vout();
                     @endphp
                     <article wire:key="board-{{ $board->id }}-{{ $board->updated_at?->timestamp }}"

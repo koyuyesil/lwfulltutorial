@@ -9,6 +9,8 @@
                 'vref' => $board->vref,
                 'r1' => $board->r1(),
                 'r2' => $board->r2(),
+                'r1_org' => $board->r1Original(),
+                'r2_org' => $board->r2Original(),
                 'name' => $board->build_name,
             ];
             $type = $board->divider_type ?? \App\Enums\DividerType::ADC;

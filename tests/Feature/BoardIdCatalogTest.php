@@ -42,7 +42,7 @@ test('the sample csv imports as internal pull-up records and is idempotent', fun
     $garnet = $user->boardIds()->whereRelation('product', 'codename', 'garnet')->where('mass_production_hwid', 'CN-MP-17.9.0')->get()
         ->first(fn (BoardId $b) => $b->r2() === 43000.0);
     expect($garnet)->not->toBeNull()
-        ->and($garnet->r1())->toBeNull()
+        ->and($garnet->r1())->toBe(100000.0) // örnek veride belirtilmeyen R1 = 100k
         ->and($garnet->r2Original())->toBe(10000.0)
         ->and($garnet->pre_production_hwid)->toBe('GL-P1-17.11.0')
         ->and($garnet->methods())->not->toBeEmpty()

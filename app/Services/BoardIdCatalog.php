@@ -18,7 +18,7 @@ use Illuminate\Support\Facades\DB;
  *  - CSV: dışa aktarmanın biçimi (COLUMNS).
  *  - Direnç tablosu (TXT): "#device  R1(RSA)  R1(ORG)  R1(READING)  hwc-hwlevel-hwserial  after resistor change  durum  ..."
  *    Sekmelerle hizalanmış servis notu. RSA → R2 (kartta takılı), ORG → R2'nin orijinal değeri, okunan değer atlanır.
- *    Devre tipi belirtilmediğinden dahili pull-up kabul edilir.
+ *    Devre tipi belirtilmediğinden dahili pull-up kabul edilir; R1 belirtilmediğinden 100k alınır.
  */
 class BoardIdCatalog
 {
@@ -241,7 +241,7 @@ class BoardIdCatalog
                 'divider_type' => DividerType::PULLUP->value,
                 'chip' => ChipType::PMIC->value,
                 'vref' => '1.8',
-                'r1' => '',
+                'r1' => '100k', // tabloda belirtilmez; dahili pull-up için tipik değer
                 'r2' => $c['rsa'] ?? '',
                 'r1_original' => '',
                 'r2_original' => $c['org'] ?? '',

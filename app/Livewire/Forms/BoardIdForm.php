@@ -30,6 +30,11 @@ class BoardIdForm extends Form
 
     public string $r2 = '10k';
 
+    /** Orijinal değerler: yalnızca PCB çiziminde gösterilir, formda düzenlenmez (kayıtta korunur). */
+    public ?float $r1_org = null;
+
+    public ?float $r2_org = null;
+
     public string $mass_production_hwid = '';
 
     public string $pre_production_hwid = '';
@@ -86,6 +91,8 @@ class BoardIdForm extends Form
         $this->vref = rtrim(rtrim(number_format((float) ($boardId->vref ?: 1.8), 3, '.', ''), '0'), '.');
         $this->r1 = $this->display($boardId->r1());
         $this->r2 = $this->display($boardId->r2());
+        $this->r1_org = $boardId->r1Original();
+        $this->r2_org = $boardId->r2Original();
         $this->mass_production_hwid = (string) $boardId->mass_production_hwid;
         $this->pre_production_hwid = (string) $boardId->pre_production_hwid;
         $this->repair_methods = array_map(fn ($m) => $m->value, $boardId->methods());

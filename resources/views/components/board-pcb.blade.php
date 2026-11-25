@@ -1,14 +1,22 @@
 {{--
     Board ID devresinin canlı PCB görünümü (2D / gerçek CSS 3D).
-    Katmanlar: taban SVG (kart, yollar, pedler, yazılar) + 3D kutular (dirençler, entegre) + havada ölçüm etiketi.
-    source: { type, vref, r1, r2, name } döndüren Alpine ifadesi (fonksiyon).
+    Katmanlar: taban SVG (kart, yollar, pedler, yazılar) + 3D kutular (dirençler, entegre) + kart yüzeyinde ölçüm etiketi.
+    Yerleşim simetriktir: ölçüm hattı (y=160) kartın yatay eksenidir; direnç kolonu (x=150) ve entegre (merkez x=375) bu eksende ortalanır,
+    R1 / R2 ölçüm noktasına eşit uzaklıktadır, VREF üstte, GND altta.
+    source: { type, chip, vref, r1, r2, r1_org, r2_org, name } döndüren Alpine ifadesi (fonksiyon).
     compact: araç çubuğu olmadan küçük önizleme.
 --}}
 @props(['source', 'compact' => false])
 @php
     $id = 'pcb'.\Illuminate\Support\Str::random(6);
     $mono = 'font-family="ui-monospace, SFMono-Regular, Menlo, monospace"';
-    $tin = 'linear-gradient(180deg,#f8fafc 0%,#94a3b8 55%,#e2e8f0 100%)';
+    $cx = 150;      // direnç kolonu
+    $axis = 160;    // ölçüm hattı
+    $res = ['r1' => $axis - 50, 'r2' => $axis + 50];
+    // Entegre: 140×140, merkez (375, 160); 7'şer bacak, ortadaki bacak eksende
+    [$chipX, $chipY, $chipS] = [305, 90, 140];
+    $mid = $chipX + $chipS / 2; // entegre merkezi
+    $pins = range(0, 6);
 @endphp
 
 <div x-data="boardPcb({{ $source }})" {{ $attributes->class('select-none') }}>
@@ -57,64 +65,66 @@
                             <circle cx="{{ $hx }}" cy="{{ $hy }}" r="9" fill="url(#{{ $id }}-gold)" /><circle cx="{{ $hx }}" cy="{{ $hy }}" r="5" fill="#020617" />
                         @endforeach
 
-                        {{-- Serigrafi --}}
-                        <text x="56" y="38" fill="#e2e8f0" {!! $mono !!} font-size="12" font-weight="700" letter-spacing="1" x-text="'BOARD ID · ' + (p.name || 'KART')"></text>
-                        <text x="56" y="296" fill="#e2e8f0" opacity=".55" {!! $mono !!} font-size="9">KoyuMavi · ID NETWORK</text>
+                        {{-- Serigrafi: üst ve alt kenarda ortalı --}}
+                        <text x="260" y="34" text-anchor="middle" fill="#e2e8f0" {!! $mono !!} font-size="12" font-weight="700" letter-spacing="1" x-text="'BOARD ID · ' + (p.name || 'KART').toUpperCase()"></text>
+                        <text x="260" y="294" text-anchor="middle" fill="#e2e8f0" opacity=".5" {!! $mono !!} font-size="9" letter-spacing="1">KoyuMavi · ID NETWORK</text>
 
                         {{-- Bakır yollar --}}
                         <g fill="none" stroke="#5be39a" stroke-opacity=".55" stroke-width="7" stroke-linecap="round" stroke-linejoin="round">
-                            <path x-show="! internal" d="M84 72 H200 V84" />
-                            <path x-show="internal" d="M84 72 H395 V80" />
-                            <path x-show="! internal" d="M200 128 V146" />
-                            <path d="M200 146 H322" />
-                            <path d="M200 146 V172" />
-                            <path d="M200 216 V262" />
+                            <path x-show="! internal" d="M{{ $cx }} 54 V{{ $res['r1'] - 25 }}" />
+                            <path x-show="internal" d="M{{ $cx }} 54 H{{ $mid }} V{{ $chipY - 12 }}" />
+                            <path x-show="! internal" d="M{{ $cx }} {{ $res['r1'] + 25 }} V{{ $axis }}" />
+                            <path d="M{{ $cx }} {{ $axis }} V{{ $res['r2'] - 25 }}" />
+                            <path d="M{{ $cx }} {{ $axis }} H{{ $chipX - 12 }}" />
+                            <path d="M{{ $cx }} {{ $res['r2'] + 25 }} V266" />
                         </g>
 
-                        {{-- VREF / GND --}}
-                        <circle cx="78" cy="72" r="11" fill="url(#{{ $id }}-gold)" /><circle cx="78" cy="72" r="4.5" fill="#020617" />
-                        <text x="78" y="100" text-anchor="middle" fill="#e2e8f0" {!! $mono !!} font-size="10" font-weight="700">VREF</text>
-                        <text x="78" y="112" text-anchor="middle" fill="#fde68a" {!! $mono !!} font-size="10" x-text="volts(vref)"></text>
-                        <circle cx="200" cy="268" r="11" fill="url(#{{ $id }}-gold)" /><circle cx="200" cy="268" r="4.5" fill="#020617" />
-                        <text x="222" y="272" fill="#e2e8f0" {!! $mono !!} font-size="10" font-weight="700">GND</text>
+                        {{-- VREF (üst) / GND (alt) --}}
+                        <circle cx="{{ $cx }}" cy="54" r="11" fill="url(#{{ $id }}-gold)" /><circle cx="{{ $cx }}" cy="54" r="4.5" fill="#020617" />
+                        <text x="{{ $cx - 20 }}" y="52" text-anchor="end" fill="#e2e8f0" {!! $mono !!} font-size="10" font-weight="700">VREF</text>
+                        <text x="{{ $cx - 20 }}" y="64" text-anchor="end" fill="#fde68a" {!! $mono !!} font-size="10" x-text="volts(vref)"></text>
+                        <circle cx="{{ $cx }}" cy="266" r="11" fill="url(#{{ $id }}-gold)" /><circle cx="{{ $cx }}" cy="266" r="4.5" fill="#020617" />
+                        <text x="{{ $cx - 20 }}" y="270" text-anchor="end" fill="#e2e8f0" {!! $mono !!} font-size="10" font-weight="700">GND</text>
 
-                        {{-- Direnç pedleri, NC çerçevesi, etiketler --}}
-                        @foreach (['r1' => 106, 'r2' => 194] as $key => $cy)
+                        {{-- Direnç pedleri, NC çerçevesi, etiketler (değer + orijinal değer) --}}
+                        @foreach ($res as $key => $cy)
                             <g @if ($key === 'r1') x-show="! internal" @endif>
-                                <rect x="185" y="{{ $cy - 25 }}" width="30" height="11" rx="2" :fill="{{ $key }} === null ? 'url(#{{ $id }}-gold)' : 'url(#{{ $id }}-tin)'" />
-                                <rect x="185" y="{{ $cy + 14 }}" width="30" height="11" rx="2" :fill="{{ $key }} === null ? 'url(#{{ $id }}-gold)' : 'url(#{{ $id }}-tin)'" />
+                                <rect x="{{ $cx - 15 }}" y="{{ $cy - 25 }}" width="30" height="11" rx="2" :fill="{{ $key }} === null ? 'url(#{{ $id }}-gold)' : 'url(#{{ $id }}-tin)'" />
+                                <rect x="{{ $cx - 15 }}" y="{{ $cy + 14 }}" width="30" height="11" rx="2" :fill="{{ $key }} === null ? 'url(#{{ $id }}-gold)' : 'url(#{{ $id }}-tin)'" />
                                 <g x-show="{{ $key }} === null">
-                                    <rect x="181" y="{{ $cy - 29 }}" width="38" height="58" rx="3" fill="none" stroke="#e2e8f0" stroke-opacity=".7" stroke-dasharray="4 3" />
-                                    <text x="200" y="{{ $cy + 4 }}" text-anchor="middle" fill="#e2e8f0" {!! $mono !!} font-size="10" font-weight="700">NC</text>
+                                    <rect x="{{ $cx - 19 }}" y="{{ $cy - 29 }}" width="38" height="58" rx="3" fill="none" stroke="#e2e8f0" stroke-opacity=".7" stroke-dasharray="4 3" />
+                                    <text x="{{ $cx }}" y="{{ $cy + 4 }}" text-anchor="middle" fill="#e2e8f0" {!! $mono !!} font-size="10" font-weight="700">NC</text>
                                 </g>
-                                <text x="160" y="{{ $cy + 4 }}" text-anchor="end" fill="#f8fafc" {!! $mono !!} font-size="12" font-weight="700">{{ strtoupper($key) }}</text>
-                                <text x="160" y="{{ $cy + 17 }}" text-anchor="end" fill="#a7f3d0" {!! $mono !!} font-size="9" x-text="label({{ $key }})"></text>
+                                <text x="{{ $cx - 30 }}" y="{{ $cy - 4 }}" text-anchor="end" fill="#f8fafc" {!! $mono !!} font-size="12" font-weight="700">{{ strtoupper($key) }}</text>
+                                <text x="{{ $cx - 30 }}" y="{{ $cy + 9 }}" text-anchor="end" fill="#a7f3d0" {!! $mono !!} font-size="9" x-text="label({{ $key }})"></text>
+                                <text x="{{ $cx - 30 }}" y="{{ $cy + 21 }}" text-anchor="end" fill="#fcd34d" {!! $mono !!} font-size="9" x-show="{{ $key }}Org !== null" x-text="orig({{ $key }}Org)"></text>
                             </g>
                         @endforeach
 
-                        {{-- Entegre bacakları (kartta) --}}
-                        @foreach (range(0, 7) as $i)
-                            <rect x="318" y="{{ 94 + $i * 16 }}" width="12" height="7" rx="1" fill="{{ $i === 3 ? '#fbbf24' : '#cbd5e1' }}" />
-                            <rect x="470" y="{{ 94 + $i * 16 }}" width="12" height="7" rx="1" fill="#cbd5e1" />
-                            <rect x="{{ 346 + $i * 15 }}" y="76" width="7" height="12" rx="1" fill="{{ $i === 3 ? '#fbbf24' : '#cbd5e1' }}" />
-                            <rect x="{{ 346 + $i * 15 }}" y="224" width="7" height="12" rx="1" fill="#cbd5e1" />
+                        {{-- Entegre bacakları: dört kenarda 7'şer, ortadaki bacak eksende --}}
+                        @foreach ($pins as $i)
+                            @php $o = $chipY + 15.5 + $i * 17; $ox = $chipX + 15.5 + $i * 17; @endphp
+                            <rect x="{{ $chipX - 12 }}" y="{{ $o }}" width="12" height="7" rx="1" fill="{{ $i === 3 ? '#fbbf24' : '#cbd5e1' }}" />
+                            <rect x="{{ $chipX + $chipS }}" y="{{ $o }}" width="12" height="7" rx="1" fill="#cbd5e1" />
+                            <rect x="{{ $ox }}" y="{{ $chipY - 12 }}" width="7" height="12" rx="1" :fill="internal && {{ $i }} === 3 ? '#fbbf24' : '#cbd5e1'" />
+                            <rect x="{{ $ox }}" y="{{ $chipY + $chipS }}" width="7" height="12" rx="1" fill="#cbd5e1" />
                         @endforeach
 
                         {{-- Ölçüm noktası --}}
-                        <circle cx="200" cy="146" r="6" fill="#f59e0b" stroke="#fff7ed" stroke-width="2" />
+                        <circle cx="{{ $cx }}" cy="{{ $axis }}" r="6" fill="#f59e0b" stroke="#fff7ed" stroke-width="2" />
 
-                        {{-- Lojik seviye --}}
+                        {{-- Lojik seviye (entegrenin altında, ortalı) --}}
                         <g x-show="p.type === 'logic'">
-                            <rect x="330" y="252" width="140" height="26" rx="13" :fill="level === 1 ? '#16a34a' : (level === 0 ? '#475569' : '#b45309')" />
-                            <text x="400" y="269" text-anchor="middle" fill="#fff" {!! $mono !!} font-size="11" font-weight="700"
+                            <rect x="{{ $mid - 70 }}" y="258" width="140" height="22" rx="11" :fill="level === 1 ? '#16a34a' : (level === 0 ? '#475569' : '#b45309')" />
+                            <text x="{{ $mid }}" y="273" text-anchor="middle" fill="#fff" {!! $mono !!} font-size="10" font-weight="700"
                                 x-text="level === 1 ? 'GPIO = 1 · HIGH' : (level === 0 ? 'GPIO = 0 · LOW' : 'GPIO belirsiz')"></text>
                         </g>
                     </svg>
 
                     {{-- 3D dirençler (0402) --}}
-                    @foreach (['r1' => 106, 'r2' => 194] as $key => $cy)
+                    @foreach ($res as $key => $cy)
                         <x-pcb-box x-show="{{ $key }} !== null{{ $key === 'r1' ? ' && ! internal' : '' }}"
-                            :x="188" :y="$cy - 17" :w="24" :h="34" depth="h(10)"
+                            :x="$cx - 12" :y="$cy - 17" :w="24" :h="34" depth="h(10)"
                             :top="'linear-gradient(180deg,#e2e8f0 0 17%,#111827 17% 83%,#e2e8f0 83%)'"
                             :side="'linear-gradient(180deg,#94a3b8 0 17%,#0b0f17 17% 83%,#94a3b8 83%)'"
                             :side2="'linear-gradient(180deg,#64748b 0 17%,#000 17% 83%,#64748b 83%)'"
@@ -126,27 +136,28 @@
                     @endforeach
 
                     {{-- 3D entegre (QFN) --}}
-                    <x-pcb-box :x="326" :y="84" :w="148" :h="144" depth="h(16)"
+                    <x-pcb-box :x="$chipX" :y="$chipY" :w="$chipS" :h="$chipS" depth="h(16)"
                         :top="'linear-gradient(135deg,#2a2a2e,#09090b)'" side="#1c1c20" side2="#050505" :radius="4">
-                        <svg viewBox="326 84 148 144" width="148" height="144" class="absolute inset-0">
-                            <circle cx="340" cy="98" r="3.5" fill="#52525b" />
-                            <text x="400" y="214" text-anchor="middle" fill="#e4e4e7" font-family="ui-sans-serif, system-ui" font-size="18" font-weight="800" letter-spacing="2" x-text="meta.chip"></text>
-                            <text x="334" y="139" fill="#fbbf24" {!! $mono !!} font-size="9" font-weight="700" x-text="meta.pin"></text>
+                        <svg viewBox="{{ $chipX }} {{ $chipY }} {{ $chipS }} {{ $chipS }}" width="{{ $chipS }}" height="{{ $chipS }}" class="absolute inset-0">
+                            <circle cx="{{ $chipX + 13 }}" cy="{{ $chipY + 13 }}" r="3.5" fill="#52525b" />
+                            <text x="{{ $mid }}" y="{{ $chipY + $chipS - 12 }}" text-anchor="middle" fill="#e4e4e7" font-family="ui-sans-serif, system-ui" font-size="17" font-weight="800" letter-spacing="2" x-text="meta.chip"></text>
+                            <text x="{{ $chipX + 6 }}" y="{{ $axis - 6 }}" fill="#fbbf24" {!! $mono !!} font-size="9" font-weight="700" x-text="meta.pin"></text>
                             <g x-show="internal">
-                                <text x="404" y="100" fill="#a1a1aa" {!! $mono !!} font-size="8">VDD_IO</text>
-                                <rect x="372" y="106" width="88" height="84" rx="6" fill="#0b1220" stroke="#7dd3fc" stroke-dasharray="4 3" />
-                                <path d="M395 84 V106 l-7 4 l14 6 l-14 6 l14 6 l-14 6 l7 4 V146 H326" fill="none" stroke="#e2e8f0" stroke-width="2" stroke-linejoin="round" />
-                                <circle cx="395" cy="146" r="2.5" fill="#e2e8f0" />
-                                <text x="418" y="126" fill="#f8fafc" {!! $mono !!} font-size="11" font-weight="700">R1</text>
-                                <text x="418" y="139" fill="#a7f3d0" {!! $mono !!} font-size="9" x-text="label(r1)"></text>
-                                <text x="416" y="182" text-anchor="middle" fill="#7dd3fc" {!! $mono !!} font-size="8" font-weight="700">DAHİLİ PULL-UP</text>
+                                <text x="{{ $mid + 8 }}" y="{{ $chipY + 10 }}" fill="#a1a1aa" {!! $mono !!} font-size="7">VDD_IO</text>
+                                <rect x="{{ $mid - 20 }}" y="{{ $chipY + 14 }}" width="82" height="80" rx="6" fill="#0b1220" stroke="#7dd3fc" stroke-dasharray="4 3" />
+                                <path d="M{{ $mid }} {{ $chipY }} V{{ $chipY + 24 }} l-7 4 l14 6 l-14 6 l14 6 l-14 6 l7 4 V{{ $axis }} H{{ $chipX }}" fill="none" stroke="#e2e8f0" stroke-width="2" stroke-linejoin="round" />
+                                <circle cx="{{ $mid }}" cy="{{ $axis }}" r="2.5" fill="#e2e8f0" />
+                                <text x="{{ $mid + 14 }}" y="{{ $chipY + 36 }}" fill="#f8fafc" {!! $mono !!} font-size="11" font-weight="700">R1</text>
+                                <text x="{{ $mid + 14 }}" y="{{ $chipY + 48 }}" fill="#a7f3d0" {!! $mono !!} font-size="8" x-text="r1 === null ? 'bilinmiyor' : label(r1)"></text>
+                                <text x="{{ $mid + 14 }}" y="{{ $chipY + 59 }}" fill="#fcd34d" {!! $mono !!} font-size="8" x-show="r1Org !== null" x-text="orig(r1Org)"></text>
+                                <text x="{{ $mid + 21 }}" y="{{ $chipY + 88 }}" text-anchor="middle" fill="#7dd3fc" {!! $mono !!} font-size="7" font-weight="700">DAHİLİ PULL-UP</text>
                             </g>
                         </svg>
                     </x-pcb-box>
 
-                    {{-- Ölçüm etiketi: kart yüzeyinde (serigrafi gibi) --}}
+                    {{-- Ölçüm etiketi: kart yüzeyinde, ölçüm hattının üstünde ortalı --}}
                     <div class="absolute flex items-center justify-center rounded-md border border-amber-400 bg-slate-950/85 font-mono text-xs font-bold text-amber-200 transition-transform duration-500"
-                        style="left:222px; top:114px; width:88px; height:24px;"
+                        style="left:{{ ($cx + $chipX - 12) / 2 - 44 }}px; top:{{ $axis - 32 }}px; width:88px; height:24px;"
                         :style="{ transform: `translateZ(${h(0.5)}px)` }" x-text="volts(vout)"></div>
                 </div>
             </div>
