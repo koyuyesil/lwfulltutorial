@@ -4,7 +4,6 @@ namespace App\Livewire\Tickets;
 
 use App\Models\Ticket;
 use Livewire\Component;
-use App\Enums\StatusType;
 use App\Enums\PriorityType;
 use App\Models\ClientProduct;
 use Illuminate\Support\Facades\Auth;
@@ -42,8 +41,6 @@ class TicketsForm extends Component
 
     // Ticket (Arıza Kaydı) alanları
     public $problem; // Arıza açıklaması
-
-    public StatusType $status = StatusType::OPEN;
 
     public PriorityType $priority = PriorityType::LOW;
 
@@ -177,7 +174,6 @@ class TicketsForm extends Component
             'selectedProduct' => ['required', Rule::exists('products', 'id')->where('user_id', $userId)],
             'problem' => 'required|string|min:5',
             'priority' => ['required', Rule::enum(PriorityType::class)],
-            'status' => ['required', Rule::enum(StatusType::class)],
         ]);
 
         // Mevcut müşteri + ürün seçildiyse aradaki cihaz kaydını bul ya da oluştur
@@ -192,7 +188,6 @@ class TicketsForm extends Component
             'client_product_id' => $clientProductId,
             'problem' => $this->problem,
             'priority' => $this->priority,
-            'status' => $this->status,
         ]);
 
         // Listeyi yenile, formu sıfırla (seçim listeleri korunur)

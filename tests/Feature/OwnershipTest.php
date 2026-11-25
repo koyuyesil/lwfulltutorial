@@ -44,14 +44,14 @@ test('a user cannot load another users product into the edit form', function () 
 });
 
 test('a user cannot change status of another users ticket or task', function () {
-    $ticket = Ticket::factory()->create(['status' => 'open']);
+    $ticket = Ticket::factory()->create(['status' => 'received']);
     $task = Task::factory()->create(['status' => 'open']);
     $intruder = User::factory()->create();
 
-    Livewire::actingAs($intruder)->test(TicketsList::class)->call('changeStatus', $ticket->id, 'done')->assertNotFound();
+    Livewire::actingAs($intruder)->test(TicketsList::class)->call('changeStatus', $ticket->id, 'diagnosing')->assertNotFound();
     Livewire::actingAs($intruder)->test(TasksList::class)->call('changeStatus', $task->id, 'done')->assertNotFound();
 
-    expect($ticket->fresh()->status->value)->toBe('open');
+    expect($ticket->fresh()->status->value)->toBe('received');
     expect($task->fresh()->status->value)->toBe('open');
 });
 

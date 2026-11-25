@@ -44,6 +44,54 @@
             </div>
         </section>
 
+        {{-- Servis hedefi (SLA) paneli --}}
+        <section class="grid gap-4 lg:grid-cols-[0.9fr_1.1fr]">
+            <div class="grid grid-cols-2 gap-4">
+                <a href="{{ route('tickets.index', ['sla' => 'overdue']) }}" wire:navigate
+                    class="rounded-3xl bg-red-600 p-5 text-white shadow-lg transition hover:-translate-y-1">
+                    <p class="text-sm font-semibold text-red-100">Geciken işler</p>
+                    <p class="mt-2 text-4xl font-black">{{ $sla['overdue'] }}</p>
+                    <p class="mt-1 text-xs text-red-100">Hedef süresi geçmiş açık kayıtlar</p>
+                </a>
+                <a href="{{ route('tickets.index', ['sla' => 'at_risk']) }}" wire:navigate
+                    class="rounded-3xl bg-amber-500 p-5 text-white shadow-lg transition hover:-translate-y-1">
+                    <p class="text-sm font-semibold text-amber-50">Riskli işler</p>
+                    <p class="mt-2 text-4xl font-black">{{ $sla['atRisk'] }}</p>
+                    <p class="mt-1 text-xs text-amber-50">Süresinin son %25'ine girenler</p>
+                </a>
+                <div class="rounded-3xl border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                    <p class="text-sm font-semibold text-gray-500 dark:text-gray-400">SLA uyumu (30 gün)</p>
+                    <p class="mt-2 text-4xl font-black text-gray-900 dark:text-white">{{ is_null($sla['compliance']) ? '—' : '%' . $sla['compliance'] }}</p>
+                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">{{ $sla['closed30'] }} kapanan kayıt</p>
+                </div>
+                <div class="rounded-3xl border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                    <p class="text-sm font-semibold text-gray-500 dark:text-gray-400">Ort. çözüm süresi</p>
+                    <p class="mt-2 text-4xl font-black text-gray-900 dark:text-white">{{ $sla['avgHours'] ?? '—' }}<span class="text-lg font-bold"> sa</span></p>
+                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Kabulden kapanışa (30 gün)</p>
+                </div>
+            </div>
+            <div class="rounded-3xl border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                <p class="text-sm font-semibold uppercase tracking-[0.2em] text-blue-600 dark:text-blue-400">Servis hattı</p>
+                <p class="mt-1 text-sm text-gray-600 dark:text-gray-300">Açık işlerinizin iş akışındaki dağılımı</p>
+                @php $pipelineMax = max(1, $sla['pipeline']->max() ?? 1); @endphp
+                <ul class="mt-4 space-y-2">
+                    @foreach (\App\Enums\TicketStatus::cases() as $case)
+                        @continue($case->isClosed())
+                        @php $n = $sla['pipeline'][$case->value] ?? 0; @endphp
+                        <li>
+                            <a href="{{ route('tickets.index', ['durum' => $case->value]) }}" wire:navigate class="group flex items-center gap-3 text-sm">
+                                <span class="w-32 shrink-0 text-gray-700 group-hover:text-blue-600 dark:text-gray-200">{{ $case->label() }}</span>
+                                <span class="h-3 flex-1 overflow-hidden rounded-full bg-gray-100 dark:bg-gray-700">
+                                    <span class="block h-full rounded-full {{ $case->bar() }}" style="width: {{ $n / $pipelineMax * 100 }}%"></span>
+                                </span>
+                                <span class="w-8 text-right font-bold text-gray-900 dark:text-white">{{ $n }}</span>
+                            </a>
+                        </li>
+                    @endforeach
+                </ul>
+            </div>
+        </section>
+
         <section class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
             @foreach ($stats as $stat)
                 <article class="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-xl dark:border-gray-700 dark:bg-gray-800">

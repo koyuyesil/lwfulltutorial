@@ -50,10 +50,35 @@ class DashboardIndex extends Component
                     'hint' => 'Operasyon ve iş takibi',
                 ],
             ],
-            'activeTickets' => Ticket::whereIn('status', ['open', 'in_progress'])->count(),
-            'myActiveTickets' => Ticket::where('user_id', $userId)->whereIn('status', ['open', 'in_progress'])->count(),
+            'activeTickets' => Ticket::open()->count(),
+            'myActiveTickets' => Ticket::where('user_id', $userId)->open()->count(),
+            'sla' => $this->slaMetrics($userId),
             'openTasks' => Task::whereIn('status', ['open', 'in_progress'])->count(),
             'myOpenTasks' => Task::where('user_id', $userId)->whereIn('status', ['open', 'in_progress'])->count(),
         ])->layout('layouts.app');
+    }
+
+    /** Oturumdaki yetkilinin servis hedefi (SLA) özeti. */
+    protected function slaMetrics(int $userId): array
+    {
+        $mine = fn () => Ticket::where('user_id', $userId);
+
+        $closed = $mine()->whereNotNull('closed_at')->whereNotNull('due_at')
+            ->where('closed_at', '>=', now()->subDays(30))
+            ->get(['closed_at', 'due_at', 'created_at']);
+
+        $met = $closed->filter(fn (Ticket $t) => $t->metSla())->count();
+
+        return [
+            'overdue' => $mine()->overdue()->count(),
+            'atRisk' => $mine()->atRisk()->count(),
+            'closed30' => $closed->count(),
+            'compliance' => $closed->isEmpty() ? null : (int) round($met / $closed->count() * 100),
+            'avgHours' => $closed->isEmpty() ? null
+                : round($closed->avg(fn (Ticket $t) => $t->created_at->diffInMinutes($t->closed_at)) / 60, 1),
+            'pipeline' => $mine()->open()
+                ->selectRaw('status, COUNT(*) as count')->groupBy('status')
+                ->pluck('count', 'status'),
+        ];
     }
 }

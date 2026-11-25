@@ -9,7 +9,7 @@
                 ])>
                     {{ $status->count }}
                 </span>
-                <span>{{ Str::of($status->status->value)->headline() }}</span>
+                <span>{{ $status->status->label() }}</span>
             </div>
         @endforeach
     </div>

@@ -79,14 +79,14 @@
         class="block w-full text-sm py-1 px-2 border-gray-300 rounded-md"></textarea>
     <select wire:model="priority" class="mt-2 block w-full text-sm py-1 px-2 border-gray-300 rounded-md">
         @foreach (\App\Enums\PriorityType::cases() as $priority)
-            <option value="{{ $priority->value }}">{{ $priority->name }}</option>
+            <option value="{{ $priority->value }}">
+                {{ $priority->label() }} — hedef {{ \App\Models\Ticket::slaHoursFor($priority) }} saat
+            </option>
         @endforeach
     </select>
-    <select wire:model="status" class="mt-2 block w-full text-sm py-1 px-2 border-gray-300 rounded-md">
-        @foreach (\App\Enums\StatusType::cases() as $status)
-            <option value="{{ $status->value }}">{{ $status->name }}</option>
-        @endforeach
-    </select>
+    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+        Kayıt "{{ \App\Enums\TicketStatus::RECEIVED->label() }}" durumuyla açılır; teslim hedefi önceliğe göre otomatik hesaplanır.
+    </p>
     <div class="flex justify-between mt-4">
         <button type="button" wire:click="create"
             class="py-1 px-3 bg-green-500 hover:bg-green-600 text-sm text-white rounded-md">

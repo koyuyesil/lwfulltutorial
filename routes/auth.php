@@ -6,6 +6,7 @@ use App\Livewire\Tools\ToolsIndex;
 use Illuminate\Support\Facades\Route;
 use App\Livewire\Clients\ClientsIndex;
 use App\Livewire\Tickets\TicketsIndex;
+use App\Livewire\Tickets\TicketsShow;
 use App\Livewire\BoardIds\BoardIdsIndex;
 use App\Livewire\Products\ProductsIndex;
 use App\Livewire\Dashboard\DashboardIndex;
@@ -45,6 +46,7 @@ Route::middleware('auth')->group(function () {
     Route::get('tasks', TasksIndex::class)->name('tasks.index');
     Route::get('products', ProductsIndex::class)->name('products.index');
     Route::get('tickets', TicketsIndex::class)->name('tickets.index');
+    Route::get('tickets/{ticket}', TicketsShow::class)->name('tickets.show');
     Route::get('tools', ToolsIndex::class)->name('tools.index');
     Route::get('board-ids', BoardIdsIndex::class)->name('board-ids.index');
 
