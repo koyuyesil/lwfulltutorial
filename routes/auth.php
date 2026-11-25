@@ -48,7 +48,7 @@ Route::middleware('auth')->group(function () {
     Route::get('tickets', TicketsIndex::class)->name('tickets.index');
     Route::get('tickets/{ticket}', TicketsShow::class)->name('tickets.show');
     Route::get('tools', ToolsIndex::class)->name('tools.index');
-    Route::get('board-ids', BoardIdsIndex::class)->name('board-ids.index');
+    Route::get('tools/board-ids', BoardIdsIndex::class)->name('board-ids.index');
 
 
 });

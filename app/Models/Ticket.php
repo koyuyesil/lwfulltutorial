@@ -41,6 +41,7 @@ class Ticket extends Model
     protected static function booted(): void
     {
         static::creating(function (Ticket $ticket) {
+            $ticket->tracking_code ??= self::generateTrackingCode();
             $ticket->status ??= TicketStatus::RECEIVED;
             $ticket->status_changed_at ??= now();
             $ticket->due_at ??= now()->addHours(self::slaHoursFor($ticket->priority));
@@ -54,6 +55,32 @@ class Ticket extends Model
                 'is_public' => true,
             ]);
         });
+    }
+
+    /**
+     * Müşteriye verilen, tahmin edilemeyen takip kodu (örn. KM-7XQ4P9TA).
+     * Karışabilecek karakterler (0/O, 1/I/L) kullanılmaz.
+     */
+    public static function generateTrackingCode(): string
+    {
+        $alphabet = '23456789ABCDEFGHJKMNPQRSTUVWXYZ';
+
+        do {
+            $code = 'KM-';
+            for ($i = 0; $i < 8; $i++) {
+                $code .= $alphabet[random_int(0, strlen($alphabet) - 1)];
+            }
+        } while (static::where('tracking_code', $code)->exists());
+
+        return $code;
+    }
+
+    /** Kullanıcının yazdığı kodu normalize eder (boşluk, küçük harf, tire eksikliği). */
+    public static function normalizeTrackingCode(string $input): string
+    {
+        $clean = strtoupper(preg_replace('/[^A-Za-z0-9]/', '', $input));
+
+        return str_starts_with($clean, 'KM') ? 'KM-'.substr($clean, 2) : 'KM-'.$clean;
     }
 
     public static function slaHoursFor(PriorityType|string|null $priority): int

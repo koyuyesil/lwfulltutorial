@@ -17,6 +17,10 @@
   Tailwind v4'te varsayılan kenarlık rengi `currentcolor` oldu.
   v3 görünümünü korumak için uyumluluk stili.
 */
+[x-cloak] {
+    display: none !important;
+}
+
 @layer base {
     *,
     ::after,

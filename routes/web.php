@@ -4,6 +4,9 @@ use Illuminate\Support\Facades\Route;
 
 Route::view('/', 'welcome')->name('home');
 
+// Müşterinin takip kodu ile servis durumunu sorguladığı herkese açık sayfa
+Route::get('ariza-takibi', \App\Livewire\Tracking\TrackRepair::class)->name('tracking');
+
 Route::view('servisler', 'static.services.index')->name('services.index');
 Route::view('servisler/ariza-teshis-kabul', 'static.services.diagnostics')->name('services.diagnostics');
 Route::view('servisler/ekran-kasa-islemleri', 'static.services.display')->name('services.display');

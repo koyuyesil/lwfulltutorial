@@ -1,9 +1,11 @@
 <x-slot name="header">
     <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-        {{ __('Tools - Manage') }}
+        Araçlar
     </h2>
 </x-slot>
-<div class="py-12 flex justify-center">
+<div>
+<x-tools-tabs />
+<div class="py-8 flex justify-center">
     <div class="grid grid-cols-5 gap-6 p-6 bg-white dark:bg-gray-800 shadow rounded-lg max-w-6xl">
         <!-- Devices Section -->
         <section class="col-span-3 w-full mt-2 p-4 space-y-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
@@ -25,4 +27,5 @@
             <livewire:tools.tools-list />
         </section>
     </div>
+</div>
 </div>

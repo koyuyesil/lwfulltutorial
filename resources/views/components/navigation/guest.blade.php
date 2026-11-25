@@ -1,112 +1,92 @@
 @php
     $links = [
-        ['route' => 'home', 'label' => __('Anasayfa'), 'active' => 'home'],
-        ['route' => 'services.index', 'label' => __('Servisler'), 'active' => 'services.*'],
+        ['href' => route('home') . '#ozellikler', 'label' => 'Özellikler', 'active' => false],
+        ['href' => route('home') . '#sektorler', 'label' => 'Sektörler', 'active' => false],
+        ['href' => route('home') . '#fiyatlar', 'label' => 'Fiyatlar', 'active' => false],
+        ['href' => route('services.index'), 'label' => 'Çözümler', 'active' => request()->routeIs('services.*')],
     ];
 @endphp
 
-<nav x-data="{ open: false }" class="bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700">
-    <!-- Primary Navigation Menu -->
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between h-16">
-            <div class="flex">
-                <!-- Logo -->
-                <div class="shrink-0 flex items-center">
-                    <a href="{{ route('home') }}" wire:navigate>
-                        <x-application-logo class="block h-9 w-auto fill-current text-gray-800 dark:text-gray-200" />
-                    </a>
-                </div>
+<nav x-data="{ open: false }" @keydown.escape.window="open = false"
+    class="sticky top-0 z-40 border-b border-slate-200/70 bg-white/80 backdrop-blur-xl dark:border-white/10 dark:bg-slate-950/80">
+    <div class="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
+        {{-- Logo --}}
+        <a href="{{ route('home') }}" wire:navigate class="flex items-center gap-2.5">
+            <span class="grid h-9 w-9 place-items-center rounded-xl bg-linear-to-br from-sky-500 to-indigo-600 text-white shadow-lg shadow-sky-500/30">
+                <x-application-logo class="h-5 w-5 fill-current" />
+            </span>
+            <span class="text-base font-extrabold tracking-tight text-slate-900 dark:text-white">
+                {{ config('app.name', 'KoyuMavi') }}<span class="font-semibold text-sky-600 dark:text-sky-400"> Servis</span>
+            </span>
+        </a>
 
-                <!-- Navigation Links -->
-                <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                    @foreach ($links as $link)
-                        <x-nav-link :href="route($link['route'])" :active="request()->routeIs($link['active'])" wire:navigate.hover>
-                            {{ $link['label'] }}
-                        </x-nav-link>
-                    @endforeach
-                    @auth
-                        <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')" wire:navigate.hover>
-                            {{ __('Dashboard') }}
-                        </x-nav-link>
-                    @endauth
-                </div>
-            </div>
-
-            <!-- Account Links -->
-            <div class="hidden sm:flex sm:items-center sm:gap-3 sm:ms-6">
-                @auth
-                    <a href="{{ route('profile') }}" wire:navigate class="text-sm font-medium text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white">
-                        {{ auth()->user()->name }}
-                    </a>
-                @else
-                    <a href="{{ route('login') }}" wire:navigate
-                        @class([
-                            'rounded-full px-4 py-2 text-sm font-semibold transition',
-                            'text-sky-700 dark:text-sky-300' => request()->routeIs('login'),
-                            'text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white' => ! request()->routeIs('login'),
-                        ])>
-                        {{ __('Giriş yap') }}
-                    </a>
-                    @if (Route::has('register'))
-                        <a href="{{ route('register') }}" wire:navigate class="rounded-full bg-sky-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-sky-700">
-                            {{ __('Kayıt ol') }}
-                        </a>
-                    @endif
-                @endauth
-            </div>
-
-            <!-- Hamburger Menü -->
-            <div class="-me-2 flex items-center sm:hidden">
-                <button type="button" @click="open = ! open" aria-label="{{ __('Menüyü aç/kapat') }}" class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 dark:text-gray-500 hover:text-gray-500 dark:hover:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-900 focus:outline-none focus:bg-gray-100 dark:focus:bg-gray-900 focus:text-gray-500 dark:focus:text-gray-400 transition duration-150 ease-in-out">
-                    <svg class="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
-                        <path :class="{'hidden': open, 'inline-flex': ! open }" class="inline-flex" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-                        <path :class="{'hidden': ! open, 'inline-flex': open }" class="hidden" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                </button>
-            </div>
+        {{-- Masaüstü linkleri --}}
+        <div class="hidden items-center gap-1 lg:flex">
+            @foreach ($links as $link)
+                <a href="{{ $link['href'] }}" @class([
+                    'rounded-lg px-3 py-2 text-sm font-medium transition',
+                    'text-slate-900 bg-slate-100 dark:bg-white/10 dark:text-white' => $link['active'],
+                    'text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-white/5 dark:hover:text-white' => ! $link['active'],
+                ])>{{ $link['label'] }}</a>
+            @endforeach
+            <a href="{{ route('tracking') }}" wire:navigate @class([
+                'ms-1 inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-semibold transition',
+                'bg-emerald-600 text-white' => request()->routeIs('tracking'),
+                'text-emerald-700 ring-1 ring-emerald-200 hover:bg-emerald-50 dark:text-emerald-300 dark:ring-emerald-500/30 dark:hover:bg-emerald-500/10' => ! request()->routeIs('tracking'),
+            ])>
+                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-4.3-4.3M10.5 18a7.5 7.5 0 1 0 0-15 7.5 7.5 0 0 0 0 15Z"/></svg>
+                Arıza Takibi
+            </a>
         </div>
+
+        {{-- Hesap --}}
+        <div class="hidden items-center gap-2 lg:flex">
+            @auth
+                <a href="{{ route('dashboard') }}" wire:navigate
+                    class="inline-flex items-center gap-2 rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-700 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-200">
+                    Panele git →
+                </a>
+            @else
+                <a href="{{ route('login') }}" wire:navigate
+                    class="rounded-xl px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-white/5">
+                    Giriş yap
+                </a>
+                @if (Route::has('register'))
+                    <a href="{{ route('register') }}" wire:navigate
+                        class="rounded-xl bg-linear-to-r from-sky-500 to-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-indigo-500/25 transition hover:brightness-110">
+                        Ücretsiz deneyin
+                    </a>
+                @endif
+            @endauth
+        </div>
+
+        {{-- Mobil menü düğmesi --}}
+        <button type="button" @click="open = ! open" :aria-expanded="open" aria-label="Menüyü aç/kapat"
+            class="inline-flex items-center justify-center rounded-lg p-2 text-slate-500 hover:bg-slate-100 lg:hidden dark:text-slate-300 dark:hover:bg-white/10">
+            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                <path x-show="! open" stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+                <path x-show="open" x-cloak stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+            </svg>
+        </button>
     </div>
 
-    <!-- Responsive Navigation Menu -->
-    <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden">
-        <div class="pt-2 pb-3 space-y-1">
+    {{-- Mobil menü --}}
+    <div x-show="open" x-cloak x-transition.origin.top
+        class="border-t border-slate-200 bg-white px-4 pb-4 pt-2 lg:hidden dark:border-white/10 dark:bg-slate-950">
+        <div class="grid gap-1">
             @foreach ($links as $link)
-                <x-responsive-nav-link :href="route($link['route'])" :active="request()->routeIs($link['active'])" wire:navigate>
-                    {{ $link['label'] }}
-                </x-responsive-nav-link>
+                <a href="{{ $link['href'] }}" @click="open = false"
+                    class="rounded-lg px-3 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-white/5">{{ $link['label'] }}</a>
             @endforeach
+            <a href="{{ route('tracking') }}" wire:navigate
+                class="rounded-lg bg-emerald-50 px-3 py-2.5 text-sm font-semibold text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-300">🔍 Arıza Takibi</a>
         </div>
-
-        <!-- Responsive Account Options -->
-        <div class="pt-4 pb-1 border-t border-gray-200 dark:border-gray-600">
+        <div class="mt-3 grid grid-cols-2 gap-2 border-t border-slate-200 pt-3 dark:border-white/10">
             @auth
-                <div class="px-4">
-                    <div class="font-medium text-base text-gray-800 dark:text-gray-200">{{ auth()->user()->name }}</div>
-                    <div class="font-medium text-sm text-gray-500">{{ auth()->user()->email }}</div>
-                </div>
-                <div class="mt-3 space-y-1">
-                    <x-responsive-nav-link :href="route('dashboard')" wire:navigate>
-                        {{ __('Dashboard') }}
-                    </x-responsive-nav-link>
-                    <x-responsive-nav-link :href="route('profile')" wire:navigate>
-                        {{ __('Profile') }}
-                    </x-responsive-nav-link>
-                </div>
+                <a href="{{ route('dashboard') }}" wire:navigate class="col-span-2 rounded-xl bg-slate-900 px-4 py-2.5 text-center text-sm font-semibold text-white dark:bg-white dark:text-slate-900">Panele git</a>
             @else
-                <div class="px-4">
-                    <div class="font-medium text-base text-gray-800 dark:text-gray-200">{{ __('Üyelik') }}</div>
-                    <div class="font-medium text-sm text-gray-500">{{ __('Servis paneli için giriş yapın veya kayıt olun') }}</div>
-                </div>
-                <div class="mt-3 space-y-1">
-                    <x-responsive-nav-link :href="route('login')" :active="request()->routeIs('login')" wire:navigate>
-                        {{ __('Giriş yap') }}
-                    </x-responsive-nav-link>
-                    @if (Route::has('register'))
-                        <x-responsive-nav-link :href="route('register')" :active="request()->routeIs('register')" wire:navigate>
-                            {{ __('Kayıt ol') }}
-                        </x-responsive-nav-link>
-                    @endif
-                </div>
+                <a href="{{ route('login') }}" wire:navigate class="rounded-xl px-4 py-2.5 text-center text-sm font-semibold text-slate-700 ring-1 ring-slate-200 dark:text-slate-200 dark:ring-white/10">Giriş yap</a>
+                <a href="{{ route('register') }}" wire:navigate class="rounded-xl bg-indigo-600 px-4 py-2.5 text-center text-sm font-semibold text-white">Ücretsiz deneyin</a>
             @endauth
         </div>
     </div>

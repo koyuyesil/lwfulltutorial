@@ -1,149 +1,174 @@
+@php
+    $hour = now()->hour;
+    $greeting = $hour < 12 ? 'Günaydın' : ($hour < 18 ? 'İyi günler' : 'İyi akşamlar');
+    $card = 'rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200 dark:bg-slate-800 dark:ring-white/10';
+@endphp
+
 <x-slot name="header">
-    <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-            <p class="text-sm font-semibold uppercase tracking-[0.25em] text-blue-600 dark:text-blue-400">KoyuMavi Teknoloji</p>
-            <h2 class="text-2xl font-bold text-gray-900 dark:text-white">
-                {{ __('Teknik Servis Dashboard') }}
-            </h2>
-        </div>
-        <div class="rounded-full bg-blue-50 px-4 py-2 text-sm font-semibold text-blue-700 dark:bg-blue-500/10 dark:text-blue-300">
-            Mobil cihaz servis merkezi
-        </div>
-    </div>
+    <h2>Dashboard</h2>
 </x-slot>
 
-<div class="bg-gray-100 py-8 dark:bg-gray-900 sm:py-10">
-    <div class="mx-auto max-w-7xl space-y-8 px-4 sm:px-6 lg:px-8">
-        <section class="relative overflow-hidden rounded-4xl bg-slate-950 p-6 text-white shadow-2xl sm:p-8 lg:p-10">
-            <div class="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(37,99,235,0.45),transparent_35%),radial-gradient(circle_at_bottom_right,rgba(14,165,233,0.28),transparent_30%)]"></div>
-            <div class="relative grid gap-8 lg:grid-cols-[1.2fr_0.8fr] lg:items-center">
+<div class="mx-auto max-w-7xl space-y-6 px-4 py-6 sm:px-6 lg:px-8">
+
+    {{-- Karşılama --}}
+    <div class="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+            <p class="text-sm text-slate-500 dark:text-slate-400">{{ now()->locale('tr')->translatedFormat('d F Y, l') }}</p>
+            <h1 class="text-2xl font-black tracking-tight text-slate-900 dark:text-white">{{ $greeting }}, {{ \Illuminate\Support\Str::before(auth()->user()->name, ' ') }} 👋</h1>
+        </div>
+        <p class="text-sm text-slate-600 dark:text-slate-300">
+            @if ($kpi['overdue'])
+                <span class="font-semibold text-red-600 dark:text-red-400">{{ $kpi['overdue'] }} iş gecikmede</span> ·
+            @endif
+            Bugün teslim hedefi olan <strong>{{ $kpi['dueToday'] }}</strong> iş var.
+        </p>
+    </div>
+
+    {{-- KPI kartları --}}
+    <div class="grid grid-cols-2 gap-4 lg:grid-cols-4 xl:grid-cols-6">
+        @php
+            $kpis = [
+                ['label' => 'Açık iş', 'value' => $kpi['open'], 'sub' => $kpi['clients'] . ' müşteri', 'href' => route('tickets.index'), 'tone' => 'indigo'],
+                ['label' => 'Geciken', 'value' => $kpi['overdue'], 'sub' => 'Hedef süresi geçti', 'href' => route('tickets.index', ['sla' => 'overdue']), 'tone' => 'red'],
+                ['label' => 'Riskli', 'value' => $kpi['atRisk'], 'sub' => "Sürenin son %25'i", 'href' => route('tickets.index', ['sla' => 'at_risk']), 'tone' => 'amber'],
+                ['label' => 'Teslime hazır', 'value' => $kpi['ready'], 'sub' => 'Müşteri bekleniyor', 'href' => route('tickets.index', ['durum' => 'ready']), 'tone' => 'emerald'],
+                ['label' => 'SLA uyumu', 'value' => is_null($kpi['compliance']) ? '—' : '%' . $kpi['compliance'], 'sub' => $kpi['delivered30'] . ' teslim · 30 gün', 'href' => null, 'tone' => 'sky'],
+                ['label' => 'Ort. çözüm', 'value' => is_null($kpi['avgHours']) ? '—' : $kpi['avgHours'] . ' sa', 'sub' => 'Kabulden teslime', 'href' => null, 'tone' => 'violet'],
+            ];
+            $tones = [
+                'indigo' => 'bg-indigo-500', 'red' => 'bg-red-500', 'amber' => 'bg-amber-400',
+                'emerald' => 'bg-emerald-500', 'sky' => 'bg-sky-500', 'violet' => 'bg-violet-500',
+            ];
+        @endphp
+        @foreach ($kpis as $item)
+            <{{ $item['href'] ? 'a' : 'div' }} @if ($item['href']) href="{{ $item['href'] }}" wire:navigate @endif
+                class="{{ $card }} group relative overflow-hidden {{ $item['href'] ? 'transition hover:-translate-y-0.5 hover:shadow-lg' : '' }}">
+                <span class="absolute inset-y-0 left-0 w-1 {{ $tones[$item['tone']] }}"></span>
+                <p class="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">{{ $item['label'] }}</p>
+                <p @class(['mt-2 text-3xl font-black tracking-tight',
+                    'text-red-600 dark:text-red-400' => $item['tone'] === 'red' && $item['value'] > 0,
+                    'text-slate-900 dark:text-white' => ! ($item['tone'] === 'red' && $item['value'] > 0)])>{{ $item['value'] }}</p>
+                <p class="mt-1 truncate text-xs text-slate-500 dark:text-slate-400">{{ $item['sub'] }}</p>
+            </{{ $item['href'] ? 'a' : 'div' }}>
+        @endforeach
+    </div>
+
+    {{-- Grafikler: trend + durum --}}
+    <div class="grid gap-6 xl:grid-cols-3">
+        <section class="{{ $card }} xl:col-span-2">
+            <header class="flex items-center justify-between">
                 <div>
-                    <span class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/10 px-4 py-2 text-sm font-semibold text-blue-100 backdrop-blur">
-                        <span class="h-2 w-2 rounded-full bg-emerald-400"></span>
-                        Canlı servis operasyon görünümü
-                    </span>
-                    <h1 class="mt-5 max-w-3xl text-3xl font-black tracking-tight sm:text-4xl lg:text-5xl">
-                        Müşteri, cihaz ve onarım kayıtlarını tek merkezden yönetin.
-                    </h1>
-                    <p class="mt-4 max-w-2xl text-sm leading-7 text-slate-300 sm:text-base">
-                        Dashboard ana sayfası mevcut Livewire liste işleyişini korurken toplam kayıtları ve oturumdaki yetkiliye ait kayıtları aynı anda gösterir.
-                    </p>
+                    <h3 class="font-bold text-slate-900 dark:text-white">Servis hacmi</h3>
+                    <p class="text-xs text-slate-500">Son {{ \App\Livewire\Dashboard\DashboardIndex::TREND_DAYS }} gün · açılan ve kapanan kayıtlar</p>
                 </div>
-                <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-1">
-                    <div class="rounded-3xl border border-white/10 bg-white/10 p-5 backdrop-blur">
-                        <p class="text-sm text-blue-100">Aktif servis talepleri</p>
-                        <p class="mt-2 text-4xl font-black">{{ $activeTickets }}</p>
-                        <p class="mt-1 text-xs font-semibold text-blue-100/80">Bendeki: {{ $myActiveTickets }}</p>
-                    </div>
-                    <div class="rounded-3xl border border-white/10 bg-white/10 p-5 backdrop-blur">
-                        <p class="text-sm text-blue-100">Açık görevler</p>
-                        <p class="mt-2 text-4xl font-black">{{ $openTasks }}</p>
-                        <p class="mt-1 text-xs font-semibold text-blue-100/80">Bendeki: {{ $myOpenTasks }}</p>
-                    </div>
+            </header>
+            <div wire:ignore class="mt-2" x-data="apexChart(@js($trendChart))"></div>
+        </section>
+        <section class="{{ $card }}">
+            <header>
+                <h3 class="font-bold text-slate-900 dark:text-white">Servis durumu dağılımı</h3>
+                <p class="text-xs text-slate-500">Açık işler iş akışında nerede?</p>
+            </header>
+            <div wire:ignore class="mt-2" x-data="apexChart(@js($statusChart))"></div>
+        </section>
+    </div>
+
+    {{-- Teknisyen + marka + stok --}}
+    <div class="grid gap-6 xl:grid-cols-3">
+        <section class="{{ $card }}">
+            <header>
+                <h3 class="font-bold text-slate-900 dark:text-white">Teknisyen performansı</h3>
+                <p class="text-xs text-slate-500">Son 30 gün · tamamlanan iş ve toplam işlem</p>
+            </header>
+            <div wire:ignore class="mt-2" x-data="apexChart(@js($technicianChart))"></div>
+        </section>
+        <section class="{{ $card }}">
+            <header>
+                <h3 class="font-bold text-slate-900 dark:text-white">En çok gelen markalar</h3>
+                <p class="text-xs text-slate-500">Tüm servis kayıtları</p>
+            </header>
+            <div wire:ignore class="mt-2" x-data="apexChart(@js($brandChart))"></div>
+        </section>
+        <section class="{{ $card }} flex flex-col">
+            <header class="flex items-start justify-between gap-2">
+                <div>
+                    <h3 class="font-bold text-slate-900 dark:text-white">Kritik stok seviyeleri</h3>
+                    <p class="text-xs text-slate-500">Yedek parça stoğu</p>
                 </div>
+                <span class="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-bold uppercase text-slate-600 dark:bg-white/10 dark:text-slate-300">Yakında</span>
+            </header>
+            <div class="mt-4 flex flex-1 flex-col items-center justify-center rounded-xl border border-dashed border-slate-300 p-6 text-center dark:border-white/15">
+                <svg class="h-10 w-10 text-slate-300 dark:text-slate-600" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m20.25 7.5-.625 10.632a2.25 2.25 0 0 1-2.247 2.118H6.622a2.25 2.25 0 0 1-2.247-2.118L3.75 7.5m8.25 3v6.75m0 0-3-3m3 3 3-3M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125Z" /></svg>
+                <p class="mt-3 text-sm font-semibold text-slate-700 dark:text-slate-200">Parça stoğu modülü henüz etkin değil</p>
+                <p class="mt-1 text-xs text-slate-500">Etkinleştirildiğinde minimum seviyenin altına düşen parçalar burada listelenecek.</p>
             </div>
         </section>
+    </div>
 
-        {{-- Servis hedefi (SLA) paneli --}}
-        <section class="grid gap-4 lg:grid-cols-[0.9fr_1.1fr]">
-            <div class="grid grid-cols-2 gap-4">
-                <a href="{{ route('tickets.index', ['sla' => 'overdue']) }}" wire:navigate
-                    class="rounded-3xl bg-red-600 p-5 text-white shadow-lg transition hover:-translate-y-1">
-                    <p class="text-sm font-semibold text-red-100">Geciken işler</p>
-                    <p class="mt-2 text-4xl font-black">{{ $sla['overdue'] }}</p>
-                    <p class="mt-1 text-xs text-red-100">Hedef süresi geçmiş açık kayıtlar</p>
-                </a>
-                <a href="{{ route('tickets.index', ['sla' => 'at_risk']) }}" wire:navigate
-                    class="rounded-3xl bg-amber-500 p-5 text-white shadow-lg transition hover:-translate-y-1">
-                    <p class="text-sm font-semibold text-amber-50">Riskli işler</p>
-                    <p class="mt-2 text-4xl font-black">{{ $sla['atRisk'] }}</p>
-                    <p class="mt-1 text-xs text-amber-50">Süresinin son %25'ine girenler</p>
-                </a>
-                <div class="rounded-3xl border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-800">
-                    <p class="text-sm font-semibold text-gray-500 dark:text-gray-400">SLA uyumu (30 gün)</p>
-                    <p class="mt-2 text-4xl font-black text-gray-900 dark:text-white">{{ is_null($sla['compliance']) ? '—' : '%' . $sla['compliance'] }}</p>
-                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">{{ $sla['closed30'] }} kapanan kayıt</p>
-                </div>
-                <div class="rounded-3xl border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-800">
-                    <p class="text-sm font-semibold text-gray-500 dark:text-gray-400">Ort. çözüm süresi</p>
-                    <p class="mt-2 text-4xl font-black text-gray-900 dark:text-white">{{ $sla['avgHours'] ?? '—' }}<span class="text-lg font-bold"> sa</span></p>
-                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Kabulden kapanışa (30 gün)</p>
-                </div>
-            </div>
-            <div class="rounded-3xl border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-800">
-                <p class="text-sm font-semibold uppercase tracking-[0.2em] text-blue-600 dark:text-blue-400">Servis hattı</p>
-                <p class="mt-1 text-sm text-gray-600 dark:text-gray-300">Açık işlerinizin iş akışındaki dağılımı</p>
-                @php $pipelineMax = max(1, $sla['pipeline']->max() ?? 1); @endphp
-                <ul class="mt-4 space-y-2">
-                    @foreach (\App\Enums\TicketStatus::cases() as $case)
-                        @continue($case->isClosed())
-                        @php $n = $sla['pipeline'][$case->value] ?? 0; @endphp
-                        <li>
-                            <a href="{{ route('tickets.index', ['durum' => $case->value]) }}" wire:navigate class="group flex items-center gap-3 text-sm">
-                                <span class="w-32 shrink-0 text-gray-700 group-hover:text-blue-600 dark:text-gray-200">{{ $case->label() }}</span>
-                                <span class="h-3 flex-1 overflow-hidden rounded-full bg-gray-100 dark:bg-gray-700">
-                                    <span class="block h-full rounded-full {{ $case->bar() }}" style="width: {{ $n / $pipelineMax * 100 }}%"></span>
+    {{-- Acil işler + son hareketler --}}
+    <div class="grid gap-6 xl:grid-cols-5">
+        <section class="{{ $card }} xl:col-span-3">
+            <header class="flex items-center justify-between">
+                <h3 class="font-bold text-slate-900 dark:text-white">Teslim hedefi en yakın işler</h3>
+                <a href="{{ route('tickets.index') }}" wire:navigate class="text-sm font-semibold text-indigo-600 hover:text-indigo-500 dark:text-indigo-400">Tümü →</a>
+            </header>
+            <ul class="mt-3 divide-y divide-slate-100 dark:divide-white/5">
+                @forelse ($urgent as $t)
+                    @php $sla = $t->slaState(); @endphp
+                    <li>
+                        <a href="{{ route('tickets.show', $t) }}" wire:navigate class="-mx-2 flex items-center gap-3 rounded-lg px-2 py-2.5 transition hover:bg-slate-50 dark:hover:bg-white/5">
+                            <span @class(['h-2.5 w-2.5 shrink-0 rounded-full',
+                                'bg-red-500' => $sla === 'overdue', 'bg-amber-400' => $sla === 'warning', 'bg-emerald-500' => $sla === 'ok', 'bg-slate-300' => $sla === 'none'])></span>
+                            <span class="min-w-0 flex-1">
+                                <span class="block truncate text-sm font-semibold text-slate-900 dark:text-white">
+                                    {{ $t->clientProduct->product->brand }} {{ $t->clientProduct->product->model_name }}
+                                    <span class="font-normal text-slate-500">· {{ $t->clientProduct->client->first_name }} {{ $t->clientProduct->client->last_name }}</span>
                                 </span>
-                                <span class="w-8 text-right font-bold text-gray-900 dark:text-white">{{ $n }}</span>
-                            </a>
-                        </li>
-                    @endforeach
-                </ul>
-            </div>
+                                <span class="block truncate text-xs text-slate-500">{{ $t->problem }}</span>
+                            </span>
+                            <span class="hidden rounded-full px-2 py-0.5 text-[11px] font-semibold ring-1 sm:inline {{ $t->status->badge() }}">{{ $t->status->label() }}</span>
+                            <span @class(['w-24 shrink-0 text-right text-xs font-semibold',
+                                'text-red-600 dark:text-red-400' => $sla === 'overdue', 'text-amber-600 dark:text-amber-400' => $sla === 'warning', 'text-slate-500' => ! in_array($sla, ['overdue', 'warning'])])>
+                                {{ $t->due_at?->locale('tr')->diffForHumans(['short' => true]) }}
+                            </span>
+                        </a>
+                    </li>
+                @empty
+                    <li class="py-10 text-center text-sm text-slate-500">
+                        Açık servis kaydınız yok.
+                        <a href="{{ route('tickets.index') }}#yeni" wire:navigate class="font-semibold text-indigo-600">İlk kaydı oluşturun →</a>
+                    </li>
+                @endforelse
+            </ul>
         </section>
 
-        <section class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-            @foreach ($stats as $stat)
-                <article class="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-xl dark:border-gray-700 dark:bg-gray-800">
-                    <p class="text-sm font-semibold text-gray-500 dark:text-gray-400">{{ $stat['label'] }}</p>
-                    <div class="mt-3 flex items-end justify-between gap-4">
-                        <div>
-                            <p class="text-xs font-bold uppercase tracking-wide text-gray-400 dark:text-gray-500">Toplam</p>
-                            <p class="text-4xl font-black text-gray-900 dark:text-white">{{ $stat['total'] }}</p>
+        <section class="{{ $card }} xl:col-span-2">
+            <h3 class="font-bold text-slate-900 dark:text-white">Son hareketler</h3>
+            <ol class="mt-4 space-y-4">
+                @forelse ($activity as $event)
+                    <li class="flex gap-3">
+                        <span @class(['mt-1 h-2 w-2 shrink-0 rounded-full',
+                            'bg-indigo-500' => $event->type === 'status_changed', 'bg-emerald-500' => $event->type === 'created', 'bg-slate-400' => $event->type === 'note'])></span>
+                        <div class="min-w-0 text-sm">
+                            <p class="text-slate-700 dark:text-slate-200">
+                                <strong>{{ $event->user?->name ?? 'Sistem' }}</strong>
+                                @switch($event->type)
+                                    @case('created') yeni kayıt açtı @break
+                                    @case('status_changed') durumu <strong>{{ $event->to_status?->label() }}</strong> yaptı @break
+                                    @default not ekledi
+                                @endswitch
+                                <a href="{{ route('tickets.show', $event->ticket_id) }}" wire:navigate class="font-mono text-xs text-indigo-600 dark:text-indigo-400">{{ $event->ticket?->tracking_code }}</a>
+                            </p>
+                            @if ($event->note)
+                                <p class="truncate text-xs text-slate-500">{{ $event->note }}</p>
+                            @endif
+                            <p class="text-xs text-slate-400">{{ $event->created_at->locale('tr')->diffForHumans() }}</p>
                         </div>
-                        <div class="rounded-2xl bg-sky-50 px-3 py-2 text-right dark:bg-sky-500/10">
-                            <p class="text-xs font-bold uppercase tracking-wide text-sky-600 dark:text-sky-300">Bendeki</p>
-                            <p class="text-2xl font-black text-sky-700 dark:text-sky-200">{{ $stat['mine'] }}</p>
-                        </div>
-                    </div>
-                    <p class="mt-3 text-sm text-gray-600 dark:text-gray-300">{{ $stat['hint'] }}</p>
-                </article>
-            @endforeach
-        </section>
-
-        <section class="grid gap-6 xl:grid-cols-[1.4fr_0.6fr]">
-            <div class="rounded-4xl border border-gray-200 bg-white p-5 shadow-xl dark:border-gray-700 dark:bg-gray-800 sm:p-6">
-                <header class="mb-5 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-                    <div>
-                        <p class="text-sm font-semibold uppercase tracking-[0.2em] text-blue-600 dark:text-blue-400">Müşteri cihazları</p>
-                        <h2 class="mt-2 text-2xl font-black text-gray-900 dark:text-white">Son servis kayıtları</h2>
-                        <p class="mt-1 text-sm text-gray-600 dark:text-gray-300">Mevcut liste bileşeni lazy loading ve sayfalama davranışı korunarak gösterilir.</p>
-                    </div>
-                    <a href="{{ route('clients.index') }}" wire:navigate class="inline-flex items-center justify-center rounded-full bg-blue-600 px-4 py-2 text-sm font-bold text-white transition hover:bg-blue-700">
-                        Müşterilere git
-                    </a>
-                </header>
-                <div class="rounded-3xl bg-gray-50 p-2 dark:bg-gray-900/50 sm:p-4">
-                    <livewire:dashboard.clients-products-list lazy />
-                </div>
-            </div>
-
-            <aside class="space-y-6">
-                <div class="rounded-4xl border border-gray-200 bg-white p-6 shadow-xl dark:border-gray-700 dark:bg-gray-800">
-                    <p class="text-sm font-semibold uppercase tracking-[0.2em] text-blue-600 dark:text-blue-400">Hızlı işlemler</p>
-                    <div class="mt-5 grid gap-3">
-                        <a href="{{ route('tickets.index') }}" wire:navigate class="rounded-2xl border border-gray-200 p-4 font-semibold text-gray-800 transition hover:border-blue-300 hover:bg-blue-50 dark:border-gray-700 dark:text-gray-100 dark:hover:bg-blue-500/10">Servis taleplerini yönet</a>
-                        <a href="{{ route('products.index') }}" wire:navigate class="rounded-2xl border border-gray-200 p-4 font-semibold text-gray-800 transition hover:border-blue-300 hover:bg-blue-50 dark:border-gray-700 dark:text-gray-100 dark:hover:bg-blue-500/10">Ürün/model kayıtları</a>
-                        <a href="{{ route('tasks.index') }}" wire:navigate class="rounded-2xl border border-gray-200 p-4 font-semibold text-gray-800 transition hover:border-blue-300 hover:bg-blue-50 dark:border-gray-700 dark:text-gray-100 dark:hover:bg-blue-500/10">Görev planı</a>
-                    </div>
-                </div>
-
-                <div class="rounded-4xl bg-linear-to-br from-blue-700 to-slate-900 p-6 text-white shadow-xl">
-                    <p class="text-sm font-semibold text-blue-100">Servis standardı</p>
-                    <h3 class="mt-2 text-2xl font-black">Doğru kayıt, hızlı onarım.</h3>
-                    <p class="mt-3 text-sm leading-6 text-blue-100">Cihaz geçmişi, müşteri bilgisi ve teknik iş emirlerini düzenli tutarak mobil iletişim cihazlarında daha güvenilir servis deneyimi sağlayın.</p>
-                </div>
-            </aside>
+                    </li>
+                @empty
+                    <li class="text-sm text-slate-500">Henüz hareket yok.</li>
+                @endforelse
+            </ol>
         </section>
     </div>
 </div>
