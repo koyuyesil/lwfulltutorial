@@ -21,13 +21,14 @@ class BoardIdFactory extends Factory
     {
         return [
             //'user_id' => User::factory(), // İlişkili kullanıcı oluşturulur
-            'user_id' => 1, // İlişkili kullanıcı oluşturulur
+            'user_id' => \App\Models\User::factory(), // İlişkili kullanıcı oluşturulur
             'product_id' => Product::factory(), // İlişkili ürün oluşturulur
             'build_name' => $this->faker->word(), // Örnek isim oluşturulur
-            'resistances' => json_encode([
+            // Model 'array' cast kullandığı için json_encode gerekmez (çift kodlanıyordu)
+            'resistances' => [
                 'R1' => 100000, // Örnek R1 değeri
                 'R2' => $this->faker->randomFloat(2, 1, 100000), // Örnek R2 değeri
-            ]),
+            ],
             // 'repair_methods' => json_encode($this->faker->randomElements([
             //     'meta',
             //     'flash',

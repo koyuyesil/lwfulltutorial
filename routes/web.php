@@ -2,7 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 
-Route::view('/', 'welcome');
+Route::view('/', 'welcome')->name('home');
 
 Route::view('servisler', 'static.services.index')->name('services.index');
 Route::view('servisler/ariza-teshis-kabul', 'static.services.diagnostics')->name('services.diagnostics');

@@ -2,14 +2,13 @@
 
 namespace App\Livewire\Tickets;
 
-use App\Models\Client;
 use App\Models\Ticket;
-use App\Models\Product;
 use Livewire\Component;
 use App\Enums\StatusType;
 use App\Enums\PriorityType;
 use App\Models\ClientProduct;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
 //TODO BURADA VAROLAN MÜŞTERİ VE CİHAZ YENİDEN OLUŞTURULMADAN KAYIT YAPILACAK AYRICA MEVCUT KAYIT SEÇİMİ DE YAPALIM.
 //ÇOK İLİŞKİLİ UPDATE FORMU OLMASI GEREKLİ
 class TicketsForm extends Component
@@ -68,47 +67,51 @@ class TicketsForm extends Component
     }
 
     // Seçilen müşteri değiştiğinde çağrılan metot
-    public function updatedselectedClient()
+    public function updatedSelectedClient()
     {
-        if ($this->selectedClient) {
-            $client = Client::find($this->selectedClient); // Seçilen müşteri ID'siyle müşteri bilgilerini al
+        $this->selectedClientProduct = null;
 
-            if ($client) {
-                // Müşteri bilgilerini form alanlarına at
-                $this->first_name = $client->first_name;
-                $this->last_name = $client->last_name;
-                $this->company = $client->company;
-                $this->phone = $client->phone;
-                $this->email = $client->email;
-                $this->address = $client->address;
-                $this->loadProducts(); // Müşteri seçildiğinde ürünleri de yükle
-            } else {
-                $this->reset(); // Müşteri bulunamazsa formu sıfırla
-            }
-        } else {
-            $this->reset(); // Müşteri seçilmezse formu sıfırla
+        // Sadece oturumdaki kullanıcının müşterileri seçilebilir
+        $client = $this->selectedClient
+            ? Auth::user()->clients()->find($this->selectedClient)
+            : null;
+
+        if (! $client) {
+            $this->selectedClient = null;
+            $this->reset(['first_name', 'last_name', 'company', 'phone', 'email', 'address']);
+
+            return;
         }
+
+        $this->first_name = $client->first_name;
+        $this->last_name = $client->last_name;
+        $this->company = $client->company;
+        $this->phone = $client->phone;
+        $this->email = $client->email;
+        $this->address = $client->address;
     }
 
     // Seçilen ürün değiştiğinde çağrılan metot
-    public function updatedselectedProduct()
+    public function updatedSelectedProduct()
     {
-        if ($this->selectedProduct) {
-            $product = Product::find($this->selectedProduct); // Seçilen ürün ID'siyle ürün bilgilerini al
+        $this->selectedClientProduct = null;
 
-            if ($product) {
-                // Ürün bilgilerini form alanlarına at
-                $this->manufacturer = $product->manufacturer;
-                $this->brand = $product->brand;
-                $this->model_name = $product->model_name;
-                $this->model_number = $product->model_number;
-                $this->description = $product->description;
-            } else {
-                $this->reset(); // Ürün bulunamazsa formu sıfırla
-            }
-        } else {
-            $this->reset(); // Ürün seçilmezse formu sıfırla
+        $product = $this->selectedProduct
+            ? Auth::user()->products()->find($this->selectedProduct)
+            : null;
+
+        if (! $product) {
+            $this->selectedProduct = null;
+            $this->reset(['manufacturer', 'brand', 'model_name', 'model_number', 'description']);
+
+            return;
         }
+
+        $this->manufacturer = $product->manufacturer;
+        $this->brand = $product->brand;
+        $this->model_name = $product->model_name;
+        $this->model_number = $product->model_number;
+        $this->description = $product->description;
     }
 
     // Yeni müşteri ve ürün oluşturma işlemi
@@ -128,10 +131,10 @@ class TicketsForm extends Component
         $client = Auth::user()->clients()->create([
             'first_name' => $this->first_name,
             'last_name' => $this->last_name,
-            'company' => $this->company,
+            'company' => (string) $this->company, // sütun NOT NULL, form alanı opsiyonel
             'phone' => $this->phone,
-            'email' => $this->email,
-            'address' => $this->address,
+            'email' => (string) $this->email,
+            'address' => (string) $this->address,
         ]);
 
         // Yeni ürün oluştur
@@ -148,42 +151,54 @@ class TicketsForm extends Component
             'user_id' => Auth::id(),
             'client_id' => $client->id,
             'product_id' => $product->id,
-            'color' => $this->color,
-            'serial' => $this->serial,
-            'imei' => $this->imei,
+            'color' => (string) $this->color,
+            'serial' => (string) $this->serial,
+            'imei' => (string) $this->imei,
         ]);
 
         // Seçilen müşteri ve ürün bilgilerini güncelle
         $this->selectedClient = $client->id;
         $this->selectedProduct = $product->id;
         $this->selectedClientProduct = $clientProduct->id;
+
+        // Yeni kayıtlar seçim listelerinde de görünsün
+        $this->loadClients();
+        $this->loadProducts();
     }
 
     // Arıza kaydını oluşturma işlemi
     public function create()
     {
-        // Arıza kaydı için doğrulama
+        $userId = Auth::id();
+
+        // Arıza kaydı için doğrulama (yalnızca kullanıcının kendi kayıtları)
         $this->validate([
-            'selectedClient' => 'required|exists:clients,id',
-            'selectedProduct' => 'required|exists:products,id',
+            'selectedClient' => ['required', Rule::exists('clients', 'id')->where('user_id', $userId)],
+            'selectedProduct' => ['required', Rule::exists('products', 'id')->where('user_id', $userId)],
             'problem' => 'required|string|min:5',
-            'priority' => 'required',
-            'status' => 'required',
+            'priority' => ['required', Rule::enum(PriorityType::class)],
+            'status' => ['required', Rule::enum(StatusType::class)],
         ]);
 
-        // Yeni arıza kaydı oluştur
+        // Mevcut müşteri + ürün seçildiyse aradaki cihaz kaydını bul ya da oluştur
+        $clientProductId = $this->selectedClientProduct
+            ?? ClientProduct::firstOrCreate(
+                ['client_id' => $this->selectedClient, 'product_id' => $this->selectedProduct, 'user_id' => $userId],
+                ['serial' => (string) $this->serial, 'imei' => (string) $this->imei, 'color' => (string) $this->color],
+            )->id;
+
         Ticket::create([
-            'user_id' => Auth::id(),
-            'client_product_id' => $this->selectedClientProduct,
+            'user_id' => $userId,
+            'client_product_id' => $clientProductId,
             'problem' => $this->problem,
             'priority' => $this->priority,
             'status' => $this->status,
         ]);
 
-        // Formu sıfırla ve tekrar yükle
-        $this->reset();
-        $this->loadClients();
-        $this->loadProducts();
+        // Listeyi yenile, formu sıfırla (seçim listeleri korunur)
+        $this->dispatch('ticket-created');
+        $this->reset(array_diff(array_keys($this->all()), ['clients', 'products']));
+        $this->resetValidation();
     }
 
     // Bileşenin render edilmesini sağlar (view dosyasını yükler)

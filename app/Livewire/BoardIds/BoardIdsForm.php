@@ -24,7 +24,7 @@ class BoardIdsForm extends Component
     #[On('edit')]//bu event sadece formu doldurur
     public function edit($id)
     {
-        $boardId = BoardId::findOrFail($id);
+        $boardId = auth()->user()->boardIds()->findOrFail($id);
         $this->form->setContent($boardId);
     }
 

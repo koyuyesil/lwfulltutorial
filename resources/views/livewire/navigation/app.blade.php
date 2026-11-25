@@ -14,6 +14,22 @@ new class extends Component
 
         $this->redirect('/', navigate: true);
     }
+
+    /**
+     * Tek kaynaktan beslenen menü: masaüstü ve mobil menü aynı listeyi kullanır.
+     */
+    public function links(): array
+    {
+        return [
+            ['route' => 'dashboard', 'label' => __('Dashboard')],
+            ['route' => 'tickets.index', 'label' => __('Tickets')],
+            ['route' => 'clients.index', 'label' => __('Clients')],
+            ['route' => 'products.index', 'label' => __('Products')],
+            ['route' => 'board-ids.index', 'label' => __('Board')],
+            ['route' => 'tasks.index', 'label' => __('Tasks')],
+            ['route' => 'tools.index', 'label' => __('Tools')],
+        ];
+    }
 }; ?>
 
 <nav x-data="{ open: false }" class="bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700">
@@ -29,31 +45,15 @@ new class extends Component
                 </div>
 
                 <!-- Navigation Links -->
-                <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                    <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')" wire:navigate>
-                        {{ __('Dashboard') }}
-                    </x-nav-link>
-                    <x-nav-link :href="route('products.index')" :active="request()->routeIs('products.index')" wire:navigate>
-                        {{ __('Products') }}
-                    </x-nav-link>
-                    <x-nav-link :href="route('clients.index')" :active="request()->routeIs('clients.index')" wire:navigate>
-                        {{ __('Clients') }}
-                    </x-nav-link>
-                    <x-nav-link :href="route('tickets.index')" :active="request()->routeIs('tickets.index')" wire:navigate>
-                        {{ __('Tickets') }}
-                    </x-nav-link>
-                    <x-nav-link :href="route('board-ids.index')" :active="request()->routeIs('board-ids.index')" wire:navigate>
-                        {{ __('Board') }}
-                    </x-nav-link>
-                    <x-nav-link :href="route('tools.index')" :active="request()->routeIs('tools.index')" wire:navigate>
-                        {{ __('Tools') }}
-                    </x-nav-link>
-                    <x-nav-link :href="route('tasks.index')" :active="request()->routeIs('tasks.index')" wire:navigate>
-                        {{ __('Tasks') }}
-                    </x-nav-link>
+                <div class="hidden space-x-6 sm:-my-px sm:ms-10 sm:flex">
+                    @foreach ($this->links() as $link)
+                        <x-nav-link :href="route($link['route'])" :active="request()->routeIs($link['route'])" wire:navigate.hover>
+                            {{ $link['label'] }}
+                        </x-nav-link>
+                    @endforeach
                 </div>
-                <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                    <livewire:search/>
+                <div class="hidden lg:-my-px lg:ms-8 lg:flex">
+                    <livewire:search />
                 </div>
             </div>
 
@@ -102,21 +102,11 @@ new class extends Component
     <!-- Responsive Navigation Menu -->
     <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden">
         <div class="pt-2 pb-3 space-y-1">
-            <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')" wire:navigate>
-                {{ __('Dashboard') }}
-            </x-responsive-nav-link>
-            <x-responsive-nav-link :href="route('products.index')" :active="request()->routeIs('products.index')" wire:navigate>
-                {{ __('Products') }}
-            </x-responsive-nav-link>
-            <x-responsive-nav-link :href="route('clients.index')" :active="request()->routeIs('clients.index')" wire:navigate>
-                {{ __('Clients') }}
-            </x-responsive-nav-link>
-            <x-responsive-nav-link :href="route('tickets.index')" :active="request()->routeIs('tickets.index')" wire:navigate>
-                {{ __('Tickets') }}
-            </x-responsive-nav-link>
-            <x-responsive-nav-link :href="route('tasks.index')" :active="request()->routeIs('tasks.index')" wire:navigate>
-                {{ __('Tasks') }}
-            </x-responsive-nav-link>
+            @foreach ($this->links() as $link)
+                <x-responsive-nav-link :href="route($link['route'])" :active="request()->routeIs($link['route'])" wire:navigate>
+                    {{ $link['label'] }}
+                </x-responsive-nav-link>
+            @endforeach
         </div>
 
         <!-- Responsive Settings Options -->

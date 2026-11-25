@@ -14,8 +14,8 @@
 
 <div class="bg-gray-100 py-8 dark:bg-gray-900 sm:py-10">
     <div class="mx-auto max-w-7xl space-y-8 px-4 sm:px-6 lg:px-8">
-        <section class="relative overflow-hidden rounded-[2rem] bg-slate-950 p-6 text-white shadow-2xl sm:p-8 lg:p-10">
-            <div class="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(37,99,235,0.45),_transparent_35%),radial-gradient(circle_at_bottom_right,_rgba(14,165,233,0.28),_transparent_30%)]"></div>
+        <section class="relative overflow-hidden rounded-4xl bg-slate-950 p-6 text-white shadow-2xl sm:p-8 lg:p-10">
+            <div class="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(37,99,235,0.45),transparent_35%),radial-gradient(circle_at_bottom_right,rgba(14,165,233,0.28),transparent_30%)]"></div>
             <div class="relative grid gap-8 lg:grid-cols-[1.2fr_0.8fr] lg:items-center">
                 <div>
                     <span class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/10 px-4 py-2 text-sm font-semibold text-blue-100 backdrop-blur">
@@ -64,7 +64,7 @@
         </section>
 
         <section class="grid gap-6 xl:grid-cols-[1.4fr_0.6fr]">
-            <div class="rounded-[2rem] border border-gray-200 bg-white p-5 shadow-xl dark:border-gray-700 dark:bg-gray-800 sm:p-6">
+            <div class="rounded-4xl border border-gray-200 bg-white p-5 shadow-xl dark:border-gray-700 dark:bg-gray-800 sm:p-6">
                 <header class="mb-5 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
                     <div>
                         <p class="text-sm font-semibold uppercase tracking-[0.2em] text-blue-600 dark:text-blue-400">Müşteri cihazları</p>
@@ -81,7 +81,7 @@
             </div>
 
             <aside class="space-y-6">
-                <div class="rounded-[2rem] border border-gray-200 bg-white p-6 shadow-xl dark:border-gray-700 dark:bg-gray-800">
+                <div class="rounded-4xl border border-gray-200 bg-white p-6 shadow-xl dark:border-gray-700 dark:bg-gray-800">
                     <p class="text-sm font-semibold uppercase tracking-[0.2em] text-blue-600 dark:text-blue-400">Hızlı işlemler</p>
                     <div class="mt-5 grid gap-3">
                         <a href="{{ route('tickets.index') }}" wire:navigate class="rounded-2xl border border-gray-200 p-4 font-semibold text-gray-800 transition hover:border-blue-300 hover:bg-blue-50 dark:border-gray-700 dark:text-gray-100 dark:hover:bg-blue-500/10">Servis taleplerini yönet</a>
@@ -90,7 +90,7 @@
                     </div>
                 </div>
 
-                <div class="rounded-[2rem] bg-gradient-to-br from-blue-700 to-slate-900 p-6 text-white shadow-xl">
+                <div class="rounded-4xl bg-linear-to-br from-blue-700 to-slate-900 p-6 text-white shadow-xl">
                     <p class="text-sm font-semibold text-blue-100">Servis standardı</p>
                     <h3 class="mt-2 text-2xl font-black">Doğru kayıt, hızlı onarım.</h3>
                     <p class="mt-3 text-sm leading-6 text-blue-100">Cihaz geçmişi, müşteri bilgisi ve teknik iş emirlerini düzenli tutarak mobil iletişim cihazlarında daha güvenilir servis deneyimi sağlayın.</p>

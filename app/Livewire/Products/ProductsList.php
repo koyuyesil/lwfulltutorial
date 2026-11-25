@@ -16,15 +16,10 @@ class ProductsList extends Component
         return view('skeleton');//lazzy loading
     }
 
-    public function changeStatus($id, $status)
+    public function delete(int $id)
     {
-        // $task = Device::find($id);
-        // $task->update(['status' => $status]);
-    }
-
-    public function delete(Product $product)
-    {
-        $product->delete();
+        // Sadece oturumdaki kullanıcının kaydı silinebilir
+        Auth::user()->products()->findOrFail($id)->delete();
     }
 
     #[On('product-created')]

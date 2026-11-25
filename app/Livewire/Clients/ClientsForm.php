@@ -21,7 +21,7 @@ class ClientsForm extends Component
     #[On('edit')]//bu event sadece formu doldurur
     public function edit($id)
     {
-        $client = Client::findOrFail($id);
+        $client = auth()->user()->clients()->findOrFail($id);
         $this->form->set($client);
     }
     public function render()

@@ -3,7 +3,7 @@
 namespace App\Livewire\Forms;
 
 use Livewire\Attributes\Validate;
-use app\Models\Client;
+use App\Models\Client;
 use Livewire\Form;
 
 class ClientForm extends Form

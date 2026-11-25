@@ -22,7 +22,9 @@ class Client extends Model
     // Multi attiribute mutator
     public function setAttribute($key, $value)
     {
-        if ($key === 'first_name' || $key === 'last_name') {
+        if (! is_string($value)) {
+            // null (ör. şirketsiz müşteri) mb_* fonksiyonlarına gönderilmez
+        } elseif ($key === 'first_name' || $key === 'last_name') {
             $value = mb_convert_case($value, MB_CASE_TITLE, "UTF-8"); // İlk harf büyük, geri kalanı küçük.
         } elseif ($key === 'address' || $key === 'company') {
             $value = mb_strtoupper($value, "UTF-8"); // Tamamını büyük harfe çevir.
@@ -63,7 +65,7 @@ class Client extends Model
 
                 case 'archive':
                     // Cihazları arşiv tablosuna taşı
-                    foreach ($client->clientProducts as $device) {
+                    foreach ($client->clientsProducts as $device) {
                         DB::table('archived_customer_devices')->insert($device->toArray());
                         $device->delete(); // Orijinal cihazı sil
                     }

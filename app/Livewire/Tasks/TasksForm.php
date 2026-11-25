@@ -22,7 +22,7 @@ class TasksForm extends Component
     #[On('edit-task')]//bu event sadece formu doldurur
     public function editTask($id)
     {
-        $task = Task::findOrFail($id);
+        $task = auth()->user()->tasks()->findOrFail($id);
         $this->form->setTask($task);
     }
     public function render()

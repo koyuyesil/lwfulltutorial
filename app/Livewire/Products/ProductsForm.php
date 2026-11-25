@@ -21,7 +21,7 @@ class ProductsForm extends Component
     #[On('edit-product')] // bu event sadece formu doldurur
     public function edit($id)
     {
-        $product = Product::findOrFail(id: $id);
+        $product = auth()->user()->products()->findOrFail($id);
         $this->form->setContent( $product);
     }
     public function render()

@@ -5,7 +5,7 @@
             <div class="flex items-center text-xs text-gray-600 dark:text-gray-400">
                 <span class="mr-2">
                     <strong>Client:</strong>
-                    {{ $ticket->clientProduct->client->company ? $ticket->clientProduct->client->company : $ticket->clientProduct->client->fname . ' ' . $ticket->clientProduct->client->lname }}
+                    {{ $ticket->clientProduct->client->company ?: $ticket->clientProduct->client->first_name . ' ' . $ticket->clientProduct->client->last_name }}
                 </span>
                 <span class="mr-2"><strong>Telefon:</strong>{{ $ticket->clientProduct->client->phone }}</span>
                 <span class="mr-2"><strong>E-posta:</strong>{{ $ticket->clientProduct->client->email }}</span>
@@ -79,7 +79,7 @@
                     </button>
 
                     {{-- Download PDF Butonu --}}
-                    <button type="button" onclick="downloadPdf({{ json_encode($ticket) }})"
+                    <button type="button" x-on:click="window.downloadTicketPdf(@js($ticket))"
                         class="flex items-center text-indigo-700 hover:text-white border border-indigo-700 hover:bg-indigo-800 focus:ring-4 focus:outline-none focus:ring-indigo-300 font-medium rounded-lg text-sm px-4 py-2  me-2 mb-2 dark:border-indigo-500 dark:text-indigo-500 dark:hover:text-white dark:hover:bg-indigo-600 dark:focus:ring-indigo-900">
                         <svg class="w-4 h-4 me-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
                             fill="currentColor" aria-hidden="true">
@@ -91,7 +91,7 @@
                     </button>
 
                     {{-- Print Butonu --}}
-                    <button type="button" onclick="printTicket({{ json_encode($ticket) }})"
+                    <button type="button" x-on:click="window.printTicket(@js($ticket))"
                         class="flex items-center text-indigo-700 hover:text-white border border-indigo-700 hover:bg-indigo-800 focus:ring-4 focus:outline-none focus:ring-indigo-300 font-medium rounded-lg text-sm px-4 py-2  me-2 mb-2 dark:border-indigo-500 dark:text-indigo-500 dark:hover:text-white dark:hover:bg-indigo-600 dark:focus:ring-indigo-900">
                         <svg class="w-4 h-4 me-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
                             fill="currentColor" aria-hidden="true">
@@ -109,145 +109,4 @@
     <div class="mt-4">
         {{ $tickets->links() }}
     </div>
-    @script
-        <script>
-            // Ortak döküman içeriğini hazırlama fonksiyonu
-            window.createTicketContent = function(ticket) {
-                const client = ticket.client_product?.client || {};
-                const product = ticket.client_product?.product || {};
-                const clientName = client.company || `${client.first_name || 'Unknown'} ${client.last_name || ''}`.trim();
-
-                return `
-            <div style="font-family: Arial, sans-serif; line-height: 1.6; font-size: 11px;">
-                <h2 style="text-align: center;">Ticket #${ticket.id || 'N/A'}</h2>
-                <hr style="margin: 20px 0;">
-                <p><strong>Client:</strong> ${clientName}</p>
-                <p><strong>Telefon:</strong> ${client.phone || 'N/A'}</p>
-                <p><strong>E-posta:</strong> ${client.email || 'N/A'}</p>
-                <p><strong>Adres:</strong> ${client.address || 'N/A'}</p>
-                <p><strong>Manufacturer:</strong> ${product.manufacturer || 'N/A'}</p>
-                <p><strong>Model Name:</strong> ${product.model_name || 'N/A'}</p>
-                <p><strong>Status:</strong> ${ticket.status || 'N/A'}</p>
-                <p><strong>Issue:</strong> ${ticket.problem || 'N/A'}</p>
-                <hr style="margin: 20px 0;">
-            </div>
-        `;
-            }
-
-            // window.printTicket fonksiyonu ile yazdırma işlemi
-            window.printTicket = function(ticket) {
-                const ticketContent = createTicketContent(ticket);
-
-
-                const newWindow = window.open('', '_blank', 'width=800,height=600');
-                if (newWindow) {
-                    newWindow.document.write(`
-                    <html>
-                    <head>
-                        <title>Ticket Print</title>
-                        <style>
-                            body {
-                                font-family: Arial, sans-serif;
-                                margin: 20px;
-                                padding: 0;
-                            }
-                            h2 {
-                                color: #333;
-                            }
-                            p {
-                                margin: 5px 0;
-                            }
-                            hr {
-                                border: none;
-                                border-top: 1px solid #ccc;
-                            }
-                        </style>
-                    </head>
-                    <body>
-                        ${ticketContent}
-                    </body>
-                    </html>
-                `);
-                    newWindow.document.close();
-                    newWindow.focus();
-
-                    // Yazdırma işlemi sonrası pencereyi kapat
-                    newWindow.onafterprint = function() {
-                        newWindow.close();
-                    };
-
-                    newWindow.print();
-                } else {
-                    alert('Pop-up engelleyici açık, lütfen izin verin.');
-                }
-
-            }
-
-            // window.downloadPdf fonksiyonu ile indirme işlemi
-            window.downloadPdf = function(ticket) {
-                const ticketContent = createTicketContent(ticket);
-
-
-                const newWindow = window.open('', '_blank', 'width=800,height=600');
-                if (newWindow) {
-                    newWindow.document.write(`
-                    <html>
-                    <head>
-                        <title>Ticket Print</title>
-                        <style>
-                            body {
-                                font-family: Arial, sans-serif;
-                                margin: 20px;
-                                padding: 0;
-                            }
-                            h2 {
-                                color: #333;
-                            }
-                            p {
-                                margin: 5px 0;
-                            }
-                            hr {
-                                border: none;
-                                border-top: 1px solid #ccc;
-                            }
-                        </style>
-                    </head>
-                    <body>
-                        ${ticketContent}
-                    </body>
-                    </html>
-                `);
-                    const {
-                        jsPDF
-                    } = window.jspdf;
-                    const pdf = new jsPDF({
-                        compress: true
-                    }); // Sayfa boyutunu A4 olarak ayarlıyoruz
-                    //pdf.text("Hello world!", 10, 10);
-                    pdf.setDisplayMode(1);
-                    pdf.html(newWindow.document.body.innerHTML, {
-                        callback: function(pdf) {
-                            // HTML içeriği PDF'e eklendikten sonra dosya adını belirle
-                            const fileName = `${ticket.id || 'UNKNOWN'}_A4.pdf`;
-
-                            // PDF dosyasını kaydet
-                            pdf.save(fileName);
-                            setMode("html");
-                            dispatch(hideLoaderUI());
-                        },
-                        margin: [10, 10, 10, 10], // PDF sayfası kenar boşlukları
-                        x: 10, // İçeriğin x koordinatındaki konumu
-                        y: 20, // İçeriğin y koordinatındaki konumu
-                        html2canvas: {
-                            scale: 1
-                        },
-                    });
-                } else {
-                    alert('Pop-up engelleyici açık, lütfen izin verin.');
-                }
-
-
-            }
-        </script>
-    @endscript
 </div>

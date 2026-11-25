@@ -12,14 +12,8 @@
         <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
 
         <!-- Scripts -->
+        {{-- jsPDF/html2canvas artık Vite ile paketleniyor (resources/js/ticket-print.js), MathJax sadece araç sayfasında --}}
         @vite(['resources/css/app.css', 'resources/js/app.js'])
-
-        <!-- TODO Vite Scripts -->
-        <script src="https://cdn.jsdelivr.net/npm/dompurify@2.3.4/dist/purify.min.js"></script>
-        <script src="https://unpkg.com/jspdf@latest/dist/jspdf.umd.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
-        <script src="https://github.com/niklasvh/html2canvas/releases/download/v1.4.1/html2canvas.min.js"></script>
-
     </head>
     <body class="font-sans antialiased">
         <div class="min-h-screen bg-gray-100 dark:bg-gray-900">

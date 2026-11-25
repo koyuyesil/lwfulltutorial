@@ -15,7 +15,7 @@
     @endphp
 
     <main class="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
-        <section class="rounded-[2rem] bg-gradient-to-br from-sky-50 to-white p-8 shadow-sm ring-1 ring-sky-100 dark:from-slate-900 dark:to-sky-950 dark:ring-sky-500/20">
+        <section class="rounded-4xl bg-linear-to-br from-sky-50 to-white p-8 shadow-sm ring-1 ring-sky-100 dark:from-slate-900 dark:to-sky-950 dark:ring-sky-500/20">
             <p class="text-sm font-semibold uppercase tracking-[0.25em] text-sky-600 dark:text-sky-300">Servis kapsamı</p>
             <h1 class="mt-3 max-w-3xl text-4xl font-black text-gray-950 dark:text-white">Mobil iletişim cihazları için uçtan uca teknik servis süreçleri.</h1>
             <p class="mt-4 max-w-3xl text-gray-600 dark:text-gray-300">Bu sayfa, KoyuMavi Teknoloji'nin sunduğu işlemleri ayrı başlıklar altında düzenler. Her başlık kendi statik detay sayfasına yönlenir.</p>

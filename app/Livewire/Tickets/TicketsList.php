@@ -3,6 +3,7 @@
 namespace App\Livewire\Tickets;
 
 use App\Models\Ticket;
+use App\Enums\StatusType;
 use Livewire\Component;
 use Livewire\Attributes\On;
 use Livewire\WithPagination;
@@ -17,15 +18,15 @@ class TicketsList extends Component
         return view('skeleton'); // Lazy loading
     }
 
-    public function changeStatus($id, $status)
+    public function changeStatus(int $id, string $status)
     {
-        $task = Ticket::find($id);
-        $task->update(['status' => $status]);
+        Auth::user()->tickets()->findOrFail($id)
+            ->update(['status' => StatusType::from($status)]);
     }
 
-    public function delete(Ticket $ticket)
+    public function delete(int $id)
     {
-        $ticket->delete(); // Ticket silme işlemi
+        Auth::user()->tickets()->findOrFail($id)->delete();
     }
 
     #[On('ticket-created')]

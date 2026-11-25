@@ -18,10 +18,16 @@ class Search extends Component
     {
         $results = [];
 
-        if (strlen($this->search) > 2) {
+        $term = trim((string) $this->search);
+
+        if (mb_strlen($term) > 2) {
+            // orWhere'ler gruplanmazsa user_id filtresi devre dışı kalır ve başka kullanıcıların görevleri sızar.
             $results = auth()->user()->tasks()
-                ->where('title', 'like', '%' . $this->search . '%')
-                ->orWhere('description', 'like', '%' . $this->search . '%')
+                ->where(function ($query) use ($term) {
+                    $query->where('title', 'like', '%'.$term.'%')
+                        ->orWhere('description', 'like', '%'.$term.'%');
+                })
+                ->limit(10)
                 ->get();
         }
 

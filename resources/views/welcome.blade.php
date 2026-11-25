@@ -24,8 +24,8 @@
         ];
     @endphp
 
-    <section class="relative overflow-hidden bg-gradient-to-br from-slate-50 via-sky-50 to-white text-gray-950 dark:from-slate-950 dark:via-slate-900 dark:to-sky-950 dark:text-white">
-        <div class="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(14,165,233,0.20),_transparent_34%),radial-gradient(circle_at_bottom_right,_rgba(125,211,252,0.16),_transparent_30%)]"></div>
+    <section class="relative overflow-hidden bg-linear-to-br from-slate-50 via-sky-50 to-white text-gray-950 dark:from-slate-950 dark:via-slate-900 dark:to-sky-950 dark:text-white">
+        <div class="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(14,165,233,0.20),transparent_34%),radial-gradient(circle_at_bottom_right,rgba(125,211,252,0.16),transparent_30%)]"></div>
         <div class="relative mx-auto grid max-w-7xl gap-10 px-4 py-16 sm:px-6 lg:grid-cols-[1.05fr_0.95fr] lg:px-8 lg:py-24">
             <div class="flex flex-col justify-center">
                 <span class="mb-5 inline-flex w-fit items-center gap-2 rounded-full border border-sky-200 bg-white/70 px-4 py-2 text-sm font-medium text-sky-800 shadow-sm backdrop-blur dark:border-sky-400/20 dark:bg-white/10 dark:text-sky-100">
@@ -49,8 +49,8 @@
             </div>
 
             <div class="relative">
-                <div class="absolute -inset-4 rounded-[2rem] bg-sky-300/20 blur-3xl dark:bg-sky-500/20"></div>
-                <div class="relative overflow-hidden rounded-[2rem] border border-sky-100 bg-white/85 p-6 shadow-2xl backdrop-blur-xl dark:border-white/10 dark:bg-white/10">
+                <div class="absolute -inset-4 rounded-4xl bg-sky-300/20 blur-3xl dark:bg-sky-500/20"></div>
+                <div class="relative overflow-hidden rounded-4xl border border-sky-100 bg-white/85 p-6 shadow-2xl backdrop-blur-xl dark:border-white/10 dark:bg-white/10">
                     <div class="mb-6 flex items-center justify-between">
                         <div>
                             <p class="text-sm text-sky-700 dark:text-sky-100">Servis kapsamı</p>

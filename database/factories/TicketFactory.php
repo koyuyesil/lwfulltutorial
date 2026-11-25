@@ -20,7 +20,8 @@ class TicketFactory extends Factory
     {
         $status = ['open', 'in_progress', 'done'];
         return [
-            'user_id' => 1,
+            'user_id' => \App\Models\User::factory(),
+            'client_product_id' => \App\Models\ClientProduct::factory(),
             'problem' => fake()->jobTitle(),
             'status' => fake()->randomElement(StatusType::cases()), // Get a random status from the StatusType enum
             'priority' => fake()->randomElement(PriorityType::cases()), // Get a random priority from the PriorityType enum

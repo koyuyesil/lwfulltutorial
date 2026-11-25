@@ -17,9 +17,10 @@ class ClientsList extends Component
         return view('skeleton');//lazzy loading
     }
 
-    public function delete(Client $client)
+    public function delete(int $id)
     {
-        $client->delete();
+        // Sadece oturumdaki kullanıcının kaydı silinebilir
+        Auth::user()->clients()->findOrFail($id)->delete();
     }
 
     #[On('created')]

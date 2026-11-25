@@ -52,7 +52,11 @@ new #[Layout('layouts.guest')] class extends Component
             <x-input-error :messages="$errors->get('email')" class="mt-2" />
         </div>
 
-        <div class="flex items-center justify-end mt-4">
+        <div class="flex items-center justify-between mt-4">
+            <a href="{{ route('login') }}" wire:navigate class="underline text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100">
+                {{ __('Girişe dön') }}
+            </a>
+
             <x-primary-button>
                 {{ __('Email Password Reset Link') }}
             </x-primary-button>

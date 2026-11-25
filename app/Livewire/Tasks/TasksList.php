@@ -3,6 +3,7 @@
 namespace App\Livewire\Tasks;
 
 use App\Models\Task;
+use App\Enums\StatusType;
 use Livewire\Component;
 use Livewire\Attributes\On;
 use Livewire\WithPagination;
@@ -17,15 +18,15 @@ class TasksList extends Component
         return view('skeleton');//lazzy loading
     }
 
-    public function changeStatus($id, $status)
+    public function changeStatus(int $id, string $status)
     {
-        $task = Task::find($id);
-        $task->update(['status' => $status]);
+        Auth::user()->tasks()->findOrFail($id)
+            ->update(['status' => StatusType::from($status)]);
     }
 
-    public function delete(Task $task)
+    public function delete(int $id)
     {
-        $task->delete();
+        Auth::user()->tasks()->findOrFail($id)->delete();
     }
 
     #[On('task-created')]
