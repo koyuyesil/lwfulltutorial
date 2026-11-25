@@ -43,6 +43,16 @@ class Product extends Model
         return $this->hasMany(ClientProduct::class);
     }
 
+    public function tickets(): \Illuminate\Database\Eloquent\Relations\HasManyThrough
+    {
+        return $this->hasManyThrough(Ticket::class, ClientProduct::class);
+    }
+
+    public function getDisplayNameAttribute(): string
+    {
+        return trim($this->brand.' '.$this->model_name);
+    }
+
     public function boardIds(): HasMany
     {
         return $this->hasMany(BoardId::class);

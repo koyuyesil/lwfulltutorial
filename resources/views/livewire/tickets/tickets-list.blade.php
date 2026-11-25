@@ -1,158 +1,188 @@
 @use('App\Enums\TicketStatus')
 @php
     $slaBadge = [
-        'overdue' => ['Gecikti', 'bg-red-600 text-white animate-pulse'],
-        'warning' => ['Riskli', 'bg-amber-500 text-white'],
-        'ok' => ['Zamanında', 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-200'],
+        'overdue' => ['Gecikti', 'bg-red-600 text-white'],
+        'warning' => ['Riskli', 'bg-amber-400 text-amber-950'],
+        'ok' => ['Zamanında', 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300'],
     ];
+    $openTotal = collect(TicketStatus::openValues())->sum(fn ($s) => $countsByStatus[$s] ?? 0);
+    $chip = 'inline-flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold transition';
+    $chipOff = 'bg-white text-slate-600 ring-1 ring-slate-200 hover:bg-slate-50 dark:bg-slate-800 dark:text-slate-300 dark:ring-white/10 dark:hover:bg-white/5';
+    $chipOn = 'bg-slate-900 text-white dark:bg-white dark:text-slate-900';
+    $isFiltered = $search !== '' || $slaFilter !== '' || $statusFilter !== 'open';
 @endphp
 
-<div class="space-y-3">
-    {{-- Durum sayaçları / filtreler --}}
-    <div class="flex flex-wrap gap-2 text-xs">
-        @php
-            $openTotal = collect(TicketStatus::openValues())->sum(fn ($s) => $countsByStatus[$s] ?? 0);
-            $chip = 'inline-flex items-center gap-1 rounded-full px-3 py-1 font-semibold ring-1 transition';
-        @endphp
-        <button type="button" wire:click="$set('statusFilter', 'open')"
-            @class([$chip, 'bg-indigo-600 text-white ring-indigo-700' => $statusFilter === 'open', 'bg-white text-gray-700 ring-gray-300 hover:bg-gray-100 dark:bg-gray-800 dark:text-gray-200 dark:ring-gray-600' => $statusFilter !== 'open'])>
-            Açık işler <span class="opacity-70">{{ $openTotal }}</span>
+<div class="mt-6 space-y-4">
+    {{-- Araç çubuğu --}}
+    <div class="flex flex-wrap items-center gap-3 rounded-xl bg-white p-3 shadow-sm ring-1 ring-slate-200 dark:bg-slate-800 dark:ring-white/10">
+        <x-ui.search wire:model.live.debounce.300ms="search" placeholder="Takip kodu, müşteri, telefon, IMEI, model…" />
+
+        <div class="flex flex-wrap gap-1.5">
+            <button type="button" wire:click="$set('slaFilter', '{{ $slaFilter === 'overdue' ? '' : 'overdue' }}')"
+                @class([$chip, 'bg-red-600 text-white' => $slaFilter === 'overdue', 'bg-red-50 text-red-700 ring-1 ring-red-200 hover:bg-red-100 dark:bg-red-500/10 dark:text-red-300 dark:ring-red-500/30' => $slaFilter !== 'overdue'])>
+                <span class="h-1.5 w-1.5 rounded-full bg-current"></span> Geciken {{ $overdueCount }}
+            </button>
+            <button type="button" wire:click="$set('slaFilter', '{{ $slaFilter === 'at_risk' ? '' : 'at_risk' }}')"
+                @class([$chip, 'bg-amber-400 text-amber-950' => $slaFilter === 'at_risk', 'bg-amber-50 text-amber-800 ring-1 ring-amber-200 hover:bg-amber-100 dark:bg-amber-500/10 dark:text-amber-300 dark:ring-amber-500/30' => $slaFilter !== 'at_risk'])>
+                <span class="h-1.5 w-1.5 rounded-full bg-current"></span> Riskli {{ $atRiskCount }}
+            </button>
+        </div>
+
+        <div class="ms-auto flex items-center gap-2">
+            @if ($isFiltered)
+                <button type="button" wire:click="clearFilters" class="text-xs font-semibold text-slate-500 hover:text-slate-800 dark:hover:text-white">Temizle</button>
+            @endif
+            <div class="flex rounded-lg bg-slate-100 p-0.5 dark:bg-white/5" role="group" aria-label="Görünüm">
+                @foreach (['table' => ['M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5', 'Kompakt liste'], 'cards' => ['M3.75 6A2.25 2.25 0 0 1 6 3.75h12A2.25 2.25 0 0 1 20.25 6v3A2.25 2.25 0 0 1 18 11.25H6A2.25 2.25 0 0 1 3.75 9V6Zm0 9A2.25 2.25 0 0 1 6 12.75h12A2.25 2.25 0 0 1 20.25 15v3A2.25 2.25 0 0 1 18 20.25H6A2.25 2.25 0 0 1 3.75 18v-3Z', 'Detaylı kartlar']] as $mode => [$icon, $label])
+                    <button type="button" wire:click="$set('view', '{{ $mode }}')" title="{{ $label }}"
+                        @class(['rounded-md p-1.5 transition', 'bg-white text-slate-900 shadow-sm dark:bg-slate-700 dark:text-white' => $view === $mode, 'text-slate-400 hover:text-slate-600' => $view !== $mode])>
+                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="{{ $icon }}" /></svg>
+                    </button>
+                @endforeach
+            </div>
+        </div>
+    </div>
+
+    {{-- Durum sekmeleri --}}
+    <div class="-mx-1 flex gap-1.5 overflow-x-auto px-1 pb-1">
+        <button type="button" wire:click="$set('statusFilter', 'open')" @class([$chip, $statusFilter === 'open' ? $chipOn : $chipOff])>
+            Açık işler <span class="opacity-60">{{ $openTotal }}</span>
         </button>
         @foreach (TicketStatus::cases() as $case)
-            <button type="button" wire:click="$set('statusFilter', '{{ $case->value }}')"
-                @class([$chip, $case->badge(), 'ring-2 ring-offset-1 ring-gray-900 dark:ring-white' => $statusFilter === $case->value])>
-                {{ $case->label() }} <span class="opacity-70">{{ $countsByStatus[$case->value] ?? 0 }}</span>
+            <button type="button" wire:click="$set('statusFilter', '{{ $case->value }}')" @class([$chip, $statusFilter === $case->value ? $chipOn : $chipOff])>
+                <span class="h-2 w-2 rounded-full {{ $case->bar() }}"></span>
+                {{ $case->label() }} <span class="opacity-60">{{ $countsByStatus[$case->value] ?? 0 }}</span>
             </button>
         @endforeach
-        <button type="button" wire:click="$set('statusFilter', '')"
-            @class([$chip, 'bg-indigo-600 text-white ring-indigo-700' => $statusFilter === '', 'bg-white text-gray-700 ring-gray-300 hover:bg-gray-100 dark:bg-gray-800 dark:text-gray-200 dark:ring-gray-600' => $statusFilter !== ''])>
-            Tümü
-        </button>
+        <button type="button" wire:click="$set('statusFilter', '')" @class([$chip, $statusFilter === '' ? $chipOn : $chipOff])>Tümü</button>
     </div>
 
-    {{-- SLA uyarı şeridi --}}
-    <div class="flex flex-wrap gap-2 text-xs">
-        <button type="button" wire:click="$set('slaFilter', '{{ $slaFilter === 'overdue' ? '' : 'overdue' }}')"
-            @class(['inline-flex items-center gap-2 rounded-lg px-3 py-1.5 font-semibold ring-1 transition',
-                'bg-red-600 text-white ring-red-700' => $slaFilter === 'overdue',
-                'bg-red-50 text-red-700 ring-red-200 hover:bg-red-100 dark:bg-red-900/30 dark:text-red-200 dark:ring-red-800' => $slaFilter !== 'overdue'])>
-            ⏰ Geciken: {{ $overdueCount }}
-        </button>
-        <button type="button" wire:click="$set('slaFilter', '{{ $slaFilter === 'at_risk' ? '' : 'at_risk' }}')"
-            @class(['inline-flex items-center gap-2 rounded-lg px-3 py-1.5 font-semibold ring-1 transition',
-                'bg-amber-500 text-white ring-amber-600' => $slaFilter === 'at_risk',
-                'bg-amber-50 text-amber-800 ring-amber-200 hover:bg-amber-100 dark:bg-amber-900/30 dark:text-amber-200 dark:ring-amber-800' => $slaFilter !== 'at_risk'])>
-            ⚠️ Riskli: {{ $atRiskCount }}
-        </button>
-    </div>
+    @if ($searchingAll)
+        <p class="text-xs text-slate-500">"{{ $search }}" için kapanmış kayıtlar dahil tüm servis geçmişinde arandı.</p>
+    @endif
 
-    @forelse ($tickets as $ticket)
-        @php
-            $client = $ticket->clientProduct->client;
-            $device = $ticket->clientProduct;
-            $sla = $ticket->slaState();
-        @endphp
-        <div wire:key="ticket-{{ $ticket->id }}" @class([
-            'rounded-lg bg-white p-3 shadow-md dark:bg-gray-800 border-l-4',
-            'border-red-500' => $sla === 'overdue',
-            'border-amber-400' => $sla === 'warning',
-            'border-emerald-400' => $sla === 'ok',
-            'border-gray-300 dark:border-gray-600' => in_array($sla, ['closed', 'none']),
-        ])>
-            {{-- Başlık satırı --}}
-            <div class="flex flex-wrap items-center gap-2 text-xs">
-                <a href="{{ route('tickets.show', $ticket) }}" wire:navigate
-                    class="text-sm font-bold text-gray-900 hover:text-indigo-600 dark:text-white dark:hover:text-indigo-300">
-                    #{{ $ticket->id }}
-                </a>
-                <span class="rounded-full px-2 py-0.5 font-semibold ring-1 {{ $ticket->status->badge() }}">{{ $ticket->status->label() }}</span>
-                <span class="rounded-full px-2 py-0.5 font-semibold {{ $ticket->priority->badge() }}">{{ $ticket->priority->label() }}</span>
-                @isset($slaBadge[$sla])
-                    <span class="rounded-full px-2 py-0.5 font-semibold {{ $slaBadge[$sla][1] }}"
-                        title="Hedef: {{ $ticket->due_at->format('d.m.Y H:i') }}">
-                        {{ $slaBadge[$sla][0] }} · {{ $ticket->due_at->locale('tr')->diffForHumans(['parts' => 2, 'short' => true]) }}
-                    </span>
-                @endisset
-                @if ($sla === 'closed' && ! is_null($ticket->metSla()))
-                    <span @class(['rounded-full px-2 py-0.5 font-semibold',
-                        'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-200' => $ticket->metSla(),
-                        'bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-200' => ! $ticket->metSla()])>
-                        {{ $ticket->metSla() ? 'Hedefte kapandı' : 'Hedef aşıldı' }}
-                    </span>
+    <div wire:loading.class="opacity-60" wire:target="search,statusFilter,slaFilter,view,changeStatus,gotoPage,nextPage,previousPage">
+        @if ($tickets->isEmpty())
+            <div class="rounded-xl border-2 border-dashed border-slate-300 bg-white px-6 py-16 text-center dark:border-white/10 dark:bg-slate-800/50">
+                <svg class="mx-auto h-12 w-12 text-slate-300 dark:text-slate-600" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 0 0 2.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 0 0-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75 2.25 2.25 0 0 0-.1-.664m-5.8 0A2.251 2.251 0 0 1 13.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25Z" /></svg>
+                @if ($isFiltered)
+                    <p class="mt-3 font-semibold text-slate-800 dark:text-white">Bu filtreye uyan servis kaydı yok</p>
+                    <button type="button" wire:click="clearFilters" class="mt-2 text-sm font-semibold text-indigo-600">Filtreleri temizle</button>
+                @else
+                    <p class="mt-3 font-semibold text-slate-800 dark:text-white">Açık servis kaydınız yok 🎉</p>
+                    <p class="mt-1 text-sm text-slate-500">Yeni bir cihaz kabul ettiğinizde buradan takip edin.</p>
+                    <button type="button" x-on:click="$dispatch('open-drawer', { name: 'ticket-form' }); Livewire.dispatch('create-ticket')"
+                        class="mt-4 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500">Yeni servis kaydı</button>
                 @endif
-                <span class="ms-auto text-gray-500 dark:text-gray-400">Açılış {{ $ticket->created_at->format('d.m.Y H:i') }}</span>
             </div>
-
-            {{-- Müşteri + cihaz --}}
-            <div class="mt-2 grid gap-1 text-xs text-gray-600 dark:text-gray-300 sm:grid-cols-2">
-                <div>
-                    <strong class="text-gray-800 dark:text-gray-100">{{ $client->company ?: $client->first_name . ' ' . $client->last_name }}</strong>
-                    · {{ $client->phone }} @if ($client->email) · {{ $client->email }} @endif
-                </div>
-                <div>
-                    <strong class="text-gray-800 dark:text-gray-100">{{ $device->product->brand }} {{ $device->product->model_name }}</strong>
-                    @if ($device->imei) · IMEI {{ $device->imei }} @endif
-                    @if ($device->serial) · SN {{ $device->serial }} @endif
-                    @if ($device->color) · {{ $device->color }} @endif
-                </div>
+        @elseif ($view === 'table')
+            <div class="rounded-xl bg-white shadow-sm ring-1 ring-slate-200 dark:bg-slate-800 dark:ring-white/10 [&_thead_th:first-child]:rounded-tl-xl [&_thead_th:last-child]:rounded-tr-xl">
+                <table class="min-w-full divide-y divide-slate-200 text-sm dark:divide-white/10">
+                    <thead class="bg-slate-50 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 dark:bg-white/5 dark:text-slate-400">
+                        <tr>
+                            <th class="px-4 py-3">Kayıt</th>
+                            <th class="hidden px-4 py-3 md:table-cell">Müşteri / cihaz</th>
+                            <th class="hidden px-4 py-3 xl:table-cell">Arıza</th>
+                            <th class="px-4 py-3">Durum</th>
+                            <th class="hidden px-4 py-3 sm:table-cell">Hedef</th>
+                            <th class="px-4 py-3"><span class="sr-only">İşlemler</span></th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100 dark:divide-white/5">
+                        @foreach ($tickets as $ticket)
+                            @php
+                                $client = $ticket->clientProduct->client;
+                                $product = $ticket->clientProduct->product;
+                                $sla = $ticket->slaState();
+                                $next = $ticket->status->allowedTransitions();
+                            @endphp
+                            <tr wire:key="t-row-{{ $ticket->id }}" class="group hover:bg-slate-50 dark:hover:bg-white/5">
+                                <td class="relative px-4 py-3">
+                                    <span @class(['absolute inset-y-0 left-0 w-1',
+                                        'bg-red-500' => $sla === 'overdue', 'bg-amber-400' => $sla === 'warning', 'bg-emerald-400' => $sla === 'ok', 'bg-transparent' => in_array($sla, ['closed', 'none'])])></span>
+                                    <a href="{{ route('tickets.show', $ticket) }}" wire:navigate class="font-mono text-sm font-bold text-slate-900 hover:text-indigo-600 dark:text-white dark:hover:text-indigo-300">{{ $ticket->tracking_code }}</a>
+                                    <p class="text-xs text-slate-500">{{ $ticket->created_at->format('d.m.Y H:i') }}</p>
+                                    <p class="text-xs text-slate-600 md:hidden dark:text-slate-300">{{ $client->full_name }} · {{ $product->display_name }}</p>
+                                </td>
+                                <td class="hidden max-w-56 px-4 py-3 md:table-cell">
+                                    <p class="truncate font-semibold text-slate-900 dark:text-white">{{ $client->full_name }}</p>
+                                    <p class="truncate text-xs text-slate-500">{{ $product->display_name }}{{ $ticket->clientProduct->imei ? ' · ' . $ticket->clientProduct->imei : '' }}</p>
+                                </td>
+                                <td class="hidden max-w-64 px-4 py-3 xl:table-cell">
+                                    <p class="line-clamp-2 text-slate-700 dark:text-slate-200" title="{{ $ticket->problem }}">{{ $ticket->problem }}</p>
+                                </td>
+                                <td class="px-4 py-3">
+                                    <span class="inline-flex whitespace-nowrap rounded-full px-2 py-0.5 text-xs font-semibold ring-1 {{ $ticket->status->badge() }}">{{ $ticket->status->label() }}</span>
+                                    @if ($ticket->priority === \App\Enums\PriorityType::HIGH)
+                                        <span class="ms-1 rounded-full px-1.5 py-0.5 text-[10px] font-bold uppercase {{ $ticket->priority->badge() }}">Acil</span>
+                                    @endif
+                                </td>
+                                <td class="hidden whitespace-nowrap px-4 py-3 sm:table-cell">
+                                    @isset($slaBadge[$sla])
+                                        <span class="rounded-full px-2 py-0.5 text-xs font-semibold {{ $slaBadge[$sla][1] }}" title="{{ $ticket->due_at->format('d.m.Y H:i') }}">
+                                            {{ $ticket->due_at->locale('tr')->diffForHumans(['short' => true]) }}
+                                        </span>
+                                    @elseif ($sla === 'closed')
+                                        <span @class(['text-xs font-semibold', 'text-emerald-600' => $ticket->metSla(), 'text-rose-600' => $ticket->metSla() === false, 'text-slate-400' => is_null($ticket->metSla())])>
+                                            {{ $ticket->metSla() ? '✓ Hedefte' : ($ticket->metSla() === false ? '✗ Aşıldı' : '—') }}
+                                        </span>
+                                    @endisset
+                                </td>
+                                <td class="whitespace-nowrap px-4 py-3 text-right">
+                                    @include('livewire.tickets.partials.row-actions', ['ticket' => $ticket, 'next' => $next])
+                                </td>
+                            </tr>
+                            @error('status.' . $ticket->id)
+                                <tr><td colspan="6" class="bg-rose-50 px-4 py-2 text-xs text-rose-700 dark:bg-rose-500/10 dark:text-rose-300">{{ $message }}</td></tr>
+                            @enderror
+                        @endforeach
+                    </tbody>
+                </table>
             </div>
-            <p class="mt-1 text-sm text-gray-800 dark:text-gray-100">{{ $ticket->problem }}</p>
-
-            @error('status.' . $ticket->id)
-                <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
-            @enderror
-
-            {{-- İşlemler --}}
-            <div class="mt-3 flex flex-wrap items-center justify-between gap-2">
-                <div class="flex flex-wrap gap-1">
-                    @forelse ($ticket->status->allowedTransitions() as $next)
-                        <button type="button" wire:click="changeStatus({{ $ticket->id }}, '{{ $next->value }}')"
-                            wire:loading.attr="disabled"
-                            class="rounded-md px-3 py-1 text-xs font-semibold ring-1 transition hover:brightness-95 {{ $next->badge() }}">
-                            → {{ $next->label() }}
-                        </button>
-                    @empty
-                        <span class="text-xs text-gray-500">İş kapandı.</span>
-                    @endforelse
-                </div>
-                <div class="flex flex-wrap gap-1 text-xs">
-                    <a href="{{ route('tickets.show', $ticket) }}" wire:navigate
-                        class="rounded-md border border-indigo-600 px-3 py-1 font-medium text-indigo-700 hover:bg-indigo-600 hover:text-white dark:border-indigo-400 dark:text-indigo-300">
-                        Detay & geçmiş
-                    </a>
-                    <button type="button" wire:click="$dispatch('edit', {id: {{ $ticket->id }}})"
-                        class="rounded-md border border-teal-700 px-3 py-1 font-medium text-teal-700 hover:bg-teal-700 hover:text-white dark:border-teal-500 dark:text-teal-400">
-                        Düzenle
-                    </button>
+        @else
+            <div class="grid gap-3 lg:grid-cols-2">
+                @foreach ($tickets as $ticket)
                     @php
-                        $printable = array_merge($ticket->toArray(), [
-                            'status' => $ticket->status->label(),
-                            'priority' => $ticket->priority->label(),
-                        ]);
+                        $client = $ticket->clientProduct->client;
+                        $device = $ticket->clientProduct;
+                        $sla = $ticket->slaState();
                     @endphp
-                    <button type="button" x-on:click="window.downloadTicketPdf(@js($printable))"
-                        class="rounded-md border border-gray-400 px-3 py-1 font-medium text-gray-700 hover:bg-gray-700 hover:text-white dark:text-gray-300">
-                        PDF
-                    </button>
-                    <button type="button" x-on:click="window.printTicket(@js($printable))"
-                        class="rounded-md border border-gray-400 px-3 py-1 font-medium text-gray-700 hover:bg-gray-700 hover:text-white dark:text-gray-300">
-                        Yazdır
-                    </button>
-                    <button type="button" wire:click="delete({{ $ticket->id }})"
-                        wire:confirm="Bu servis kaydı silinsin mi?"
-                        class="rounded-md border border-red-600 px-3 py-1 font-medium text-red-700 hover:bg-red-600 hover:text-white dark:text-red-400">
-                        Sil
-                    </button>
-                </div>
+                    <article wire:key="t-card-{{ $ticket->id }}" @class([
+                        'flex flex-col rounded-xl bg-white p-4 shadow-sm ring-1 ring-slate-200 dark:bg-slate-800 dark:ring-white/10 border-l-4',
+                        'border-l-red-500' => $sla === 'overdue', 'border-l-amber-400' => $sla === 'warning', 'border-l-emerald-400' => $sla === 'ok',
+                        'border-l-slate-200 dark:border-l-white/10' => in_array($sla, ['closed', 'none']),
+                    ])>
+                        <div class="flex flex-wrap items-center gap-2">
+                            <a href="{{ route('tickets.show', $ticket) }}" wire:navigate class="font-mono font-bold text-slate-900 hover:text-indigo-600 dark:text-white">{{ $ticket->tracking_code }}</a>
+                            <span class="rounded-full px-2 py-0.5 text-xs font-semibold ring-1 {{ $ticket->status->badge() }}">{{ $ticket->status->label() }}</span>
+                            <span class="rounded-full px-2 py-0.5 text-xs font-semibold {{ $ticket->priority->badge() }}">{{ $ticket->priority->label() }}</span>
+                            @isset($slaBadge[$sla])
+                                <span class="ms-auto rounded-full px-2 py-0.5 text-xs font-semibold {{ $slaBadge[$sla][1] }}">{{ $slaBadge[$sla][0] }} · {{ $ticket->due_at->locale('tr')->diffForHumans(['short' => true]) }}</span>
+                            @endisset
+                        </div>
+                        <div class="mt-3 grid gap-3 text-sm sm:grid-cols-2">
+                            <div class="min-w-0">
+                                <p class="text-xs text-slate-500">Müşteri</p>
+                                <p class="truncate font-semibold text-slate-900 dark:text-white">{{ $client->full_name }}</p>
+                                <p class="truncate text-xs text-slate-500">{{ $client->phone }}</p>
+                            </div>
+                            <div class="min-w-0">
+                                <p class="text-xs text-slate-500">Cihaz</p>
+                                <p class="truncate font-semibold text-slate-900 dark:text-white">{{ $device->product->display_name }}</p>
+                                <p class="truncate font-mono text-xs text-slate-500">{{ $device->imei ?: ($device->serial ?: '—') }}</p>
+                            </div>
+                        </div>
+                        <p class="mt-3 line-clamp-2 rounded-lg bg-slate-50 px-3 py-2 text-sm text-slate-700 dark:bg-white/5 dark:text-slate-200">{{ $ticket->problem }}</p>
+                        @error('status.' . $ticket->id) <p class="mt-2 text-xs text-rose-600">{{ $message }}</p> @enderror
+                        <div class="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 pt-3 dark:border-white/5">
+                            <span class="text-xs text-slate-500">{{ $ticket->created_at->locale('tr')->diffForHumans() }} açıldı</span>
+                            @include('livewire.tickets.partials.row-actions', ['ticket' => $ticket, 'next' => $ticket->status->allowedTransitions()])
+                        </div>
+                    </article>
+                @endforeach
             </div>
-        </div>
-    @empty
-        <div class="rounded-lg border border-dashed border-gray-300 p-6 text-center text-sm text-gray-500 dark:border-gray-600 dark:text-gray-400">
-            Bu filtreye uyan servis kaydı yok.
-        </div>
-    @endforelse
-
-    <div class="mt-4">
-        {{ $tickets->links() }}
+        @endif
     </div>
+
+    <div>{{ $tickets->links() }}</div>
 </div>

@@ -136,7 +136,7 @@
                 @empty
                     <li class="py-10 text-center text-sm text-slate-500">
                         Açık servis kaydınız yok.
-                        <a href="{{ route('tickets.index') }}#yeni" wire:navigate class="font-semibold text-indigo-600">İlk kaydı oluşturun →</a>
+                        <a href="{{ route('tickets.index', ['yeni' => 1]) }}" wire:navigate class="font-semibold text-indigo-600">İlk kaydı oluşturun →</a>
                     </li>
                 @endforelse
             </ul>

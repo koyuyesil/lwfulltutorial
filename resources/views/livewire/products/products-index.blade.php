@@ -1,36 +1,27 @@
 <x-slot name="header">
-    <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-        {{ __('Manage - Products') }}
-    </h2>
+    <h2><span class="font-medium text-slate-400">Servis /</span> Cihaz modelleri</h2>
 </x-slot>
-<div class="py-12 flex justify-center">
-    <div class="grid grid-cols-5 gap-6 p-6 bg-white dark:bg-gray-800 shadow rounded-lg max-w-6xl">
-        <!-- Devices Section -->
-        <section class="col-span-4 w-full mt-2 p-4 space-y-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
-            {{-- Liste kısmı genişlik olarak 1/2 kaplıyor --}}
-            <header>
-                <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100">
-                    {{ __('Products') }}
-                </h2>
-                <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
-                    {{ __('This is the base repository for all fundamental device models required for creating new service records. Only devices added here can be selected for service entries.') }}
-                </p>
-            </header>
-            <livewire:products.products-list lazy />
-        </section>
 
-        <!-- Add New Device Section -->
-        <section class="col-span-1 w-full mt-2 p-4 space-y-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
-            {{-- Ekleme kısmı genişlik olarak 1/2 kaplıyor --}}
-            <header>
-                <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100">
-                    {{ __('Add New Product') }}
-                </h2>
-                <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
-                    {{ __('All fields are mandatory to ensure complete and accurate data for each device.') }}
-                </p>
-            </header>
-            <livewire:products.products-form />
-        </section>
+<div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8"
+    x-on:keydown.n.window="if (! ['INPUT','TEXTAREA','SELECT'].includes(document.activeElement.tagName) && ! $event.metaKey && ! $event.ctrlKey) { $dispatch('open-drawer', { name: 'product-form' }); Livewire.dispatch('create-product') }">
+
+    <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+            <h1 class="text-2xl font-black tracking-tight text-slate-900 dark:text-white">Cihaz modelleri</h1>
+            <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Servise kabul ettiğiniz marka ve modellerin kataloğu.</p>
+        </div>
+        <button type="button"
+            x-on:click="$dispatch('open-drawer', { name: 'product-form' }); Livewire.dispatch('create-product')"
+            class="inline-flex items-center justify-center gap-2 rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-500">
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
+            Yeni model
+            <kbd class="hidden rounded bg-white/20 px-1.5 text-[10px] sm:inline">N</kbd>
+        </button>
     </div>
+
+    <livewire:products.products-list />
+
+    <x-drawer name="product-form" title="Cihaz modeli" subtitle="Servis kaydı açarken bu modeli saniyeler içinde seçebilirsiniz.">
+        <livewire:products.products-form />
+    </x-drawer>
 </div>

@@ -39,7 +39,7 @@
                         <livewire:search />
                     </div>
 
-                    <a href="{{ route('tickets.index') }}#yeni" wire:navigate
+                    <a href="{{ route('tickets.index', ['yeni' => 1]) }}" wire:navigate
                         class="inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-500">
                         <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
                         <span class="hidden sm:inline">Servis kaydı</span>
@@ -55,5 +55,7 @@
                 &copy; {{ date('Y') }} {{ config('app.name', 'KoyuMavi') }} Servis
             </footer>
         </div>
+
+        <x-toasts />
     </body>
 </html>

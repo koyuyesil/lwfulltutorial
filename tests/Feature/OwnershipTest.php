@@ -63,8 +63,8 @@ test('search only returns the current users tasks', function () {
     Livewire::actingAs($user)
         ->test(Search::class)
         ->set('search', 'Ekran')
-        ->assertViewHas('results', fn ($results) => $results->count() === 1
-            && $results->first()->user_id === $user->id);
+        ->assertViewHas('groups', fn ($groups) => $groups['tasks']->count() === 1
+            && $groups['tasks']->first()->user_id === $user->id);
 });
 
 test('a ticket can be created for an existing client and product', function () {

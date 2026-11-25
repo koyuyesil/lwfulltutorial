@@ -3,52 +3,76 @@
 namespace App\Livewire\Forms;
 
 use App\Models\Product;
-use Livewire\Attributes\Validate;
-use Livewire\Form;
 use Illuminate\Support\Facades\Auth;
+use Livewire\Form;
 
 class ProductForm extends Form
 {
-    public $editMode = false;
-    public ?Product $product;
+    public ?Product $product = null;
 
-    #[Validate('required|min:5')]
-    public ?string $manufacturer;
+    public string $brand = '';
 
-    #[Validate('required|min:5')]
-    public ?string $brand;
+    public string $model_name = '';
 
-    #[Validate('required')]
-    public ?string $model_name;
+    public string $model_number = '';
 
-    #[Validate('required')]
-    public ?string $model_number;
+    public string $manufacturer = '';
 
-    #[Validate('required')]
-    public ?string $description;
+    public string $description = '';
 
-    public function setContent(Product $product)
+    public function rules(): array
     {
-        $this->editMode = true;
-        $this->product = $product;
-        $this->brand = $product->brand;
-        $this->model_name = $product->model_name;
-        $this->model_number = $product->model_number;
-        $this->description = $product->description;
-        $this->manufacturer = $product->manufacturer;
+        return [
+            'brand' => ['required', 'string', 'min:2', 'max:60'],
+            'model_name' => ['required', 'string', 'max:80'],
+            'model_number' => ['nullable', 'string', 'max:80'],
+            'manufacturer' => ['nullable', 'string', 'max:80'],
+            'description' => ['nullable', 'string', 'max:1000'],
+        ];
     }
 
-    public function store()
+    public function messages(): array
     {
-        if ($this->editMode) {
-            $this->product->update($this->all());
-            $this->reset();
-            session()->flash('message', 'Form successfully updated.');
+        return [
+            'brand.required' => 'Marka zorunludur.',
+            'brand.min' => 'Marka en az 2 karakter olmalıdır.',
+            'model_name.required' => 'Model adı zorunludur.',
+        ];
+    }
+
+    public function isEditing(): bool
+    {
+        return $this->product !== null;
+    }
+
+    public function setContent(Product $product): void
+    {
+        $this->product = $product;
+        $this->brand = (string) $product->brand;
+        $this->model_name = (string) $product->model_name;
+        $this->model_number = (string) $product->model_number;
+        $this->manufacturer = (string) $product->manufacturer;
+        $this->description = (string) $product->description;
+    }
+
+    public function store(): Product
+    {
+        $data = $this->validate();
+        $data = array_map(fn ($v) => is_string($v) ? trim($v) : $v, $data);
+        // Üretici çoğu zaman markayla aynıdır (Apple, Samsung…)
+        $data['manufacturer'] = $data['manufacturer'] ?: $data['brand'];
+        $data['model_number'] = $data['model_number'] ?: null;
+        $data['description'] = $data['description'] ?: null;
+
+        if ($this->product) {
+            $this->product->update($data);
+            $product = $this->product;
         } else {
-            Auth::user()->products()->create($this->all());
-            session()->flash('message', 'Form successfully created.');
-            //request()->session()->flash('succes',__('Task created successfully'));
-            $this->reset();
+            $product = Auth::user()->products()->create($data);
         }
+
+        $this->reset();
+
+        return $product;
     }
 }

@@ -2,203 +2,364 @@
 
 namespace App\Livewire\Tickets;
 
-use App\Models\Ticket;
-use Livewire\Component;
 use App\Enums\PriorityType;
+use App\Models\Client;
 use App\Models\ClientProduct;
+use App\Models\Product;
+use App\Models\Ticket;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
-//TODO BURADA VAROLAN MÜŞTERİ VE CİHAZ YENİDEN OLUŞTURULMADAN KAYIT YAPILACAK AYRICA MEVCUT KAYIT SEÇİMİ DE YAPALIM.
-//ÇOK İLİŞKİLİ UPDATE FORMU OLMASI GEREKLİ
+use Livewire\Attributes\Computed;
+use Livewire\Attributes\On;
+use Livewire\Component;
+
+/**
+ * Tek ekranda servis kabulü: müşteri (mevcut / yeni) → cihaz (kayıtlı / yeni) → arıza.
+ */
 class TicketsForm extends Component
 {
-    public $clients = []; // Kullanıcının sahip olduğu tüm müşteriler
-    public $selectedClient; // Seçilen müşteri (ID)
-    public $products = []; // Kullanıcının sahip olduğu tüm ürünler
-    public $selectedProduct; // Seçilen ürün (ID)
-    public $tickets = []; // Kullanıcının arıza kayıtları
-    public $selectedClientProduct; // Seçilen müşteri-ürün ilişkisi (ID)
+    public const PROBLEM_TAGS = [
+        'Ekran kırık', 'Dokunmatik çalışmıyor', 'Şarj olmuyor', 'Açılmıyor', 'Sıvı teması',
+        'Batarya şişmiş', 'Kamera arızası', 'Ses gelmiyor', 'Mikrofon arızası', 'Yazılım / güncelleme', 'Isınma', 'Şebeke yok',
+    ];
 
-    // Client (Müşteri) alanları
-    public $first_name; // Müşteri adı
-    public $last_name; // Müşteri soyadı
-    public $company; // Şirket adı
-    public $phone; // Telefon numarası
-    public $email; // E-posta adresi
-    public $address; // Adres
+    /* Müşteri */
+    public string $clientMode = 'existing'; // existing | new
 
-    // Product (Ürün) alanları
-    public $manufacturer; // Üretici
-    public $brand; // Marka
-    public $model_name; // Model ismi
-    public $model_number; // Model numarası
-    public $description; // Ürün açıklaması
+    public string $clientSearch = '';
 
-    // ClientProduct (Müşteri-Ürün) alanları
-    public $serial; // Seri numarası
-    public $imei; // IMEI numarası
-    public $color; // Renk
+    public ?int $selectedClient = null;
 
-    // Ticket (Arıza Kaydı) alanları
-    public $problem; // Arıza açıklaması
+    public array $newClient = ['first_name' => '', 'last_name' => '', 'phone' => '', 'email' => '', 'company' => ''];
 
-    public PriorityType $priority = PriorityType::LOW;
+    /* Cihaz */
+    public ?int $selectedClientProduct = null;
 
-    // Bileşen yüklendiğinde ilk olarak müşterileri ve ürünleri yükle
-    public function mount()
+    public string $productMode = 'existing'; // existing | new
+
+    public string $productSearch = '';
+
+    public ?int $selectedProduct = null;
+
+    public array $newProduct = ['brand' => '', 'model_name' => ''];
+
+    public string $imei = '';
+
+    public string $serial = '';
+
+    public string $color = '';
+
+    /* Arıza */
+    public string $problem = '';
+
+    public PriorityType $priority = PriorityType::NORMAL;
+
+    /** Başarılı kayıttan sonra gösterilen özet. */
+    public ?int $createdTicketId = null;
+
+    public function mount(): void
     {
-        $this->loadClients();
-        $this->loadProducts();
-    }
+        $clientId = (int) request()->query('musteri');
 
-    // Kullanıcının müşterilerini yükler
-    public function loadClients()
-    {
-        $this->clients = Auth::user()->clients()->get(); // Kullanıcıya ait müşterileri al
-    }
-
-    // Kullanıcının ürünlerini yükler
-    public function loadProducts()
-    {
-        $this->products = Auth::user()->products()->get(); // Kullanıcıya ait ürünleri al
-    }
-
-    // Seçilen müşteri değiştiğinde çağrılan metot
-    public function updatedSelectedClient()
-    {
-        $this->selectedClientProduct = null;
-
-        // Sadece oturumdaki kullanıcının müşterileri seçilebilir
-        $client = $this->selectedClient
-            ? Auth::user()->clients()->find($this->selectedClient)
-            : null;
-
-        if (! $client) {
-            $this->selectedClient = null;
-            $this->reset(['first_name', 'last_name', 'company', 'phone', 'email', 'address']);
-
-            return;
+        if ($clientId && Auth::user()->clients()->whereKey($clientId)->exists()) {
+            $this->selectedClient = $clientId;
         }
-
-        $this->first_name = $client->first_name;
-        $this->last_name = $client->last_name;
-        $this->company = $client->company;
-        $this->phone = $client->phone;
-        $this->email = $client->email;
-        $this->address = $client->address;
     }
 
-    // Seçilen ürün değiştiğinde çağrılan metot
-    public function updatedSelectedProduct()
+    #[On('create-ticket')]
+    public function resetForm(): void
     {
-        $this->selectedClientProduct = null;
-
-        $product = $this->selectedProduct
-            ? Auth::user()->products()->find($this->selectedProduct)
-            : null;
-
-        if (! $product) {
-            $this->selectedProduct = null;
-            $this->reset(['manufacturer', 'brand', 'model_name', 'model_number', 'description']);
-
-            return;
-        }
-
-        $this->manufacturer = $product->manufacturer;
-        $this->brand = $product->brand;
-        $this->model_name = $product->model_name;
-        $this->model_number = $product->model_number;
-        $this->description = $product->description;
-    }
-
-    // Yeni müşteri ve ürün oluşturma işlemi
-    public function createClientAndProduct()
-    {
-        // Müşteri verisi için doğrulama
-        $this->validate([
-            'first_name' => 'required|string|max:255',
-            'last_name' => 'required|string|max:255',
-            'company' => 'nullable|string|max:255',
-            'phone' => 'required|string|max:255',
-            'email' => 'nullable|string|email|max:255',
-            'address' => 'nullable|string|max:255',
-        ]);
-
-        // Yeni müşteri oluştur
-        $client = Auth::user()->clients()->create([
-            'first_name' => $this->first_name,
-            'last_name' => $this->last_name,
-            'company' => (string) $this->company, // sütun NOT NULL, form alanı opsiyonel
-            'phone' => $this->phone,
-            'email' => (string) $this->email,
-            'address' => (string) $this->address,
-        ]);
-
-        // Yeni ürün oluştur
-        $product = Auth::user()->products()->create([
-            'manufacturer' => $this->manufacturer,
-            'brand' => $this->brand,
-            'model_name' => $this->model_name,
-            'model_number' => $this->model_number,
-            'description' => $this->description,
-        ]);
-
-        // Müşteri ve ürün arasında ilişki oluştur
-        $clientProduct = ClientProduct::create([
-            'user_id' => Auth::id(),
-            'client_id' => $client->id,
-            'product_id' => $product->id,
-            'color' => (string) $this->color,
-            'serial' => (string) $this->serial,
-            'imei' => (string) $this->imei,
-        ]);
-
-        // Seçilen müşteri ve ürün bilgilerini güncelle
-        $this->selectedClient = $client->id;
-        $this->selectedProduct = $product->id;
-        $this->selectedClientProduct = $clientProduct->id;
-
-        // Yeni kayıtlar seçim listelerinde de görünsün
-        $this->loadClients();
-        $this->loadProducts();
-    }
-
-    // Arıza kaydını oluşturma işlemi
-    public function create()
-    {
-        $userId = Auth::id();
-
-        // Arıza kaydı için doğrulama (yalnızca kullanıcının kendi kayıtları)
-        $this->validate([
-            'selectedClient' => ['required', Rule::exists('clients', 'id')->where('user_id', $userId)],
-            'selectedProduct' => ['required', Rule::exists('products', 'id')->where('user_id', $userId)],
-            'problem' => 'required|string|min:5',
-            'priority' => ['required', Rule::enum(PriorityType::class)],
-        ]);
-
-        // Mevcut müşteri + ürün seçildiyse aradaki cihaz kaydını bul ya da oluştur
-        $clientProductId = $this->selectedClientProduct
-            ?? ClientProduct::firstOrCreate(
-                ['client_id' => $this->selectedClient, 'product_id' => $this->selectedProduct, 'user_id' => $userId],
-                ['serial' => (string) $this->serial, 'imei' => (string) $this->imei, 'color' => (string) $this->color],
-            )->id;
-
-        Ticket::create([
-            'user_id' => $userId,
-            'client_product_id' => $clientProductId,
-            'problem' => $this->problem,
-            'priority' => $this->priority,
-        ]);
-
-        // Listeyi yenile, formu sıfırla (seçim listeleri korunur)
-        $this->dispatch('ticket-created');
-        $this->reset(array_diff(array_keys($this->all()), ['clients', 'products']));
+        $this->reset();
         $this->resetValidation();
     }
 
-    // Bileşenin render edilmesini sağlar (view dosyasını yükler)
+    /* ------------------------------------------------------------ Müşteri */
+
+    public function updatedClientSearch(): void
+    {
+        unset($this->clientResults);
+    }
+
+    public function selectClient(int $id): void
+    {
+        $this->selectedClient = Auth::user()->clients()->findOrFail($id)->id;
+        $this->clientSearch = '';
+        $this->selectedClientProduct = null;
+        $this->resetValidation('selectedClient');
+    }
+
+    public function updatedSelectedClient(): void
+    {
+        $this->selectedClientProduct = null;
+    }
+
+    public function clearClient(): void
+    {
+        $this->reset('selectedClient', 'selectedClientProduct', 'clientSearch');
+    }
+
+    public function setClientMode(string $mode): void
+    {
+        $this->clientMode = $mode === 'new' ? 'new' : 'existing';
+        $this->selectedClientProduct = null;
+        $this->resetValidation();
+
+        // Aramada yazılan ifadeyi yeni müşteri formuna taşı (telefon ya da ad)
+        if ($this->clientMode === 'new' && $this->clientSearch !== '') {
+            $digits = preg_replace('/\D/', '', $this->clientSearch);
+            if (strlen($digits) >= 7) {
+                $this->newClient['phone'] = $this->clientSearch;
+            } else {
+                [$first, $last] = array_pad(explode(' ', trim($this->clientSearch), 2), 2, '');
+                $this->newClient['first_name'] = $first;
+                $this->newClient['last_name'] = $last;
+            }
+        }
+    }
+
+    #[Computed]
+    public function clientResults()
+    {
+        $term = trim($this->clientSearch);
+        if (mb_strlen($term) < 2) {
+            return collect();
+        }
+        $digits = preg_replace('/\D/', '', $term);
+
+        return Auth::user()->clients()
+            ->where(function (Builder $q) use ($term, $digits) {
+                $q->where('first_name', 'like', "%$term%")
+                    ->orWhere('last_name', 'like', "%$term%")
+                    ->orWhere('company', 'like', '%'.Client::trUpper($term).'%');
+                if (strlen($digits) >= 3) {
+                    $q->orWhereRaw(Client::phoneDigitsSql().' like ?', ["%$digits%"]);
+                }
+            })
+            ->withCount('clientsProducts')
+            ->limit(6)->get();
+    }
+
+    #[Computed]
+    public function client(): ?Client
+    {
+        return $this->selectedClient
+            ? Auth::user()->clients()->with('clientsProducts.product')->find($this->selectedClient)
+            : null;
+    }
+
+    /* ------------------------------------------------------------ Cihaz */
+
+    public function selectDevice(?int $id): void
+    {
+        $this->selectedClientProduct = $id && $this->client?->clientsProducts->contains('id', $id) ? $id : null;
+    }
+
+    public function selectProduct(int $id): void
+    {
+        $this->selectedProduct = Auth::user()->products()->findOrFail($id)->id;
+        $this->productSearch = '';
+        $this->resetValidation('selectedProduct');
+    }
+
+    public function clearProduct(): void
+    {
+        $this->reset('selectedProduct', 'productSearch');
+    }
+
+    public function setProductMode(string $mode): void
+    {
+        $this->productMode = $mode === 'new' ? 'new' : 'existing';
+        $this->resetValidation();
+
+        if ($this->productMode === 'new' && $this->productSearch !== '') {
+            [$brand, $model] = array_pad(explode(' ', trim($this->productSearch), 2), 2, '');
+            $this->newProduct = ['brand' => $brand, 'model_name' => $model];
+        }
+    }
+
+    #[Computed]
+    public function productResults()
+    {
+        $term = trim($this->productSearch);
+        if (mb_strlen($term) < 2) {
+            return collect();
+        }
+
+        return Auth::user()->products()
+            ->where(fn (Builder $q) => $q->where('brand', 'like', "%$term%")
+                ->orWhere('model_name', 'like', "%$term%")
+                ->orWhere('model_number', 'like', "%$term%")
+                ->orWhereRaw(
+                    (DB::getDriverName() === 'mysql' ? "CONCAT(brand, ' ', model_name)" : "(brand || ' ' || model_name)").' like ?',
+                    ["%$term%"],
+                ))
+            ->limit(6)->get();
+    }
+
+    #[Computed]
+    public function product(): ?Product
+    {
+        return $this->selectedProduct ? Auth::user()->products()->find($this->selectedProduct) : null;
+    }
+
+    /** Girilen IMEI/seri daha önce kayıtlı mı? (tekrar gelen cihaz tespiti) */
+    #[Computed]
+    public function knownDevice(): ?ClientProduct
+    {
+        $imei = trim($this->imei);
+        $serial = trim($this->serial);
+
+        if (strlen($imei) < 8 && strlen($serial) < 5) {
+            return null;
+        }
+
+        return Auth::user()->clientsProducts()
+            ->where(fn ($q) => $q
+                ->when(strlen($imei) >= 8, fn ($q) => $q->orWhere('imei', $imei))
+                ->when(strlen($serial) >= 5, fn ($q) => $q->orWhere('serial', $serial)))
+            ->with(['client', 'product', 'tickets' => fn ($q) => $q->latest('id')])
+            ->first();
+    }
+
+    public function useKnownDevice(): void
+    {
+        $device = $this->knownDevice;
+        if (! $device) {
+            return;
+        }
+
+        $this->clientMode = 'existing';
+        $this->selectedClient = $device->client_id;
+        $this->selectedClientProduct = $device->id;
+        $this->reset('imei', 'serial', 'color', 'clientSearch');
+        unset($this->client, $this->knownDevice);
+    }
+
+    /* ------------------------------------------------------------ Arıza */
+
+    public function addTag(string $tag): void
+    {
+        if (! in_array($tag, self::PROBLEM_TAGS, true) || str_contains($this->problem, $tag)) {
+            return;
+        }
+
+        $this->problem = trim($this->problem) === '' ? $tag : rtrim($this->problem, " ,.").', '.mb_strtolower($tag);
+    }
+
+    /* ------------------------------------------------------------ Kayıt */
+
+    protected function rules(): array
+    {
+        $userId = Auth::id();
+        $rules = [
+            'problem' => ['required', 'string', 'min:5', 'max:2000'],
+            'priority' => ['required', Rule::enum(PriorityType::class)],
+        ];
+
+        if ($this->clientMode === 'existing') {
+            $rules['selectedClient'] = ['required', Rule::exists('clients', 'id')->where('user_id', $userId)];
+        } else {
+            $rules += [
+                'newClient.first_name' => ['required', 'string', 'min:2', 'max:60'],
+                'newClient.last_name' => ['required', 'string', 'min:2', 'max:60'],
+                'newClient.phone' => ['required', 'string', 'max:25', 'regex:/^\+?[0-9()\s-]{10,}$/'],
+                'newClient.email' => ['nullable', 'email', 'max:120'],
+                'newClient.company' => ['nullable', 'string', 'max:120'],
+            ];
+        }
+
+        if ($this->selectedClientProduct && $this->clientMode === 'existing') {
+            $rules['selectedClientProduct'] = [Rule::exists('client_products', 'id')
+                ->where('user_id', $userId)->where('client_id', $this->selectedClient)];
+        } else {
+            if ($this->productMode === 'existing') {
+                $rules['selectedProduct'] = ['required', Rule::exists('products', 'id')->where('user_id', $userId)];
+            } else {
+                $rules['newProduct.brand'] = ['required', 'string', 'min:2', 'max:60'];
+                $rules['newProduct.model_name'] = ['required', 'string', 'max:80'];
+            }
+            $rules += [
+                'imei' => ['nullable', 'regex:/^[0-9]{14,16}$/'],
+                'serial' => ['nullable', 'string', 'max:50'],
+                'color' => ['nullable', 'string', 'max:30'],
+            ];
+        }
+
+        return $rules;
+    }
+
+    protected function messages(): array
+    {
+        return [
+            'selectedClient.required' => 'Bir müşteri seçin ya da yeni müşteri ekleyin.',
+            'selectedClient.exists' => 'Seçilen müşteri bulunamadı.',
+            'selectedProduct.required' => 'Cihaz modelini seçin ya da yeni model ekleyin.',
+            'newClient.first_name.required' => 'Ad zorunludur.',
+            'newClient.last_name.required' => 'Soyad zorunludur.',
+            'newClient.phone.required' => 'Telefon zorunludur.',
+            'newClient.phone.regex' => 'Geçerli bir telefon girin (en az 10 hane).',
+            'newProduct.brand.required' => 'Marka zorunludur.',
+            'newProduct.model_name.required' => 'Model adı zorunludur.',
+            'imei.regex' => 'IMEI 15 haneli bir sayı olmalıdır.',
+            'problem.required' => 'Arıza açıklaması zorunludur.',
+            'problem.min' => 'Arızayı biraz daha detaylı yazın (en az 5 karakter).',
+        ];
+    }
+
+    public function create(): void
+    {
+        $this->validate();
+        $user = Auth::user();
+
+        $ticket = DB::transaction(function () use ($user) {
+            $clientId = $this->clientMode === 'existing'
+                ? $this->selectedClient
+                : $user->clients()->create($this->newClient)->id;
+
+            if ($this->selectedClientProduct && $this->clientMode === 'existing') {
+                $deviceId = $this->selectedClientProduct;
+            } else {
+                $productId = $this->productMode === 'existing'
+                    ? $this->selectedProduct
+                    : $user->products()->firstOrCreate(
+                        ['brand' => trim($this->newProduct['brand']), 'model_name' => trim($this->newProduct['model_name'])],
+                        ['manufacturer' => trim($this->newProduct['brand'])],
+                    )->id;
+
+                $deviceId = ClientProduct::create([
+                    'user_id' => $user->id,
+                    'client_id' => $clientId,
+                    'product_id' => $productId,
+                    'imei' => trim($this->imei) ?: null,
+                    'serial' => trim($this->serial) ?: null,
+                    'color' => trim($this->color) ?: null,
+                ])->id;
+            }
+
+            return Ticket::create([
+                'user_id' => $user->id,
+                'client_product_id' => $deviceId,
+                'problem' => trim($this->problem),
+                'priority' => $this->priority,
+            ]);
+        });
+
+        $this->reset();
+        $this->resetValidation();
+        $this->createdTicketId = $ticket->id;
+
+        $this->dispatch('ticket-created');
+        $this->dispatch('toast', message: "Servis kaydı açıldı: {$ticket->tracking_code}");
+    }
+
     public function render()
     {
-        return view('livewire.tickets.tickets-form'); // Form görünümünü döndür
+        $created = $this->createdTicketId
+            ? Auth::user()->tickets()->with('clientProduct.client', 'clientProduct.product')->find($this->createdTicketId)
+            : null;
+
+        return view('livewire.tickets.tickets-form', ['created' => $created]);
     }
 }
