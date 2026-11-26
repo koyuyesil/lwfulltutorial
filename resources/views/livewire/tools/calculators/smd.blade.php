@@ -1,6 +1,6 @@
 <div x-data="smdCalc" class="grid gap-6 xl:grid-cols-2">
     <div class="min-w-0 space-y-5">
-        <x-calc.input label="SMD kodu" model="code" :si="false" placeholder="103, 4R7, 01C" />
+        <x-calc.input label="SMD kodu" model="code" :si="false" :stepper="false" placeholder="103, 4R7, 01C" />
 
         <div class="flex flex-wrap gap-1.5">
             <span class="text-xs font-semibold text-slate-500">Örnekler:</span>

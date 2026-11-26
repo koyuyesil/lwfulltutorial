@@ -18,7 +18,7 @@
         <section class="space-y-4 border-t border-slate-100 pt-5 dark:border-white/5">
             <h4 class="font-semibold text-slate-900 dark:text-white">dBm ↔ güç</h4>
             <div class="grid gap-3 sm:grid-cols-2">
-                <x-calc.input label="dBm" model="dbm" unit="dBm" />
+                <x-calc.input label="dBm" model="dbm" unit="dBm" :min="null" />
                 <x-calc.result label="Güç" value="$si(fromDbm, 'W')" />
                 <x-calc.input label="mW" model="mw" unit="mW" />
                 <x-calc.result label="dBm" value="$num(fromMw, 4) + ' dBm'" />

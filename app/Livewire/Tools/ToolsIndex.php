@@ -6,7 +6,7 @@ use Livewire\Attributes\Title;
 use Livewire\Component;
 
 /**
- * Elektronik hesaplayıcılar ve birim dönüştürücüler.
+ * Elektronik hesaplayıcılar (birim dönüştürücü: UnitsIndex, bobin: CoilsIndex ayrı sayfalarda).
  * Tüm araçlar tek sayfada, birbiriyle ilişkili olanlar aynı grupta alt alta listelenir.
  * Hesaplamalar tarayıcıda (Alpine, resources/js/calculators.js) anlık yapılır.
  */
@@ -64,13 +64,6 @@ class ToolsIndex extends Component
                 'awg' => ['AWG ↔ mm²', 'Kablo kesiti, çapı ve metre direnci.', '⌀', 'awg kablo kesit mm2 çap'],
             ],
         ],
-        'birim' => [
-            'title' => 'Birim dönüştürücü', 'tone' => 'slate',
-            'desc' => 'Uzunluk, veri, enerji, sıcaklık, basınç ve elektriksel birimler.',
-            'tools' => [
-                'convert' => ['Birim dönüştürücü', 'Bir değeri seçili kategorinin tüm birimlerine çevirir.', '⇄', 'çevir dönüştür birim'],
-            ],
-        ],
     ];
 
     public string $initial = 'ohm';
@@ -78,6 +71,12 @@ class ToolsIndex extends Component
     public function mount(): void
     {
         $key = preg_replace('/[^a-z0-9]/', '', (string) request()->query('arac', 'ohm')) ?: 'ohm';
+        // Birim dönüştürücü ve bobin hesapları ayrı sayfalara taşındı
+        if ($key === 'convert') {
+            $this->redirectRoute('tools.units', navigate: true);
+
+            return;
+        }
         $this->initial = in_array($key, array_keys(self::tools()), true) ? $key : 'ohm';
     }
 

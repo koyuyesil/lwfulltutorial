@@ -5,10 +5,7 @@
             <x-calc.input label="Besleme (Vs)" model="vs" unit="V" />
             <x-calc.input label="LED gerilimi (Vf)" model="vf" unit="V" />
             <x-calc.input label="LED akımı (If)" model="iF" unit="A" hint="Standart LED: 20m" />
-            <label class="block">
-                <span class="text-sm font-medium text-slate-700 dark:text-slate-200">Seri LED sayısı</span>
-                <input type="number" min="1" max="50" x-model.number="count" class="mt-1.5 block w-full rounded-lg border-0 bg-white py-2.5 px-3 font-mono text-base shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-indigo-600 dark:bg-slate-950 dark:text-white dark:ring-white/10">
-            </label>
+            <x-calc.input label="Seri LED sayısı" model="count" :si="false" step="1" min="1" max="50" />
         </div>
 
         <div class="flex flex-wrap items-center gap-2">

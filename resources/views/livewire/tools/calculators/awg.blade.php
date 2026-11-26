@@ -6,7 +6,7 @@
             <button type="button" @click="mode = 'mm2'" :class="mode === 'mm2' ? 'bg-white shadow-sm dark:bg-slate-700 dark:text-white' : 'text-slate-500'" class="rounded-md px-3 py-1.5 text-sm font-semibold">mm² → AWG</button>
         </div>
         <div class="max-w-xs">
-            <template x-if="mode === 'awg'"><x-calc.input label="AWG" model="awg" :si="false" hint="örn. 22, 30 ya da 2/0" /></template>
+            <template x-if="mode === 'awg'"><x-calc.input label="AWG" model="awg" :si="false" step="1" min="0" max="40" hint="örn. 22, 30 ya da 2/0" /></template>
             <template x-if="mode === 'mm2'"><x-calc.input label="Kesit" model="mm2" unit="mm²" /></template>
         </div>
         <template x-if="result">

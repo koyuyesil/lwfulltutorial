@@ -2,6 +2,8 @@
 @php
     $tabs = [
         ['route' => 'tools.index', 'label' => 'Elektronik hesaplayıcılar', 'premium' => false],
+        ['route' => 'tools.units', 'label' => 'Birim dönüştürücü', 'premium' => false],
+        ['route' => 'tools.coils', 'label' => 'Bobin hesaplayıcı', 'premium' => false],
         ['route' => 'board-ids.index', 'label' => 'Board ID kütüphanesi', 'premium' => true],
         ['route' => 'cross-reference.index', 'label' => 'Çapraz referans', 'premium' => true],
     ];
@@ -20,7 +22,7 @@
                 ])>
                 {{ $tab['label'] }}
                 @if ($tab['premium'])
-                    <span class="rounded bg-amber-400 px-1.5 py-0.5 text-[10px] font-bold uppercase text-amber-950">Premium</span>
+                    <span class="rounded bg-amber-400 px-1.5 py-0.5 text-[10px] font-bold uppercase text-amber-950">Pro</span>
                 @endif
             </a>
         @endforeach

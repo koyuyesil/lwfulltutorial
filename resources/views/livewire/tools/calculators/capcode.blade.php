@@ -1,7 +1,7 @@
 @php $mono = 'font-family="ui-monospace,monospace"'; @endphp
 <div x-data="capCodeCalc" class="grid gap-6 xl:grid-cols-2">
     <div class="min-w-0 space-y-5">
-        <x-calc.input label="Kondansatör kodu" model="code" :si="false" placeholder="104, 473K, 4n7" />
+        <x-calc.input label="Kondansatör kodu" model="code" :si="false" :stepper="false" placeholder="104, 473K, 4n7" />
 
         <div class="flex flex-wrap gap-1.5">
             <span class="text-xs font-semibold text-slate-500">Örnekler:</span>

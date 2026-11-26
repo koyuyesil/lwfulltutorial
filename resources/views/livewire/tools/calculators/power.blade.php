@@ -2,8 +2,8 @@
     <div class="min-w-0 space-y-5">
         <div class="grid gap-4 sm:grid-cols-2">
             <x-calc.input label="Güç" model="watt" unit="W" hint="Cihaz / adaptör gücü" />
-            <x-calc.input label="Günlük kullanım" model="hours" unit="saat" />
-            <x-calc.input label="Aylık gün" model="days" unit="gün" />
+            <x-calc.input label="Günlük kullanım" model="hours" unit="saat" max="24" />
+            <x-calc.input label="Aylık gün" model="days" unit="gün" max="31" />
             <x-calc.input label="Birim fiyat" model="price" unit="₺/kWh" />
         </div>
         <template x-if="result">

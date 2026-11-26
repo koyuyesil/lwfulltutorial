@@ -12,8 +12,18 @@
             <div class="grid grid-cols-[1fr_auto] gap-2">
                 <label class="block">
                     <span class="text-[10px] font-bold uppercase tracking-widest text-slate-400">Değer</span>
-                    <input type="text" inputmode="decimal" x-model="value" autocomplete="off"
-                        class="mt-1 block w-full rounded-xl border-0 bg-white/10 px-4 py-3 font-mono text-2xl font-black text-white ring-1 ring-inset ring-white/15 focus:ring-2 focus:ring-cyan-400">
+                    <span class="mt-1 flex">
+                        <input type="text" inputmode="decimal" x-model="value" autocomplete="off"
+                            @keydown.arrow-up.prevent="value = $stepValue(value, $event.shiftKey ? 10 : 1, { plain: true })"
+                            @keydown.arrow-down.prevent="value = $stepValue(value, $event.shiftKey ? -10 : -1, { plain: true })"
+                            class="block w-full min-w-0 rounded-l-xl border-0 bg-white/10 px-4 py-3 font-mono text-2xl font-black text-white ring-1 ring-inset ring-white/15 focus:z-10 focus:ring-2 focus:ring-cyan-400">
+                        <span class="flex flex-col overflow-hidden rounded-r-xl ring-1 ring-inset ring-white/15" role="group" aria-label="Değeri değiştir">
+                            <button type="button" tabindex="-1" aria-label="Arttır" @pointerdown.prevent="$hold((m) => value = $stepValue(value, m, { plain: true }))" @contextmenu.prevent
+                                class="grid flex-1 w-10 select-none place-items-center border-b border-white/10 text-white/70 [touch-action:manipulation] hover:bg-white/10 hover:text-white active:bg-cyan-400/20">+</button>
+                            <button type="button" tabindex="-1" aria-label="Azalt" @pointerdown.prevent="$hold((m) => value = $stepValue(value, -m, { plain: true }))" @contextmenu.prevent
+                                class="grid flex-1 w-10 select-none place-items-center text-white/70 [touch-action:manipulation] hover:bg-white/10 hover:text-white active:bg-cyan-400/20">−</button>
+                        </span>
+                    </span>
                 </label>
                 <label class="block">
                     <span class="text-[10px] font-bold uppercase tracking-widest text-slate-400">Birim</span>

@@ -3,7 +3,7 @@
         <div class="flex flex-wrap items-center justify-between gap-3">
             <div class="inline-flex rounded-lg bg-slate-100 p-1 dark:bg-white/5">
                 @foreach ([4, 5, 6] as $n)
-                    <button type="button" @click="bands = {{ $n }}; normalize()" :class="bands === {{ $n }} ? 'bg-white shadow-sm dark:bg-slate-700 dark:text-white' : 'text-slate-500'" class="rounded-md px-3 py-1.5 text-sm font-semibold">{{ $n }} bant</button>
+                    <button type="button" @click="bands = {{ $n }}; normalize(); applyReverse()" :class="bands === {{ $n }} ? 'bg-white shadow-sm dark:bg-slate-700 dark:text-white' : 'text-slate-500'" class="rounded-md px-3 py-1.5 text-sm font-semibold">{{ $n }} bant</button>
                 @endforeach
             </div>
             <form @submit.prevent="applyReverse()" class="flex items-center gap-2">
@@ -57,7 +57,7 @@
                         <g clip-path="url(#rc-body)">
                             <rect x="60" y="20" width="280" height="110" fill="#d9c29a" />
                             @foreach (range(0, 5) as $i)
-                                <rect x-show="{{ $i }} < layout.length" :x="bandX[{{ $i }}]" y="20" width="16" height="110" :fill="colors[b[{{ $i }}]]?.hex" />
+                                <rect x-show="{{ $i }} < layout.length" :x="bandX[{{ $i }}]" y="20" :width="bandW" height="110" :fill="colors[b[{{ $i }}]]?.hex" />
                             @endforeach
                             <rect x="60" y="20" width="280" height="110" fill="url(#rc-shade)" />
                         </g>

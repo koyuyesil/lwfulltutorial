@@ -254,16 +254,62 @@ export function signalBars(dbm) {
     return hit ? { bars: hit[1], label: hit[2] } : { bars: 0, label: 'Sinyal yok' };
 }
 
-/** Renk kodu çizimi: bant x konumları (rakam/çarpan solda, tolerans ve sıcaklık katsayısı sağda) */
+/**
+ * Renk kodu çizimi: bant x konumları. Bantlar gövdenin düz kısmında (x 128…272) kalır, kavisli uçlara taşmaz;
+ * rakam ve çarpan solda, tolerans (ve sıcaklık katsayısı) aradaki boşluktan sonra sağda.
+ */
+export const BAND_AREA = [128, 272];
+export function bandWidth(count) { return count >= 6 ? 12 : 14; }
 export function bandPositions(layout) {
-    let x = 112;
-    return layout.map((role) => {
-        if (role === 't') return 262;
-        if (role === 'c') return 290;
-        const at = x;
-        x += 30;
-        return at;
+    const w = bandWidth(layout.length);
+    const front = layout.filter((r) => r === 'd' || r === 'm').length;
+    const back = layout.length - front;
+    const gap = w * 0.9;            // bantlar arası
+    const split = w * 2.2;          // çarpan ile tolerans arası boşluk
+    const span = layout.length * w + (layout.length - 1 - (back ? 1 : 0)) * gap + (back ? split : 0);
+    let x = (BAND_AREA[0] + BAND_AREA[1] - span) / 2;
+    return layout.map((role, i) => {
+        if (i > 0) x += w + (i === front ? split : gap);
+        return Math.round(x * 10) / 10;
     });
+}
+
+/* ------------------------------------------------------------------ Sayısal giriş (up / down) */
+
+/** Değerin basamağına göre adım: 4700 → 100, 0.02 → 0.001, 5 → 0.1. Aşağı yönde 1000 → 10 (990'a iner). */
+export function stepSize(value, dir = 1) {
+    const a = Math.abs(value);
+    if (!(a > 0)) return 1;
+    const shrinking = (dir < 0 && value > 0) || (dir > 0 && value < 0);
+    return 10 ** (Math.floor(Math.log10(shrinking ? a * (1 - 1e-9) : a)) - 1);
+}
+
+/** 4800 → "4,8k", 0.021 → "21m", 5 → "5" (giriş kutusuna yazılan biçim; parseSI geri okur) */
+export function formatSI(value) {
+    if (!Number.isFinite(value)) return '';
+    if (value === 0) return '0';
+    const abs = Math.abs(value);
+    const [mult, prefix] = PREFIX_OUT.find(([f]) => abs >= f * 0.9995) ?? PREFIX_OUT[PREFIX_OUT.length - 1];
+    return trimZeros((value / mult).toPrecision(6)).replace('.', ',') + prefix;
+}
+
+/**
+ * Bir adım ileri / geri. dir: ±1 (Shift ya da uzun basışta ±5, ±10).
+ * opts: { si: SI önekli mi, step: sabit adım (yoksa basamağa göre), min, max }
+ */
+export function stepValue(current, dir, opts = {}) {
+    // plain: SI öneki olmayan ondalık (birim dönüştürücü) - basamağa göre adım, düz sayı çıktısı
+    const { si: useSi = true, plain = false, step = null, min = null, max = null } = opts;
+    let v = useSi && !plain ? parseSI(current) : parseFloat(String(current ?? '').replace(',', '.'));
+    if (!Number.isFinite(v)) v = 0;
+    const s = step ?? (useSi || plain ? stepSize(v, Math.sign(dir)) : 1);
+    let next = Math.round((v + dir * s) / s) * s;
+    next = Number(next.toPrecision(12));
+    if (min !== null && next < min) next = min;
+    if (max !== null && next > max) next = max;
+    if (plain) return trimZeros(String(next)).replace('.', ',');
+
+    return useSi ? formatSI(next) : String(next);
 }
 
 export function registerCalculators(Alpine) {
@@ -271,6 +317,30 @@ export function registerCalculators(Alpine) {
     Alpine.magic('si', () => si);
     Alpine.magic('num', () => num);
     Alpine.magic('parse', () => parseSI);
+    Alpine.magic('stepValue', () => stepValue);
+
+    /**
+     * Basılı tutunca tekrarlar ve hızlanır: ilk adım hemen, 380 ms sonra tekrar başlar, aralık 35 ms'ye iner;
+     * uzun basışta adım çarpanı 1 → 5 → 10 olur. fn(çarpan) çağrılır. Bırakınca / imleç çıkınca durur.
+     */
+    Alpine.magic('hold', () => (fn) => {
+        let delay = 380;
+        let count = 0;
+        let timer = null;
+        fn(1);
+        const tick = () => {
+            count++;
+            fn(count > 40 ? 10 : count > 18 ? 5 : 1);
+            delay = Math.max(35, delay * 0.8);
+            timer = setTimeout(tick, delay);
+        };
+        timer = setTimeout(tick, delay);
+        const stop = () => {
+            clearTimeout(timer);
+            ['pointerup', 'pointercancel', 'blur'].forEach((e) => window.removeEventListener(e, stop));
+        };
+        ['pointerup', 'pointercancel', 'blur'].forEach((e) => window.addEventListener(e, stop));
+    });
 
     /**
      * Sayfa: tüm araçlar gruplar halinde alt alta. Sol içindekiler kaydırmayı izler (scroll-spy),
@@ -472,7 +542,10 @@ export function registerCalculators(Alpine) {
 
     Alpine.data('colorCalc', () => ({
         colors: COLORS, bands: 4, b: [1, 0, 2, 10, 1, 1], reverse: '4k7',
+        // Açılışta "Değerden renge" kutusundaki değer bantlara uygulanır (kutu ile sonuç tutarlı olsun)
+        init() { this.applyReverse(); },
         get bandX() { return bandPositions(this.layout); },
+        get bandW() { return bandWidth(this.layout.length); },
         digitColors() { return COLORS.filter((c) => c.digit !== undefined); },
         multColors() { return COLORS.filter((c) => c.mult !== undefined); },
         tolColors() { return COLORS.filter((c) => c.tol !== undefined); },

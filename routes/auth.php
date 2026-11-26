@@ -54,6 +54,8 @@ Route::middleware('auth')->group(function () {
     Route::get('parts', \App\Livewire\Parts\PartsIndex::class)->name('parts.index');
     Route::get('parts/export', [\App\Http\Controllers\PartCatalogController::class, 'export'])->name('parts.export');
     Route::get('tools', ToolsIndex::class)->name('tools.index');
+    Route::get('tools/units', \App\Livewire\Tools\UnitsIndex::class)->name('tools.units');
+    Route::get('tools/coils', \App\Livewire\Tools\CoilsIndex::class)->name('tools.coils');
     Route::get('tools/board-ids', BoardIdsIndex::class)->name('board-ids.index');
     Route::get('tools/cross-reference', \App\Livewire\CrossReference\CrossReferenceIndex::class)->name('cross-reference.index');
     Route::get('tools/cross-reference/export', [\App\Http\Controllers\CrossReferenceController::class, 'export'])->name('cross-reference.export');
