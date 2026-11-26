@@ -48,11 +48,25 @@ class BoardIdImport extends Component
             'file.max' => 'Dosya sunucu yükleme sınırını aşıyor.',
         ]);
 
-        $parsed = $catalog->parse(file_get_contents($this->file->getRealPath()), $this->file->getClientOriginalName());
-        $this->fileName = $this->file->getClientOriginalName();
+        $name = $this->file->getClientOriginalName();
+        $content = file_get_contents($this->file->getRealPath());
+        $this->file = null;
+        $this->analyzeContent($catalog, $content, $name);
+    }
+
+    /** Örnek veri (servis direnç tablosu) önizlemeye alınır; içe aktarma yine onayla yapılır. */
+    public function loadSample(BoardIdCatalog $catalog): void
+    {
+        $this->discard();
+        $this->analyzeContent($catalog, (string) file_get_contents(BoardIdCatalog::samplePath()), 'Örnek Board ID verisi');
+    }
+
+    protected function analyzeContent(BoardIdCatalog $catalog, string $content, string $name): void
+    {
+        $parsed = $catalog->parse($content, $name);
+        $this->fileName = $name;
         $this->parseErrors = $parsed['errors'];
         $this->parseWarnings = $parsed['warnings'] ?? [];
-        $this->file = null;
 
         if (! $parsed['rows']) {
             return;

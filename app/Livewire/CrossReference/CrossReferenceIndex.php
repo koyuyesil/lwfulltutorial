@@ -3,15 +3,11 @@
 namespace App\Livewire\CrossReference;
 
 use App\Enums\ComponentType;
-use App\Livewire\Settings\ProductImport;
-use App\Services\CrossReferenceCatalog;
-use App\Support\SampleCrossReference;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\On;
 use Livewire\Attributes\Title;
 use Livewire\Attributes\Url;
 use Livewire\Component;
-use Livewire\WithFileUploads;
 use Livewire\WithPagination;
 
 /**
@@ -21,7 +17,7 @@ use Livewire\WithPagination;
 #[Title('Çapraz referans')]
 class CrossReferenceIndex extends Component
 {
-    use WithFileUploads, WithPagination;
+    use WithPagination;
 
     #[Url(as: 'gorunum', except: 'components')]
     public string $view = 'components'; // components | devices
@@ -32,16 +28,16 @@ class CrossReferenceIndex extends Component
     #[Url(as: 'tur', except: '')]
     public string $type = '';
 
-    public $file;
-
-    public bool $createDevices = false;
-
-    public ?array $report = null;
+    /** Dışa aktarma için seçilen satırlar (görünüme göre bileşen ya da cihaz kimlikleri) */
+    public array $selected = [];
 
     public function updating($name): void
     {
         if (in_array($name, ['search', 'type', 'view'], true)) {
             $this->resetPage();
+        }
+        if ($name === 'view') {
+            $this->selected = [];
         }
     }
 
@@ -53,38 +49,20 @@ class CrossReferenceIndex extends Component
     public function delete(int $id): void
     {
         Auth::user()->components()->findOrFail($id)->delete();
+        $this->selected = array_values(array_diff($this->selected, [$id]));
         $this->dispatch('toast', message: 'Bileşen silindi.');
     }
 
-    public function updatedFile(CrossReferenceCatalog $catalog): void
+    /** Sayfadaki tüm satırları seç / bırak */
+    public function togglePage(array $ids): void
     {
-        $this->validate(['file' => ['required', 'file', 'extensions:csv,txt', 'max:'.ProductImport::maxUploadKb()]], [
-            'file.extensions' => 'Lütfen .csv dosyası seçin.',
-        ]);
-        $parsed = $catalog->parse(file_get_contents($this->file->getRealPath()));
-        $this->file = null;
-        if ($parsed['errors']) {
-            $this->addError('file', $parsed['errors'][0]);
-
-            return;
-        }
-        $this->runImport($catalog, $parsed['rows']);
+        $ids = array_map('intval', $ids);
+        $this->selected = array_diff($ids, $this->selected) ? array_values(array_unique([...$this->selected, ...$ids])) : array_values(array_diff($this->selected, $ids));
     }
 
-    public function loadSample(CrossReferenceCatalog $catalog): void
+    public function clearSelection(): void
     {
-        $handle = fopen('php://temp', 'r+');
-        \App\Services\DeviceCatalog::writeCsv(SampleCrossReference::csvRows(), $handle);
-        rewind($handle);
-        $this->runImport($catalog, $catalog->parse(stream_get_contents($handle))['rows']);
-        fclose($handle);
-    }
-
-    protected function runImport(CrossReferenceCatalog $catalog, array $rows): void
-    {
-        $this->report = $catalog->import(Auth::user(), $rows, $this->createDevices);
-        $r = $this->report;
-        $this->dispatch('toast', message: "Çapraz referans içe aktarıldı: {$r['components_created']} yeni, {$r['components_updated']} güncellenen bileşen, {$r['links']} cihaz bağlantısı.");
+        $this->selected = [];
     }
 
     public function render()

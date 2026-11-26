@@ -153,6 +153,49 @@ class CrossReferenceCatalog
         }
     }
 
+    /**
+     * Seçilenleri okunabilir tablo olarak (metin / Excel dışa aktarma).
+     * components: seçilen bileşenler · devices: seçilen cihazların bileşenleri (cihaz başına satır grubu)
+     *
+     * @return list<list<string>>
+     */
+    public function selectionRows(User $user, string $view, array $ids): array
+    {
+        $ids = array_values(array_unique(array_map('intval', $ids)));
+
+        if ($view === 'devices') {
+            $rows = [['Marka', 'Model', 'Kod adı', 'Model no', 'Bileşen türü', 'Bileşen kodu', 'Ad', 'Üretici', 'Varyant', 'Uyumlu bileşenler']];
+            $products = $user->products()->whereIn('id', $ids)
+                ->with(['components' => fn ($q) => $q->with(['compatibleTo', 'compatibleFrom'])->orderBy('type')->orderBy('code')])
+                ->orderBy('brand')->orderBy('model_name')->get();
+            foreach ($products as $p) {
+                if ($p->components->isEmpty()) {
+                    $rows[] = [$p->brand, $p->model_name, (string) $p->codename, (string) $p->model_number, '—', '', '', '', '', ''];
+                }
+                foreach ($p->components as $c) {
+                    $rows[] = [$p->brand, $p->model_name, (string) $p->codename, (string) $p->model_number, $c->type->label(), $c->code,
+                        (string) $c->name, (string) $c->manufacturer, (string) $c->pivot->variant, $c->compatibles()->pluck('code')->implode(', ')];
+                }
+            }
+
+            return $rows;
+        }
+
+        $rows = [['Tür', 'Kod', 'Ad', 'Üretici', 'Özellikler', 'Bulunduğu cihazlar', 'Uyumlu bileşenler', 'Not']];
+        $components = $user->components()->whereIn('id', $ids)->with(['products', 'compatibleTo', 'compatibleFrom'])->orderBy('type')->orderBy('code')->get();
+        foreach ($components as $c) {
+            $rows[] = [
+                $c->type->label(), $c->code, (string) $c->name, (string) $c->manufacturer,
+                collect((array) $c->specs)->map(fn ($v, $k) => "$k: $v")->implode(', '),
+                $c->products->map(fn ($p) => trim($p->brand.' '.$p->model_name).($p->pivot->variant ? ' ('.$p->pivot->variant.')' : ''))->implode(', '),
+                $c->compatibles()->map(fn ($o) => $o->code.' ['.(CompatibilityKind::tryFrom($o->pivot->kind)?->label() ?? $o->pivot->kind).']')->implode(', '),
+                (string) $c->notes,
+            ];
+        }
+
+        return $rows;
+    }
+
     /* ---------------------------------------------------------------- yardımcılar */
 
     public static function splitList(string $value): array

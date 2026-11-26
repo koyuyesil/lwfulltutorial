@@ -67,13 +67,29 @@ class ProductImport extends Component
             'file.max' => 'Dosya sunucu yükleme sınırını aşıyor.',
         ]);
 
-        $parsed = $catalog->parse($this->file->getRealPath());
-        $this->fileName = $this->file->getClientOriginalName();
+        $this->analyzeFile($catalog, $this->file->getRealPath(), $this->file->getClientOriginalName());
+        $this->file = null;
+    }
+
+    /** Örnek katalog normal yükleme gibi önizlemeye alınır; içe aktarma yine onayla yapılır. */
+    public function loadSample(DeviceCatalog $catalog): void
+    {
+        $this->discard();
+        $tmp = tempnam(sys_get_temp_dir(), 'smp');
+        $handle = fopen($tmp, 'w');
+        DeviceCatalog::writeCsv(\App\Support\SampleDeviceCatalog::csvRows(), $handle);
+        fclose($handle);
+        $this->analyzeFile($catalog, $tmp, 'Örnek cihaz kataloğu');
+        @unlink($tmp);
+    }
+
+    protected function analyzeFile(DeviceCatalog $catalog, string $path, string $name): void
+    {
+        $parsed = $catalog->parse($path);
+        $this->fileName = $name;
         $this->parseErrors = $parsed['errors'];
 
         if (! $parsed['rows']) {
-            $this->file = null;
-
             return;
         }
 
@@ -94,8 +110,6 @@ class ProductImport extends Component
             'has_image' => $item['data']['image'] !== null,
             'messages' => array_merge($item['errors'], $item['warnings']),
         ])->all();
-
-        $this->file = null;
     }
 
     public function import(DeviceCatalog $catalog): void

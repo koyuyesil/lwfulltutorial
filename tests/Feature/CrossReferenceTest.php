@@ -72,7 +72,7 @@ test('the sample cross reference imports socs linked to catalog devices and roun
     $user = User::factory()->create();
     Product::factory()->for($user)->create(['brand' => 'Samsung', 'model_name' => 'Galaxy S24 Ultra']);
 
-    Livewire::actingAs($user)->test(CrossReferenceIndex::class)->call('loadSample')->assertSet('report.components_created', count(SampleCrossReference::SOCS));
+    Livewire::actingAs($user)->test(\App\Livewire\Settings\CrossReferenceImport::class)->call('loadSample')->assertSet('report.components_created', count(SampleCrossReference::SOCS));
 
     $soc = $user->components()->where('code', 'SM8650')->first();
     expect($soc->products()->pluck('model_name')->all())->toBe(['Galaxy S24 Ultra'])
@@ -119,4 +119,61 @@ test('csv import reports invalid rows and unmatched devices', function () {
     expect($result['components_created'])->toBe(2)
         ->and($result['invalid'])->toHaveCount(1)
         ->and($result['unmatched'])->toContain('Yok > Cihaz')->toContain('bilinmeyen')->toContain('ram:YOK (uyumlu bileşen bulunamadı)');
+});
+
+test('selected rows export as a fixed width text table and as an excel workbook', function () {
+    $user = User::factory()->create();
+    $product = Product::factory()->for($user)->create(['brand' => 'Samsung', 'model_name' => 'Galaxy S23 Ultra', 'codename' => 'dm3q']);
+    $a = $user->components()->create(['type' => 'soc', 'code' => 'SM8550', 'name' => 'Snapdragon 8 Gen 2', 'manufacturer' => 'Qualcomm']);
+    $b = $user->components()->create(['type' => 'ram', 'code' => 'K3LK7K70BM-BGCP', 'name' => '8 GB LPDDR5']);
+    $c = $user->components()->create(['type' => 'ram', 'code' => 'NOT-SELECTED']);
+    $a->products()->attach($product->id);
+    $b->products()->attach($product->id, ['variant' => '8/256']);
+    $b->linkCompatible($c, CompatibilityKind::PIN);
+
+    Livewire::actingAs($user)->test(CrossReferenceIndex::class)
+        ->call('togglePage', [$a->id, $b->id])->assertSet('selected', [$a->id, $b->id])
+        ->assertSee('2 bileşen seçildi')
+        ->assertSee(route('cross-reference.selection', ['format' => 'xlsx', 'view' => 'components', 'ids' => $a->id.','.$b->id]))
+        ->call('togglePage', [$a->id, $b->id])->assertSet('selected', []);
+
+    $txt = $this->actingAs($user)->get(route('cross-reference.selection', ['format' => 'txt', 'view' => 'components', 'ids' => "$a->id,$b->id"]))
+        ->assertOk()->assertHeader('content-type', 'text/plain; charset=UTF-8')->getContent();
+    $lines = explode("\r\n", trim(ltrim($txt, "\u{FEFF}")));
+    expect($lines)->toHaveCount(4) // başlık, çizgi, 2 satır
+        ->and($lines[0])->toMatch('/^Tür +\tKod +\tAd/u')
+        ->and($lines[1])->toMatch('/^-+\t-+/')
+        ->and($txt)->toContain('SM8550')->toContain('Galaxy S23 Ultra (8/256)')->toContain('NOT-SELECTED [Pin uyumlu]')
+        // sabit aralık: ikinci sütun her satırda aynı konumda başlar
+        ->and(mb_strpos($lines[2], "\t"))->toBe(mb_strpos($lines[0], "\t"));
+
+    $xlsx = $this->actingAs($user)->get(route('cross-reference.selection', ['format' => 'xlsx', 'view' => 'devices', 'ids' => (string) $product->id]))
+        ->assertOk()->assertHeader('content-type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')->getContent();
+    $tmp = tempnam(sys_get_temp_dir(), 'x');
+    file_put_contents($tmp, $xlsx);
+    $zip = new ZipArchive;
+    expect($zip->open($tmp))->toBeTrue();
+    $sheet = $zip->getFromName('xl/worksheets/sheet1.xml');
+    $zip->close();
+    @unlink($tmp);
+    expect($sheet)->toContain('Galaxy S23 Ultra')->toContain('SM8550')->toContain('K3LK7K70BM-BGCP')->toContain('autoFilter');
+
+    // Başka kullanıcının kayıtları dışa aktarılamaz
+    $this->actingAs(User::factory()->create())->get(route('cross-reference.selection', ['format' => 'txt', 'view' => 'components', 'ids' => (string) $a->id]))->assertNotFound();
+    $this->actingAs($user)->get(route('cross-reference.selection', ['format' => 'txt', 'view' => 'components']))->assertRedirect();
+});
+
+test('settings sample buttons open an import preview instead of downloading', function () {
+    $user = User::factory()->create();
+
+    Livewire::actingAs($user)->test(\App\Livewire\Settings\ProductImport::class)
+        ->call('loadSample')->assertSet('fileName', 'Örnek cihaz kataloğu')->assertSet('summary.new', count(\App\Support\SampleDeviceCatalog::rows()));
+    expect($user->products()->count())->toBe(0); // onaydan önce kayıt yok
+
+    Livewire::actingAs($user)->test(\App\Livewire\Settings\BoardIdImport::class)
+        ->call('loadSample')->assertSet('fileName', 'Örnek Board ID verisi')->assertSet('summary.invalid', 0);
+
+    $this->actingAs($user)->get(route('settings', 'capraz-referans'))->assertOk()
+        ->assertSee('Örnek veriyi yükle')->assertSee('CSV içe aktar')->assertDontSee('Örnek CSV indir');
+    $this->actingAs($user)->get(route('settings', 'cihaz-modelleri'))->assertOk()->assertSee('Örnek veriyi yükle')->assertDontSee('Örnek CSV indir');
 });

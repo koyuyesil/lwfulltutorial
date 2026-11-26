@@ -15,7 +15,7 @@ use Livewire\Component;
 #[Title('Ayarlar')]
 class SettingsIndex extends Component
 {
-    public const TABS = ['genel', 'servis', 'musteriler', 'bildirimler', 'cihaz-modelleri', 'board-id', 'gorevler'];
+    public const TABS = ['genel', 'servis', 'musteriler', 'bildirimler', 'cihaz-modelleri', 'board-id', 'capraz-referans', 'gorevler'];
 
     public string $tab = 'genel';
 

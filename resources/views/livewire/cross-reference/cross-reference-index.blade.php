@@ -53,8 +53,19 @@
                     class="block w-full rounded-lg border-0 bg-slate-100 py-2 pl-9 pr-3 text-sm text-slate-900 placeholder:text-slate-400 focus:bg-white focus:ring-2 focus:ring-indigo-600 dark:bg-white/5 dark:text-white">
             </div>
             <div class="flex shrink-0 flex-wrap items-center gap-2">
-                <a href="{{ route('cross-reference.export') }}" class="rounded-lg px-3 py-2 text-sm font-semibold text-slate-700 ring-1 ring-slate-200 hover:bg-slate-50 dark:text-slate-200 dark:ring-white/10 dark:hover:bg-white/5">CSV indir</a>
-                <button type="button" x-on:click="$dispatch('open-drawer', { name: 'xref-import' })" class="rounded-lg px-3 py-2 text-sm font-semibold text-slate-700 ring-1 ring-slate-200 hover:bg-slate-50 dark:text-slate-200 dark:ring-white/10 dark:hover:bg-white/5">İçe aktar</button>
+                @php $exportBtn = 'inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-semibold ring-1 transition'; @endphp
+                <a @if ($selected) href="{{ route('cross-reference.selection', ['format' => 'txt', 'view' => $view, 'ids' => implode(',', $selected)]) }}" @endif
+                    title="{{ $selected ? 'Seçilen '.count($selected).' satırı sabit aralıklı metin tablo olarak indir' : 'Önce satır seçin' }}"
+                    @class([$exportBtn, 'text-slate-700 ring-slate-200 hover:bg-slate-50 dark:text-slate-200 dark:ring-white/10 dark:hover:bg-white/5' => $selected, 'pointer-events-none text-slate-400 ring-slate-200 opacity-60 dark:ring-white/10' => ! $selected])>
+                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" /></svg>
+                    Metin olarak dışa aktar
+                </a>
+                <a @if ($selected) href="{{ route('cross-reference.selection', ['format' => 'xlsx', 'view' => $view, 'ids' => implode(',', $selected)]) }}" @endif
+                    title="{{ $selected ? 'Seçilen '.count($selected).' satırı Excel olarak indir' : 'Önce satır seçin' }}"
+                    @class([$exportBtn, 'text-emerald-700 ring-emerald-300 hover:bg-emerald-50 dark:text-emerald-300 dark:ring-emerald-500/30 dark:hover:bg-emerald-500/10' => $selected, 'pointer-events-none text-slate-400 ring-slate-200 opacity-60 dark:ring-white/10' => ! $selected])>
+                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.375 19.5h17.25m-17.25 0a1.125 1.125 0 0 1-1.125-1.125M3.375 19.5h7.5c.621 0 1.125-.504 1.125-1.125m-9.75 0V5.625m0 12.75v-1.5c0-.621.504-1.125 1.125-1.125m18.375 2.625V5.625m0 12.75c0 .621-.504 1.125-1.125 1.125m1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125m0 3.75h-7.5A1.125 1.125 0 0 1 12 18.375m9.75-12.75c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125m19.5 0v1.5c0 .621-.504 1.125-1.125 1.125M2.25 5.625v1.5c0 .621.504 1.125 1.125 1.125m0 0h17.25m-17.25 0h7.5c.621 0 1.125.504 1.125 1.125M3.375 8.25c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125m17.25-3.75h-7.5c-.621 0-1.125.504-1.125 1.125m8.625-1.125c.621 0 1.125.504 1.125 1.125v1.5c0 .621-.504 1.125-1.125 1.125m-17.25 0h7.5m-7.5 0c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125M12 10.875v-1.5m0 1.5c0 .621-.504 1.125-1.125 1.125M12 10.875c0 .621.504 1.125 1.125 1.125m-2.25 0c.621 0 1.125.504 1.125 1.125M13.125 12h7.5m-7.5 0c-.621 0-1.125.504-1.125 1.125M20.625 12c.621 0 1.125.504 1.125 1.125v1.5c0 .621-.504 1.125-1.125 1.125m-17.25 0h7.5M12 14.625v-1.5m0 1.5c0 .621-.504 1.125-1.125 1.125M12 14.625c0 .621.504 1.125 1.125 1.125m-2.25 0c.621 0 1.125.504 1.125 1.125m0 1.5v-1.5m0 0c0-.621.504-1.125 1.125-1.125m0 0h7.5" /></svg>
+                    Excel olarak dışa aktar
+                </a>
                 <button type="button" x-on:click="Livewire.dispatch('create-component', { type: @js($type ?: null) })"
                     class="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500">
                     <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
@@ -62,6 +73,14 @@
                 </button>
             </div>
         </div>
+
+        @if ($selected)
+            <div class="flex flex-wrap items-center gap-3 rounded-xl bg-indigo-50 px-4 py-2.5 text-sm ring-1 ring-indigo-200 dark:bg-indigo-500/10 dark:ring-indigo-500/30">
+                <span class="font-semibold text-indigo-800 dark:text-indigo-200">{{ count($selected) }} {{ $view === 'devices' ? 'cihaz' : 'bileşen' }} seçildi</span>
+                <span class="text-xs text-indigo-700/80 dark:text-indigo-200/70">Metin ya da Excel olarak dışa aktarın · sayfalar arasında seçim korunur</span>
+                <button type="button" wire:click="clearSelection" class="ms-auto text-xs font-semibold text-indigo-700 hover:underline dark:text-indigo-300">Seçimi temizle</button>
+            </div>
+        @endif
 
         <x-scroll-row track="gap-1.5 py-0.5" label="Bileşen türü">
             <button type="button" wire:click="$set('type', '')" aria-pressed="{{ $type === '' ? 'true' : 'false' }}" @class([$chip, $type === '' ? $chipOn : $chipOff])>Tüm türler</button>
@@ -80,7 +99,7 @@
                         <p class="mt-3 font-semibold text-slate-800 dark:text-white">{{ $search || $type ? 'Eşleşen bileşen yok' : 'Çapraz referans kütüphaneniz boş' }}</p>
                         <p class="mx-auto mt-1 max-w-md text-sm text-slate-500">Bileşen ekleyin ya da popüler cihazların yonga seti verisini tek tıkla yükleyin.</p>
                         <div class="mt-4 flex justify-center gap-2">
-                            <button type="button" wire:click="loadSample" wire:loading.attr="disabled" class="rounded-lg bg-amber-500 px-4 py-2 text-sm font-semibold text-amber-950 hover:bg-amber-400">Örnek veriyi yükle</button>
+                            <a href="{{ route('settings', 'capraz-referans') }}" wire:navigate class="rounded-lg bg-amber-500 px-4 py-2 text-sm font-semibold text-amber-950 hover:bg-amber-400">Ayarlar: örnek veri / CSV içe aktar</a>
                             <button type="button" x-on:click="Livewire.dispatch('create-component')" class="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500">Bileşen ekle</button>
                         </div>
                     </div>
@@ -89,6 +108,8 @@
                         <table class="min-w-full divide-y divide-slate-200 text-sm dark:divide-white/10">
                             <thead class="bg-slate-50 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 dark:bg-white/5">
                                 <tr>
+                                    @php $pageIds = $components->pluck('id')->all(); $allOnPage = ! array_diff($pageIds, $selected); @endphp
+                                    <th class="w-10 py-3 pl-4"><input type="checkbox" @checked($allOnPage) wire:click="togglePage(@js($pageIds))" aria-label="Sayfadaki tümünü seç" class="rounded border-slate-300 text-indigo-600"></th>
                                     <th class="px-4 py-3">Bileşen</th>
                                     <th class="hidden whitespace-nowrap px-4 py-3 md:table-cell">Bulunduğu cihazlar</th>
                                     <th class="hidden px-4 py-3 lg:table-cell">Uyumlu</th>
@@ -99,7 +120,8 @@
                             <tbody class="divide-y divide-slate-100 dark:divide-white/5">
                                 @foreach ($components as $c)
                                     @php $compat = $c->compatibleTo->concat($c->compatibleFrom); @endphp
-                                    <tr wire:key="cmp-{{ $c->id }}" class="group cursor-pointer hover:bg-slate-50 dark:hover:bg-white/5" x-on:click="Livewire.dispatch('edit-component', { id: {{ $c->id }} })">
+                                    <tr wire:key="cmp-{{ $c->id }}" @class(['group cursor-pointer', 'bg-indigo-50/60 dark:bg-indigo-500/10' => in_array($c->id, $selected), 'hover:bg-slate-50 dark:hover:bg-white/5' => ! in_array($c->id, $selected)]) x-on:click="Livewire.dispatch('edit-component', { id: {{ $c->id }} })">
+                                        <td class="py-3 pl-4" x-on:click.stop><input type="checkbox" value="{{ $c->id }}" wire:model.live="selected" aria-label="{{ $c->code }} seç" class="rounded border-slate-300 text-indigo-600"></td>
                                         <td class="w-full max-w-0 px-4 py-3">
                                             <div class="flex items-center gap-3">
                                                 <span class="shrink-0 rounded-md px-2 py-1 text-[10px] font-black {{ $c->type->badge() }}">{{ $c->type->short() }}</span>
@@ -146,11 +168,17 @@
                         <p class="mt-1 text-sm text-slate-500">Cihaz modelleri sayfasındaki kayıtlar burada listelenir.</p>
                     </div>
                 @else
+                    @php $pageIds = $devices->pluck('id')->all(); $allOnPage = ! array_diff($pageIds, $selected); @endphp
+                    <label class="mb-2 inline-flex items-center gap-2 text-xs font-semibold text-slate-600 dark:text-slate-300">
+                        <input type="checkbox" @checked($allOnPage) wire:click="togglePage(@js($pageIds))" class="rounded border-slate-300 text-indigo-600"> Sayfadaki tüm cihazları seç
+                    </label>
                     <div class="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
                         @foreach ($devices as $d)
-                            <button type="button" wire:key="dev-{{ $d->id }}" x-on:click="Livewire.dispatch('show-device-components', { id: {{ $d->id }} })"
-                                class="flex flex-col rounded-2xl bg-white p-4 text-left shadow-sm ring-1 ring-slate-200 transition hover:-translate-y-0.5 hover:shadow-md dark:bg-slate-800 dark:ring-white/10">
+                            <div wire:key="dev-{{ $d->id }}" role="button" tabindex="0" x-on:click="Livewire.dispatch('show-device-components', { id: {{ $d->id }} })"
+                                @class(['flex cursor-pointer flex-col rounded-2xl bg-white p-4 text-left shadow-sm ring-1 transition hover:-translate-y-0.5 hover:shadow-md dark:bg-slate-800',
+                                    'ring-2 ring-indigo-500' => in_array($d->id, $selected), 'ring-slate-200 dark:ring-white/10' => ! in_array($d->id, $selected)])>
                                 <div class="flex w-full items-center gap-3">
+                                    <input type="checkbox" value="{{ $d->id }}" wire:model.live="selected" x-on:click.stop aria-label="{{ $d->model_name }} seç" class="shrink-0 rounded border-slate-300 text-indigo-600">
                                     @if ($d->image)<img src="{{ $d->image }}" alt="" class="h-11 w-11 shrink-0 rounded-lg bg-slate-50 object-contain dark:bg-white/5">@endif
                                     <div class="min-w-0 flex-1">
                                         <p class="truncate font-bold text-slate-900 dark:text-white" title="{{ $d->brand }} {{ $d->model_name }}">{{ $d->brand }} {{ $d->model_name }}</p>
@@ -168,7 +196,7 @@
                                         <span class="text-xs text-slate-400">Bileşen eklenmedi — eklemek için tıklayın</span>
                                     @endforelse
                                 </div>
-                            </button>
+                            </div>
                         @endforeach
                     </div>
                     <div class="mt-4">{{ $devices->links() }}</div>
@@ -183,53 +211,6 @@
         <x-drawer name="device-components" title="Cihazın bileşenleri" subtitle="Cihazdaki SoC, bellek ve entegreler; her bileşenin uyumlu alternatifleri." width="sm:max-w-2xl">
             <livewire:cross-reference.device-components />
         </x-drawer>
-        <x-drawer name="xref-import" title="Çapraz referans içe aktar" subtitle="CSV ya da hazır örnek veri.">
-            <div class="flex-1 space-y-5 overflow-y-auto px-6 py-6">
-                <label class="flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-300 px-6 py-10 text-center hover:border-slate-400 dark:border-white/15">
-                    <span class="text-3xl">📄</span>
-                    <span class="mt-2 text-sm font-semibold text-slate-800 dark:text-white">CSV dosyası seçin</span>
-                    <span wire:loading wire:target="file" class="mt-2 text-xs font-semibold text-indigo-600">İçe aktarılıyor…</span>
-                    <input type="file" accept=".csv,text/csv" wire:model="file" class="sr-only">
-                </label>
-                @error('file') <p class="text-sm text-rose-600">{{ $message }}</p> @enderror
-                <label class="flex items-start gap-2 text-sm text-slate-700 dark:text-slate-200">
-                    <input type="checkbox" wire:model="createDevices" class="mt-0.5 rounded border-slate-300 text-indigo-600">
-                    <span>Katalogda olmayan cihazları "Marka &gt; Model" yazımından oluştur<br><span class="text-xs text-slate-500">Kapalıysa eşleşmeyen cihazlar raporda listelenir.</span></span>
-                </label>
-                <div class="rounded-xl bg-amber-50 p-4 ring-1 ring-amber-200 dark:bg-amber-500/10 dark:ring-amber-500/30">
-                    <p class="text-sm font-semibold text-amber-900 dark:text-amber-100">Örnek veri: popüler cihazların yonga setleri</p>
-                    <p class="mt-1 text-xs text-amber-800 dark:text-amber-200">{{ count(\App\Support\SampleCrossReference::SOCS) }} SoC (Snapdragon, Dimensity, Exynos, Tensor, Kirin, Apple) ve örnek cihaz kataloğundaki modellere bağlantıları. Kodu doğrulanmamış olanlarda not vardır.</p>
-                    <div class="mt-3 flex gap-2">
-                        <button type="button" wire:click="loadSample" wire:loading.attr="disabled" class="rounded-lg bg-amber-500 px-3 py-1.5 text-xs font-semibold text-amber-950 hover:bg-amber-400">Örnek veriyi yükle</button>
-                        <a href="{{ route('cross-reference.sample') }}" class="rounded-lg px-3 py-1.5 text-xs font-semibold text-amber-900 ring-1 ring-amber-300 hover:bg-amber-100 dark:text-amber-100 dark:ring-amber-500/40 dark:hover:bg-amber-500/10">Örnek CSV indir</a>
-                    </div>
-                </div>
-                @if ($report)
-                    <div class="rounded-xl bg-slate-50 p-4 text-sm ring-1 ring-slate-200 dark:bg-white/5 dark:ring-white/10">
-                        <p class="font-semibold text-slate-900 dark:text-white">Son içe aktarma</p>
-                        <ul class="mt-2 space-y-0.5 text-slate-600 dark:text-slate-300">
-                            <li>{{ $report['components_created'] }} yeni, {{ $report['components_updated'] }} güncellenen bileşen</li>
-                            <li>{{ $report['links'] }} cihaz bağlantısı · {{ $report['compat'] }} uyumluluk{{ $report['products_created'] ? ' · '.$report['products_created'].' yeni cihaz' : '' }}</li>
-                        </ul>
-                        @if ($report['unmatched'])
-                            <details class="mt-2">
-                                <summary class="cursor-pointer text-xs font-semibold text-amber-700 dark:text-amber-300">{{ count($report['unmatched']) }} eşleşmeyen kayıt</summary>
-                                <p class="mt-1 text-xs text-slate-500">{{ implode(' · ', array_slice($report['unmatched'], 0, 60)) }}</p>
-                            </details>
-                        @endif
-                    </div>
-                @endif
-                <details class="rounded-lg bg-slate-50 p-4 text-xs text-slate-600 dark:bg-white/5 dark:text-slate-300">
-                    <summary class="cursor-pointer font-semibold">CSV sütunları</summary>
-                    <ul class="mt-2 space-y-1">
-                        <li><code class="font-mono text-indigo-600">type</code> — {{ collect(ComponentType::cases())->map->value->implode(' · ') }}</li>
-                        <li><code class="font-mono text-indigo-600">code</code> — parça / model kodu (zorunlu) · <code class="font-mono text-indigo-600">name</code>, <code class="font-mono text-indigo-600">manufacturer</code>, <code class="font-mono text-indigo-600">notes</code></li>
-                        <li><code class="font-mono text-indigo-600">specs</code> — "Bellek tipi=LPDDR5; Kapasite=8 GB"</li>
-                        <li><code class="font-mono text-indigo-600">devices</code> — "Xiaomi &gt; Redmi Note 13 Pro [8/256]; garnet"</li>
-                        <li><code class="font-mono text-indigo-600">compatible</code> — "ram:K3LK7K70BM-BGCP:pin; ram:H58G56AK6BX069:direct"</li>
-                    </ul>
-                </details>
-            </div>
-        </x-drawer>
+
     </div>
 </div>

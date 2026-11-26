@@ -38,9 +38,10 @@
                 <div class="min-w-0">
                     <h3 class="font-bold text-slate-900 dark:text-white">Örnek veri</h3>
                     <p class="mt-1 text-sm text-slate-500">Servis direnç tablosundan dönüştürülmüş <strong>{{ $sampleCount }}</strong> gerçek kayıt (apollo, corot, garnet, vayu, zircon…). Hepsi dahili pull-up devresi olarak gelir.</p>
-                    <a href="{{ route('board-ids.sample') }}" class="mt-4 inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold text-emerald-700 ring-1 ring-emerald-300 hover:bg-emerald-50 dark:text-emerald-300 dark:ring-emerald-500/30 dark:hover:bg-emerald-500/10">
-                        Örnek CSV indir
-                    </a>
+                    <button type="button" wire:click="loadSample" wire:loading.attr="disabled" wire:target="loadSample" class="mt-4 inline-flex items-center gap-2 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-500 disabled:opacity-60">
+                        <span wire:loading.remove wire:target="loadSample">Örnek veriyi yükle</span><span wire:loading wire:target="loadSample">Hazırlanıyor…</span>
+                    </button>
+                    <p class="mt-2 text-xs text-slate-500">Önce önizleme açılır; mevcut kayıtlar korunur.</p>
                 </div>
             </div>
         </div>

@@ -56,6 +56,7 @@ Route::middleware('auth')->group(function () {
     Route::get('tools/board-ids', BoardIdsIndex::class)->name('board-ids.index');
     Route::get('tools/cross-reference', \App\Livewire\CrossReference\CrossReferenceIndex::class)->name('cross-reference.index');
     Route::get('tools/cross-reference/export', [\App\Http\Controllers\CrossReferenceController::class, 'export'])->name('cross-reference.export');
+    Route::get('tools/cross-reference/selection.{format}', [\App\Http\Controllers\CrossReferenceController::class, 'selection'])->whereIn('format', ['txt', 'xlsx'])->name('cross-reference.selection');
     Route::get('tools/cross-reference/sample-csv', [\App\Http\Controllers\CrossReferenceController::class, 'sample'])->name('cross-reference.sample');
 
     // Ayarlar (modül bazlı sekmeler) ve cihaz kataloğu içe / dışa aktarma
