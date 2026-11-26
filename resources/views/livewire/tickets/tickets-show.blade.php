@@ -77,31 +77,72 @@
         @error('technician') <p class="mt-2 text-xs text-rose-600">{{ $message }}</p> @enderror
 
         {{-- İş akışı --}}
-        <div class="mt-5 border-t border-slate-100 pt-4 dark:border-white/5">
-            <x-scroll-row track="gap-1">
-                <ol class="flex min-w-max items-center gap-1 text-xs">
-                    @foreach ($mainPath as $step)
+        @php
+            // Adım durumları: done | current | todo · son adım (teslim) güncelse tamamlanmış sayılır
+            $steps = collect($mainPath)->values()->map(function ($step, $i) use ($ticket, $visited, $mainPath) {
+                $current = $ticket->status === $step;
+                $state = $current ? ($i === count($mainPath) - 1 ? 'done' : 'current') : (in_array($step->value, $visited, true) ? 'done' : 'todo');
+
+                return ['step' => $step, 'state' => $state, 'isCurrent' => $current];
+            });
+            $doneCount = $steps->where('state', 'done')->count();
+        @endphp
+        <div class="mt-5 border-t border-slate-100 pt-5 dark:border-white/5">
+            <div class="mb-3 flex items-center justify-between gap-3 text-xs">
+                <p class="font-semibold uppercase tracking-wider text-slate-500">İş akışı</p>
+                <p class="tabular-nums text-slate-500">{{ $doneCount }} / {{ $steps->count() }} adım</p>
+            </div>
+            <div class="-mx-2 overflow-x-auto px-2 pb-1 [scrollbar-width:thin]">
+                <ol class="flex min-w-[44rem]" aria-label="Servis iş akışı">
+                    @foreach ($steps as $i => $s)
                         @php
-                            $isCurrent = $ticket->status === $step;
-                            $isDone = ! $isCurrent && in_array($step->value, $visited, true);
+                            $next = $steps[$i + 1] ?? null;
+                            // Sonraki adıma giden çizgi: ulaşıldıysa dolu, sıradaki güncelse geçişli, değilse kesikli
+                            $line = ! $next ? null : ($next['state'] === 'done' ? 'done' : ($next['state'] === 'current' ? 'active' : 'todo'));
                         @endphp
-                        <li class="flex items-center gap-1">
-                            <span @if ($isCurrent) aria-current="step" @endif @class([
-                                'flex items-center gap-1 whitespace-nowrap rounded-full px-3 py-1.5 font-semibold ring-1',
-                                $step->badge() . ' ring-2 shadow' => $isCurrent,
-                                'bg-emerald-50 text-emerald-700 ring-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-200 dark:ring-emerald-800' => $isDone,
-                                'bg-slate-50 text-slate-400 ring-slate-200 dark:bg-white/5 dark:text-slate-500 dark:ring-white/10' => ! $isCurrent && ! $isDone,
+                        <li class="relative flex min-w-0 flex-1 flex-col items-center px-1 text-center" @if ($s['isCurrent']) aria-current="step" @endif>
+                            @if ($line)
+                                <span aria-hidden="true" @class([
+                                    'absolute left-[calc(50%+1.25rem)] right-[calc(-50%+1.25rem)] top-[0.9375rem] h-0.5 rounded-full',
+                                    'bg-emerald-500' => $line === 'done',
+                                    'bg-gradient-to-r from-emerald-500 to-indigo-500' => $line === 'active',
+                                    'bg-[repeating-linear-gradient(90deg,var(--color-slate-300)_0_6px,transparent_6px_11px)] dark:bg-[repeating-linear-gradient(90deg,var(--color-slate-600)_0_6px,transparent_6px_11px)]' => $line === 'todo',
+                                ])></span>
+                            @endif
+
+                            <span @class([
+                                'relative z-10 grid h-8 w-8 shrink-0 place-items-center rounded-full text-xs font-bold transition',
+                                'bg-emerald-500 text-white shadow-sm shadow-emerald-500/30' => $s['state'] === 'done',
+                                'bg-indigo-600 text-white shadow-lg shadow-indigo-500/40 ring-4 ring-indigo-500/20' => $s['state'] === 'current',
+                                'bg-white text-slate-400 ring-2 ring-inset ring-slate-200 dark:bg-slate-800 dark:text-slate-500 dark:ring-white/10' => $s['state'] === 'todo',
                             ])>
-                                @if ($isDone) ✓ @endif {{ $step->label() }}
-                                @isset($durations[$step->value])
-                                    <span class="font-normal opacity-70">· {{ $human($durations[$step->value]) }}</span>
+                                @if ($s['state'] === 'current')
+                                    <span class="absolute inset-0 animate-ping rounded-full bg-indigo-500/40 motion-reduce:hidden" aria-hidden="true"></span>
+                                    <span class="relative h-2.5 w-2.5 rounded-full bg-white"></span>
+                                @elseif ($s['state'] === 'done')
+                                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg>
+                                @else
+                                    {{ $i + 1 }}
+                                @endif
+                            </span>
+
+                            <span @class(['mt-2 text-xs font-semibold leading-tight',
+                                'text-slate-900 dark:text-white' => $s['state'] === 'done',
+                                'text-indigo-700 dark:text-indigo-300' => $s['state'] === 'current',
+                                'text-slate-400 dark:text-slate-500' => $s['state'] === 'todo'])>{{ $s['step']->label() }}</span>
+                            <span class="mt-0.5 text-[11px] tabular-nums text-slate-500">
+                                @isset($durations[$s['step']->value])
+                                    {{ $human($durations[$s['step']->value]) }}
+                                @elseif ($s['state'] === 'current')
+                                    şu an
+                                @else
+                                    &nbsp;
                                 @endisset
                             </span>
-                            @unless ($loop->last)<span class="text-slate-300 dark:text-slate-600">›</span>@endunless
                         </li>
                     @endforeach
                 </ol>
-            </x-scroll-row>
+            </div>
             @if ($ticket->status === \App\Enums\TicketStatus::CANCELLED)
                 <p class="mt-3 text-sm font-semibold text-rose-600">Bu kayıt iptal / iade edildi.</p>
             @endif
