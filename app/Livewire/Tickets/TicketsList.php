@@ -14,6 +14,7 @@ use Livewire\WithPagination;
 
 class TicketsList extends Component
 {
+    use \App\Livewire\Concerns\UndoableDelete;
     use WithPagination;
 
     /** '' | 'open' | 'closed' | bir TicketStatus değeri */
@@ -92,8 +93,7 @@ class TicketsList extends Component
     public function delete(int $id)
     {
         $ticket = Auth::user()->tickets()->findOrFail($id);
-        $ticket->delete();
-        $this->dispatch('toast', message: "{$ticket->tracking_code} silindi.");
+        $this->trashWithUndo($ticket, $ticket->tracking_code);
     }
 
     #[On('ticket-created')]

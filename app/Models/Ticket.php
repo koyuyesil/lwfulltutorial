@@ -14,6 +14,7 @@ use InvalidArgumentException;
 
 class Ticket extends Model
 {
+    use \App\Models\Concerns\Trashable;
     /** @use HasFactory<\Database\Factories\TicketFactory> */
     use HasFactory;
 

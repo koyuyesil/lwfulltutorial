@@ -2,18 +2,23 @@
 
 namespace App\Livewire\Parts;
 
-use App\Models\Part;
+use App\Enums\ComponentType;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
+use Livewire\Attributes\On;
 use Livewire\Attributes\Title;
 use Livewire\Attributes\Url;
 use Livewire\Component;
 use Livewire\WithPagination;
 
-/** Yedek parça kataloğu ve stok. */
+/**
+ * Yedek parça kataloğu ve stok. Çapraz referans parçaları da (SoC, RAM, PMIC…) bu listededir;
+ * bir parça bağımsız olabilir ya da cihazlara ve muadillerine bağlanabilir (Parts\PartRelations).
+ */
 #[Title('Parça ve stok')]
 class PartsIndex extends Component
 {
+    use \App\Livewire\Concerns\UndoableDelete;
     use WithPagination;
 
     #[Url(as: 'q', except: '')]
@@ -23,7 +28,7 @@ class PartsIndex extends Component
     public string $category = '';
 
     #[Url(as: 'stok', except: '')]
-    public string $stockFilter = ''; // '' | low | out
+    public string $stockFilter = ''; // '' | low | out | ref
 
     public ?int $editingId = null;
 
@@ -36,7 +41,7 @@ class PartsIndex extends Component
 
     protected function resetForm(): void
     {
-        $this->form = ['component_id' => '', 'name' => '', 'sku' => '', 'category' => '', 'compatible' => '', 'cost' => '', 'price' => '', 'stock' => '0', 'min_stock' => '1', 'supplier' => ''];
+        $this->form = ['name' => '', 'sku' => '', 'category' => '', 'type' => '', 'code' => '', 'manufacturer' => '', 'compatible' => '', 'cost' => '', 'price' => '', 'stock' => '0', 'min_stock' => '1', 'supplier' => ''];
         $this->editingId = null;
         $this->resetValidation();
     }
@@ -54,13 +59,16 @@ class PartsIndex extends Component
         $this->dispatch('open-drawer', name: 'part-form');
     }
 
+    #[On('open-part')]
     public function edit(int $id): void
     {
         $part = Auth::user()->parts()->findOrFail($id);
         $this->resetForm();
         $this->editingId = $part->id;
         $this->form = [
-            'component_id' => (string) $part->component_id, 'name' => $part->name, 'sku' => (string) $part->sku, 'category' => (string) $part->category, 'compatible' => (string) $part->compatible,
+            'name' => $part->name, 'sku' => (string) $part->sku, 'category' => (string) $part->category,
+            'type' => (string) $part->type?->value, 'code' => (string) $part->code, 'manufacturer' => (string) $part->manufacturer,
+            'compatible' => (string) $part->compatible,
             'cost' => (string) (float) $part->cost, 'price' => (string) (float) $part->price, 'stock' => (string) $part->stock,
             'min_stock' => (string) $part->min_stock, 'supplier' => (string) $part->supplier,
         ];
@@ -74,10 +82,12 @@ class PartsIndex extends Component
         }
 
         $data = $this->validate([
-            'form.component_id' => ['nullable', \Illuminate\Validation\Rule::exists('components', 'id')->where('user_id', Auth::id())],
             'form.name' => ['required', 'string', 'min:2', 'max:120'],
             'form.sku' => ['nullable', 'string', 'max:60'],
             'form.category' => ['nullable', 'string', 'max:60'],
+            'form.type' => ['nullable', Rule::enum(ComponentType::class)],
+            'form.code' => ['nullable', 'required_with:form.type', 'string', 'max:120'],
+            'form.manufacturer' => ['nullable', 'string', 'max:120'],
             'form.compatible' => ['nullable', 'string', 'max:255'],
             'form.cost' => ['nullable', 'numeric', 'min:0', 'max:9999999'],
             'form.price' => ['nullable', 'numeric', 'min:0', 'max:9999999'],
@@ -86,12 +96,12 @@ class PartsIndex extends Component
             'form.supplier' => ['nullable', 'string', 'max:120'],
         ], [
             'form.name.required' => 'Parça adı zorunludur.',
-        ])['form'];
+            'form.code.required_with' => 'Çapraz referans türü seçildiyse parça kodu da girilmelidir.',
+        ], ['form.type' => 'tür', 'form.code' => 'parça kodu', 'form.manufacturer' => 'üretici'])['form'];
 
         $data = array_map(fn ($v) => is_string($v) ? (trim($v) === '' ? null : trim($v)) : $v, $data);
         $data['cost'] ??= 0;
         $data['price'] ??= 0;
-        $data['component_id'] = $data['component_id'] ? (int) $data['component_id'] : null;
 
         if ($this->editingId) {
             Auth::user()->parts()->findOrFail($this->editingId)->update($data);
@@ -106,7 +116,7 @@ class PartsIndex extends Component
         $this->resetForm();
     }
 
-    /** Hızlı stok düzeltme (+ / −) */
+    /** Hızlı stok düzeltme (+ / -) */
     public function adjust(int $id, int $delta): void
     {
         $part = Auth::user()->parts()->findOrFail($id);
@@ -115,9 +125,11 @@ class PartsIndex extends Component
 
     public function delete(int $id): void
     {
-        Auth::user()->parts()->findOrFail($id)->delete();
-        $this->dispatch('toast', message: 'Parça silindi.');
+        $this->trashWithUndo(Auth::user()->parts()->findOrFail($id));
     }
+
+    #[On('cross-ref-saved')]
+    public function refreshList(): void {}
 
     public function render()
     {
@@ -127,13 +139,17 @@ class PartsIndex extends Component
         $parts = $user->parts()
             ->when($this->search !== '', function ($q) {
                 $term = '%'.trim($this->search).'%';
-                $q->where(fn ($q) => $q->where('name', 'like', $term)->orWhere('sku', 'like', $term)->orWhere('compatible', 'like', $term)->orWhere('supplier', 'like', $term));
+                $q->where(fn ($q) => $q->where('name', 'like', $term)->orWhere('sku', 'like', $term)->orWhere('code', 'like', $term)
+                    ->orWhere('compatible', 'like', $term)->orWhere('supplier', 'like', $term)->orWhere('manufacturer', 'like', $term)
+                    ->orWhereHas('products', fn ($p) => $p->where('model_name', 'like', $term)->orWhere('codename', 'like', $term)));
             })
             ->when($this->category !== '', fn ($q) => $q->where('category', $this->category))
             ->when($this->stockFilter === 'low', fn ($q) => $q->low())
-            ->when($this->stockFilter === 'out', fn ($q) => $q->where('stock', '<=', 0))
-            ->with('component:id,type,code,name')->withCount('items')
-            ->orderByRaw('CASE WHEN stock <= min_stock THEN 0 ELSE 1 END')
+            // Stok takibi olmayan çapraz referans kayıtları "tükenen" sayılmaz
+            ->when($this->stockFilter === 'out', fn ($q) => $q->where('stock', '<=', 0)->where(fn ($q) => $q->where('min_stock', '>', 0)->orWhereNull('type')))
+            ->when($this->stockFilter === 'ref', fn ($q) => $q->reference())
+            ->withCount(['items', 'products', 'compatibleTo', 'compatibleFrom'])
+            ->orderByRaw('CASE WHEN min_stock > 0 AND stock <= min_stock THEN 0 ELSE 1 END')
             ->orderBy('name')
             ->paginate(24);
 
@@ -146,7 +162,6 @@ class PartsIndex extends Component
         return view('livewire.parts.parts-index', [
             'parts' => $parts,
             'stats' => $stats,
-            'components' => $user->components()->orderBy('type')->orderBy('code')->get(['id', 'type', 'code', 'name']),
             'categories' => $user->parts()->whereNotNull('category')->distinct()->orderBy('category')->pluck('category'),
         ])->layout('layouts.app');
     }

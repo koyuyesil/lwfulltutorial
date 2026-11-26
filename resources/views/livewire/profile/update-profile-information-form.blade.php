@@ -95,7 +95,8 @@ new class extends Component
 
         <div class="flex items-center justify-end gap-3 border-t border-slate-100 pt-5 dark:border-white/5">
             <x-action-message class="text-sm font-semibold text-emerald-600" on="profile-updated">✓ Kaydedildi</x-action-message>
-            <button class="rounded-lg bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500" wire:loading.attr="disabled">Kaydet</button>
+            <x-ui.dirty target="name, email" />
+            <x-ui.button type="submit" loading="updateProfileInformation">Kaydet</x-ui.button>
         </div>
     </form>
 </section>

@@ -22,17 +22,16 @@
 
     <div wire:loading.class="opacity-60" wire:target="search,type,gotoPage,nextPage,previousPage">
         @if ($boards->isEmpty())
-            <div class="rounded-xl border-2 border-dashed border-slate-300 bg-white px-6 py-16 text-center dark:border-white/10 dark:bg-slate-800/50">
+            <x-ui.empty>
                 <p class="text-4xl">🔌</p>
                 <p class="mt-3 font-semibold text-slate-800 dark:text-white">{{ $isFiltered ? 'Bu filtreye uyan kayıt yok' : 'Kütüphane boş' }}</p>
                 <p class="mt-1 text-sm text-slate-500">Anakart kimlik dirençlerini kaydedin; onarımda doğru değeri saniyeler içinde bulun.</p>
                 @unless ($isFiltered)
-                    <button type="button" x-on:click="$dispatch('open-drawer', { name: 'board-form' }); Livewire.dispatch('create-board-id')"
-                        class="mt-4 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500">Yeni Board ID</button>
+                    <x-ui.button x-on:click="$dispatch('open-drawer', { name: 'board-form' }); Livewire.dispatch('create-board-id')" class="mt-4">Yeni Board ID</x-ui.button>
                 @endunless
-            </div>
+            </x-ui.empty>
         @else
-            <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+            <div data-list class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
                 @foreach ($boards as $board)
                     @php
                         $bt = $board->divider_type ?? DividerType::ADC;
@@ -92,8 +91,7 @@
                                 class="flex-1 py-2.5 text-slate-600 transition hover:bg-slate-50 hover:text-indigo-600 dark:text-slate-300 dark:hover:bg-white/5">Detay · 3D</button>
                             <button type="button" x-on:click="$dispatch('open-drawer', { name: 'board-form' }); Livewire.dispatch('edit-board-id', { id: {{ $board->id }} })"
                                 class="flex-1 border-s border-slate-100 py-2.5 text-slate-600 transition hover:bg-slate-50 hover:text-indigo-600 dark:border-white/5 dark:text-slate-300 dark:hover:bg-white/5">Düzenle</button>
-                            <button type="button" wire:click="delete({{ $board->id }})" wire:confirm="{{ $board->build_name }} silinsin mi?"
-                                class="flex-1 border-s border-slate-100 py-2.5 text-slate-400 transition hover:bg-rose-50 hover:text-rose-600 dark:border-white/5 dark:hover:bg-rose-500/10">Sil</button>
+                            <button type="button" wire:click="delete({{ $board->id }})" class="flex-1 border-s border-slate-100 py-2.5 text-slate-400 transition hover:bg-rose-50 hover:text-rose-600 dark:border-white/5 dark:hover:bg-rose-500/10">Sil</button>
                         </div>
                     </article>
                 @endforeach

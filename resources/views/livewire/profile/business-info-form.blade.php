@@ -176,8 +176,8 @@ new class extends Component
             </div>
 
             <div class="flex items-center justify-end gap-3 border-t border-slate-100 pt-5 dark:border-white/5">
-                <span wire:dirty wire:target="company" class="text-xs text-amber-600">Kaydedilmemiş değişiklikler var</span>
-                <button class="rounded-lg bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500" wire:loading.attr="disabled" wire:target="save">İşletme bilgilerini kaydet</button>
+                <x-ui.dirty target="company" />
+                <x-ui.button type="submit" loading="save">İşletme bilgilerini kaydet</x-ui.button>
             </div>
         </form>
 

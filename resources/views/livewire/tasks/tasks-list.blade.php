@@ -80,13 +80,12 @@
     @if ($view === 'list')
         {{-- GÜNDEM --}}
         @if (empty($agenda) && ! $showDone)
-            <div class="rounded-xl border-2 border-dashed border-slate-300 bg-white px-6 py-16 text-center dark:border-white/10 dark:bg-slate-800/50">
+            <x-ui.empty>
                 <p class="text-4xl">✅</p>
                 <p class="mt-3 font-semibold text-slate-800 dark:text-white">{{ $isFiltered ? 'Bu filtreye uyan açık görev yok' : 'Tüm görevler tamam!' }}</p>
                 <p class="mt-1 text-sm text-slate-500">Faturalar, ödemeler ve hatırlatmalar için hazır şablonlarla başlayın.</p>
-                <button type="button" x-on:click="$dispatch('open-drawer', { name: 'task-form' }); Livewire.dispatch('create-task')"
-                    class="mt-4 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500">Şablonlardan görev ekle</button>
-            </div>
+                <x-ui.button x-on:click="$dispatch('open-drawer', { name: 'task-form' }); Livewire.dispatch('create-task')" class="mt-4">Şablonlardan görev ekle</x-ui.button>
+            </x-ui.empty>
         @endif
 
         <div class="space-y-4">
@@ -100,7 +99,7 @@
                             <span class="ms-auto text-xs text-slate-400">{{ now()->locale('tr')->translatedFormat('d F l') }}</span>
                         @endif
                     </header>
-                    <ul class="divide-y divide-slate-100 dark:divide-white/5">
+                    <ul data-list class="divide-y divide-slate-100 dark:divide-white/5">
                         @foreach ($items as $task)
                             @include('livewire.tasks.partials.task-row', ['task' => $task])
                         @endforeach
@@ -115,7 +114,7 @@
                 </button>
                 @if ($showDone)
                     <section class="mt-2 rounded-xl bg-white shadow-sm ring-1 ring-slate-200 dark:bg-slate-800 dark:ring-white/10">
-                        <ul class="divide-y divide-slate-100 dark:divide-white/5">
+                        <ul data-list class="divide-y divide-slate-100 dark:divide-white/5">
                             @forelse ($done as $task)
                                 @include('livewire.tasks.partials.task-row', ['task' => $task])
                             @empty

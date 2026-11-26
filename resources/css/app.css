@@ -73,3 +73,20 @@
 @media (prefers-reduced-motion: reduce) {
     .calc-flow, .calc-blink, .calc-float, .calc-charge, .calc-focus { animation: none; }
 }
+/* ============================================================ Arayüz: yükleniyor */
+@keyframes ui-progress { 0% { transform: translateX(-100%); } 100% { transform: translateX(400%); } }
+.ui-progress { animation: ui-progress 1.1s ease-in-out infinite; }
+@keyframes ui-shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+.ui-shimmer {
+    background-image: linear-gradient(90deg, transparent 0, rgb(255 255 255 / .55) 50%, transparent 100%);
+    background-size: 200% 100%; background-repeat: no-repeat; animation: ui-shimmer 1.4s linear infinite;
+}
+.dark .ui-shimmer { background-image: linear-gradient(90deg, transparent 0, rgb(255 255 255 / .08) 50%, transparent 100%); }
+/* Hatalı alana kaydırılınca kısa vurgu */
+@keyframes ui-attention { 0%, 100% { box-shadow: 0 0 0 0 rgb(244 63 94 / 0); } 30% { box-shadow: 0 0 0 4px rgb(244 63 94 / .35); } }
+.ui-attention { animation: ui-attention 1s ease-out 1; border-radius: .5rem; }
+/* Gönderilirken form düğmesi */
+form[data-loading] button[type="submit"] { cursor: wait; }
+@media (prefers-reduced-motion: reduce) { .ui-progress, .ui-shimmer, .ui-attention { animation: none; } }
+/* İstek sürerken liste soluklaşır (resources/js/ui.js registerLoading) */
+[data-busy] :is(tbody, [data-list]):not([wire\:loading\.class] *) { opacity: .55; pointer-events: none; transition: opacity .15s ease; }

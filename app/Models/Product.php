@@ -10,6 +10,10 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Product extends Model
 {
+    use \App\Models\Concerns\Trashable;
+
+    /** Silinince birlikte çöp kutusuna taşınır, geri alınınca birlikte döner. */
+    protected array $cascadeDeletes = ['clientProducts', 'boardIds'];
     /** @use HasFactory<\Database\Factories\ProductFactory> */
     use HasFactory;
     protected $fillable = [
@@ -61,10 +65,10 @@ class Product extends Model
         return trim($this->brand.' '.$this->model_name);
     }
 
-    /** Çapraz referans: cihazdaki bileşenler (SoC, RAM, PMIC…) */
-    public function components(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    /** Çapraz referans: cihazdaki parçalar (SoC, RAM, PMIC, ekran…) */
+    public function parts(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
     {
-        return $this->belongsToMany(Component::class)->withPivot(['id', 'variant', 'note'])->withTimestamps();
+        return $this->belongsToMany(Part::class, 'part_product')->withPivot(['id', 'variant', 'note'])->withTimestamps();
     }
 
     public function boardIds(): HasMany
@@ -72,11 +76,4 @@ class Product extends Model
         return $this->hasMany(BoardId::class);
     }
 
-    //TODO Clients modelden aynısını yap.
-    protected static function booted()
-    {
-        static::deleting(function ($device) {
-            $device->clientProducts()->delete();
-        });
-    }
 }

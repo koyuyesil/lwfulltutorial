@@ -1,0 +1,1 @@
+@include('errors.layout', ['code' => 419, 'emoji' => '⏳', 'title' => 'Oturum süresi doldu', 'message' => 'Güvenliğiniz için sayfa zaman aşımına uğradı. Sayfayı yenileyip işleminizi tekrar deneyin.', 'retry' => true])

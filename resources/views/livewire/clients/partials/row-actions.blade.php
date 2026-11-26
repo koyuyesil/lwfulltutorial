@@ -19,7 +19,6 @@
         @endif
         <div class="my-1 border-t border-slate-100 dark:border-white/5"></div>
         <button type="button" role="menuitem" wire:click="delete({{ $client->id }})"
-            wire:confirm="{{ $client->full_name }} ve ona ait {{ $client->devices_count }} cihaz ile {{ $client->tickets_count }} servis kaydı kalıcı olarak silinecek. Emin misiniz?"
             @click="menu = false" class="block w-full px-4 py-2 text-left text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-500/10">Sil</button>
     </div>
 </div>

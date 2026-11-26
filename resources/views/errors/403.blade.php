@@ -1,0 +1,1 @@
+@include('errors.layout', ['code' => 403, 'emoji' => '🔒', 'title' => 'Erişim engellendi', 'message' => 'Bu sayfayı görüntüleme yetkiniz yok. Yanlış olduğunu düşünüyorsanız yöneticinizle iletişime geçin.', 'retry' => false])

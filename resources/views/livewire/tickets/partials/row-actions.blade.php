@@ -38,7 +38,6 @@
         <button type="button" role="menuitem" @click="menu = false; copyText(@js(route('tracking', ['kod' => $ticket->tracking_code])), 'Takip bağlantısı kopyalandı.')"
             class="block w-full px-4 py-2 text-left text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-white/5">Takip bağlantısını kopyala</button>
         <div class="my-1 border-t border-slate-100 dark:border-white/5"></div>
-        <button type="button" role="menuitem" wire:click="delete({{ $ticket->id }})" wire:confirm="{{ $ticket->tracking_code }} servis kaydı ve tüm geçmişi kalıcı olarak silinecek. Emin misiniz?"
-            @click="menu = false" class="block w-full px-4 py-2 text-left text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-500/10">Sil</button>
+        <button type="button" role="menuitem" wire:click="delete({{ $ticket->id }})" @click="menu = false" class="block w-full px-4 py-2 text-left text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-500/10">Sil</button>
     </div>
 </div>

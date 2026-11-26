@@ -34,29 +34,16 @@ new #[Layout('layouts.auth')] class extends Component
 }; ?>
 
 <div>
-    <div class="mb-4 text-sm text-gray-600 dark:text-gray-400">
-        {{ __('This is a secure area of the application. Please confirm your password before continuing.') }}
+    <div class="mb-6">
+        <h1 class="text-2xl font-black tracking-tight text-slate-900 dark:text-white">Şifrenizi doğrulayın</h1>
+        <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Bu güvenli bir alan. Devam etmeden önce lütfen şifrenizi girin.</p>
     </div>
 
-    <form wire:submit="confirmPassword">
-        <!-- Password -->
-        <div>
-            <x-input-label for="password" :value="__('Password')" />
+    <form wire:submit="confirmPassword" class="space-y-4">
+        <x-ui.field label="Şifre" for="password" error="password">
+            <x-ui.input wire:model="password" id="password" type="password" name="password" required autofocus autocomplete="current-password" :invalid="$errors->has('password')" />
+        </x-ui.field>
 
-            <x-text-input wire:model="password"
-                          id="password"
-                          class="block mt-1 w-full"
-                          type="password"
-                          name="password"
-                          required autocomplete="current-password" />
-
-            <x-input-error :messages="$errors->get('password')" class="mt-2" />
-        </div>
-
-        <div class="flex justify-end mt-4">
-            <x-primary-button>
-                {{ __('Confirm') }}
-            </x-primary-button>
-        </div>
+        <x-ui.button type="submit" size="lg" class="w-full" loading="confirmPassword">Onayla</x-ui.button>
     </form>
 </div>

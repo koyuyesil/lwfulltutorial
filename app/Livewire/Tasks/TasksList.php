@@ -17,6 +17,7 @@ use Livewire\Component;
 
 class TasksList extends Component
 {
+    use \App\Livewire\Concerns\UndoableDelete;
     #[Url(as: 'ara', except: '')]
     public string $search = '';
 
@@ -159,12 +160,22 @@ class TasksList extends Component
         $task = $this->find($id);
 
         if ($series && $task->isRecurring()) {
-            Auth::user()->tasks()->where('series_id', $task->series_id)->open()->delete();
-            $this->dispatch('toast', message: 'Tekrarlayan görev serisi silindi.');
+            $at = now()->startOfSecond();
+            Auth::user()->tasks()->where('series_id', $task->series_id)->open()->get()->each->delete();
+            $this->dispatch('toast', message: 'Tekrarlayan görev serisi silindi.', type: 'info', timeout: 8000,
+                action: ['label' => 'Geri al', 'event' => 'task-series-restore', 'params' => ['series' => $task->series_id, 'at' => $at->toDateTimeString()]]);
         } else {
-            $task->delete();
-            $this->dispatch('toast', message: 'Görev silindi.');
+            $this->trashWithUndo($task);
         }
+        $this->dispatch('tasks-changed');
+    }
+
+    /** Seri silmeyi geri al: bu seride o andan sonra çöpe taşınan görevleri geri getirir. */
+    #[On('task-series-restore')]
+    public function restoreSeries(string $series, string $at): void
+    {
+        $count = Auth::user()->tasks()->onlyTrashed()->where('series_id', $series)->where('deleted_at', '>=', $at)->get()->each->restore()->count();
+        $this->dispatch('toast', message: "{$count} görev geri alındı.");
         $this->dispatch('tasks-changed');
     }
 

@@ -57,23 +57,45 @@ class SampleCrossReference
         ['MT6985', 'Dimensity 9200+', 'Aynı aile; 9200+ daha yüksek frekanslı. Yazılım uyumu doğrulanmalı.'],
     ];
 
-    /** CSV satırları (başlık dahil) */
-    public static function csvRows(): \Generator
+    /**
+     * Çapraz referans JSON biçiminde örnek veri (CrossReferenceCatalog::FORMAT).
+     * Cihazlar örnek katalogdaki tam bilgileriyle gelir: katalogda yoksa oluşturulur, varsa eşleştirilir.
+     */
+    public static function data(): array
     {
-        yield \App\Services\CrossReferenceCatalog::COLUMNS;
+        $catalog = collect(SampleDeviceCatalog::rows())->values();
+        $devices = [];
+        $parts = [];
+        $keys = [];
 
-        $devices = collect(SampleDeviceCatalog::rows())->groupBy('chipset');
-        $compat = collect(self::COMPATIBLE);
+        foreach (array_keys(self::SOCS) as $i => $chipset) {
+            $keys[self::SOCS[$chipset][0]] = 'p'.($i + 1);
+        }
 
         foreach (self::SOCS as $chipset => [$code, $maker, $note]) {
-            $links = $compat->filter(fn ($c) => $c[0] === $code)->map(fn ($c) => 'soc:'.$c[1].':pin')->implode('; ');
+            $links = [];
+            foreach ($catalog as $j => $row) {
+                if ($row['chipset'] !== $chipset) {
+                    continue;
+                }
+                $devices['d'.($j + 1)] ??= ['key' => 'd'.($j + 1)] + collect(\App\Services\CrossReferenceCatalog::DEVICE_FIELDS)->mapWithKeys(fn ($f) => [$f => $row[$f] ?? null])->all();
+                $links[] = ['device' => 'd'.($j + 1)];
+            }
 
-            yield [
-                'soc', $code, $chipset, $maker, '',
-                ($devices[$chipset] ?? collect())->map(fn ($d) => $d['brand'].' > '.$d['model_name'])->implode('; '),
-                $links,
-                trim(($note ?? '').' '.($compat->firstWhere(0, $code)[2] ?? '')),
-            ];
+            $pairs = collect(self::COMPATIBLE)->filter(fn ($c) => $c[0] === $code);
+            $parts[] = array_filter([
+                'key' => $keys[$code], 'type' => 'soc', 'code' => $code, 'name' => $chipset, 'manufacturer' => $maker,
+                'notes' => trim(($note ?? '').' '.($pairs->first()[2] ?? '')) ?: null,
+                'devices' => $links,
+                'compatible' => $pairs->map(fn ($c) => ['part' => $keys[$c[1]], 'kind' => 'pin'])->values()->all(),
+            ], fn ($v) => $v !== null && $v !== []);
         }
+
+        return [
+            'format' => \App\Services\CrossReferenceCatalog::FORMAT,
+            'version' => \App\Services\CrossReferenceCatalog::VERSION,
+            'devices' => array_values($devices),
+            'parts' => $parts,
+        ];
     }
 }

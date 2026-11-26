@@ -52,12 +52,12 @@ Route::middleware('auth')->group(function () {
     Route::get('tickets/{ticket}/print/{format}', [\App\Http\Controllers\TicketDocumentsController::class, 'print'])
         ->whereIn('format', \App\Http\Controllers\TicketDocumentsController::FORMATS)->name('tickets.print');
     Route::get('parts', \App\Livewire\Parts\PartsIndex::class)->name('parts.index');
+    Route::get('parts/export', [\App\Http\Controllers\PartCatalogController::class, 'export'])->name('parts.export');
     Route::get('tools', ToolsIndex::class)->name('tools.index');
     Route::get('tools/board-ids', BoardIdsIndex::class)->name('board-ids.index');
     Route::get('tools/cross-reference', \App\Livewire\CrossReference\CrossReferenceIndex::class)->name('cross-reference.index');
     Route::get('tools/cross-reference/export', [\App\Http\Controllers\CrossReferenceController::class, 'export'])->name('cross-reference.export');
-    Route::get('tools/cross-reference/selection.{format}', [\App\Http\Controllers\CrossReferenceController::class, 'selection'])->whereIn('format', ['txt', 'xlsx'])->name('cross-reference.selection');
-    Route::get('tools/cross-reference/sample-csv', [\App\Http\Controllers\CrossReferenceController::class, 'sample'])->name('cross-reference.sample');
+    Route::get('tools/cross-reference/selection.{format}', [\App\Http\Controllers\CrossReferenceController::class, 'selection'])->whereIn('format', ['txt', 'xlsx', 'json'])->name('cross-reference.selection');
 
     // Ayarlar (modül bazlı sekmeler) ve cihaz kataloğu içe / dışa aktarma
     Route::get('settings/{tab?}', \App\Livewire\Settings\SettingsIndex::class)

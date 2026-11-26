@@ -37,52 +37,33 @@ new #[Layout('layouts.auth')] class extends Component
 }; ?>
 
 <div>
-    <form wire:submit="register">
-        <!-- Name -->
-        <div>
-            <x-input-label for="name" :value="__('Name')" />
-            <x-text-input wire:model="name" id="name" class="block mt-1 w-full" type="text" name="name" required autofocus autocomplete="name" />
-            <x-input-error :messages="$errors->get('name')" class="mt-2" />
-        </div>
+    <div class="mb-6">
+        <h1 class="text-2xl font-black tracking-tight text-slate-900 dark:text-white">Hesap oluşturun</h1>
+        <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Birkaç saniyede servisinizi dijitale taşıyın.</p>
+    </div>
 
-        <!-- Email Address -->
-        <div class="mt-4">
-            <x-input-label for="email" :value="__('Email')" />
-            <x-text-input wire:model="email" id="email" class="block mt-1 w-full" type="email" name="email" required autocomplete="username" />
-            <x-input-error :messages="$errors->get('email')" class="mt-2" />
-        </div>
+    <form wire:submit="register" class="space-y-4">
+        <x-ui.field label="Ad soyad" for="name" error="name">
+            <x-ui.input wire:model="name" id="name" type="text" name="name" required autofocus autocomplete="name" :invalid="$errors->has('name')" />
+        </x-ui.field>
 
-        <!-- Password -->
-        <div class="mt-4">
-            <x-input-label for="password" :value="__('Password')" />
+        <x-ui.field label="E-posta" for="email" error="email">
+            <x-ui.input wire:model="email" id="email" type="email" name="email" required autocomplete="username" placeholder="ornek@firma.com" :invalid="$errors->has('email')" />
+        </x-ui.field>
 
-            <x-text-input wire:model="password" id="password" class="block mt-1 w-full"
-                            type="password"
-                            name="password"
-                            required autocomplete="new-password" />
+        <x-ui.field label="Şifre" for="password" error="password" hint="En az 8 karakter.">
+            <x-ui.input wire:model="password" id="password" type="password" name="password" required autocomplete="new-password" :invalid="$errors->has('password')" />
+        </x-ui.field>
 
-            <x-input-error :messages="$errors->get('password')" class="mt-2" />
-        </div>
+        <x-ui.field label="Şifre tekrarı" for="password_confirmation" error="password_confirmation">
+            <x-ui.input wire:model="password_confirmation" id="password_confirmation" type="password" name="password_confirmation" required autocomplete="new-password" :invalid="$errors->has('password_confirmation')" />
+        </x-ui.field>
 
-        <!-- Confirm Password -->
-        <div class="mt-4">
-            <x-input-label for="password_confirmation" :value="__('Confirm Password')" />
+        <x-ui.button type="submit" size="lg" class="w-full" loading="register">Kayıt ol</x-ui.button>
 
-            <x-text-input wire:model="password_confirmation" id="password_confirmation" class="block mt-1 w-full"
-                            type="password"
-                            name="password_confirmation" required autocomplete="new-password" />
-
-            <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
-        </div>
-
-        <div class="flex items-center justify-end mt-4">
-            <a class="underline text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800" href="{{ route('login') }}" wire:navigate>
-                {{ __('Already registered?') }}
-            </a>
-
-            <x-primary-button class="ms-4">
-                {{ __('Register') }}
-            </x-primary-button>
-        </div>
+        <p class="pt-2 text-center text-sm text-slate-500 dark:text-slate-400">
+            Zaten hesabınız var mı?
+            <a href="{{ route('login') }}" wire:navigate class="font-semibold text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300">Giriş yapın</a>
+        </p>
     </form>
 </div>

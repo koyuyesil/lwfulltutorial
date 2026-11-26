@@ -67,11 +67,6 @@ class User extends Authenticatable
         return $this->hasMany(Ticket::class);
     }
 
-    public function components(): HasMany
-    {
-        return $this->hasMany(Component::class);
-    }
-
     public function parts(): HasMany
     {
         return $this->hasMany(Part::class);

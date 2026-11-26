@@ -1,0 +1,1 @@
+@include('errors.layout', ['code' => 404, 'emoji' => '🧭', 'title' => 'Sayfa bulunamadı', 'message' => 'Aradığınız sayfa taşınmış, silinmiş ya da hiç var olmamış olabilir. Adresi kontrol edin.', 'retry' => false])

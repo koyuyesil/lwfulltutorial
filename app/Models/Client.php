@@ -8,6 +8,10 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Client extends Model
 {
+    use \App\Models\Concerns\Trashable;
+
+    /** Silinince birlikte çöp kutusuna taşınır, geri alınınca birlikte döner. */
+    protected array $cascadeDeletes = ['clientsProducts'];
     /** @use HasFactory<\Database\Factories\ClientFactory> */
     use HasFactory;
     protected $fillable = [
@@ -104,38 +108,5 @@ class Client extends Model
         return $this->belongsTo(User::class);
     }
 
-    // Tablo işlemi yapıldığında çağrılır
-    protected static function booted()
-    {
-        //Silme işlemi yapıldığında çağrılır
-        static::deleting(function ($client) {
-            // Config dosyasından stratejiyi al, yoksa 'delete' varsayılanını kullan
-            $strategy = config('client_product.deletion_strategy', 'delete');//TODO config
-
-            switch ($strategy) {
-                case 'delete':
-                    // Cihazları tamamen sil
-                    $client->clientsProducts()->delete();
-                    break;
-
-                case 'reassign':
-                    // Cihazları başka bir kullanıcıya ata
-                    $defaultUserId = config('client_product.default_user_id');
-                    $client->clientsProducts()->update(['user_id' => $defaultUserId]);
-                    break;
-
-                case 'archive':
-                    // Cihazları arşiv tablosuna taşı
-                    foreach ($client->clientsProducts as $device) {
-                        DB::table('archived_customer_devices')->insert($device->toArray());
-                        $device->delete(); // Orijinal cihazı sil
-                    }
-                    break;
-
-                default:
-                    throw new \Exception("Unknown deletion strategy: $strategy");
-            }
-        });
-    }
 
 }

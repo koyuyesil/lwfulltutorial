@@ -14,6 +14,7 @@ use Livewire\WithPagination;
 
 class ClientsList extends Component
 {
+    use \App\Livewire\Concerns\UndoableDelete;
     use WithPagination;
 
     #[Url(as: 'ara', except: '')]
@@ -51,12 +52,9 @@ class ClientsList extends Component
 
     public function delete(int $id)
     {
-        $client = Auth::user()->clients()->findOrFail($id);
-        $name = $client->full_name;
-        $client->delete();
+        $this->trashWithUndo(Auth::user()->clients()->findOrFail($id));
 
         $this->dispatch('client-deleted', id: $id);
-        $this->dispatch('toast', message: "{$name} silindi.");
     }
 
     protected function query(): Builder

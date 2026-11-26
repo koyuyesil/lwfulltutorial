@@ -11,6 +11,7 @@ use Livewire\WithPagination;
 
 class BoardIdsList extends Component
 {
+    use \App\Livewire\Concerns\UndoableDelete;
     use WithPagination;
 
     #[Url(as: 'ara', except: '')]
@@ -34,11 +35,9 @@ class BoardIdsList extends Component
 
     public function delete(int $id): void
     {
-        $board = Auth::user()->boardIds()->findOrFail($id);
-        $board->delete();
+        $this->trashWithUndo(Auth::user()->boardIds()->findOrFail($id));
 
         $this->dispatch('board-id-deleted', id: $id);
-        $this->dispatch('toast', message: "Silindi: {$board->build_name}");
     }
 
 #[On('board-id-saved')]

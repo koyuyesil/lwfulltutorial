@@ -16,6 +16,7 @@ use Illuminate\Support\Str;
 
 class Task extends Model
 {
+    use \App\Models\Concerns\Trashable;
     use HasFactory;
 
     protected $fillable = [

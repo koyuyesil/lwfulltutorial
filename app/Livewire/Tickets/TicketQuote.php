@@ -34,11 +34,11 @@ class TicketQuote extends Component
         $ticket = Auth::user()->tickets()->with('clientProduct.product')->find($this->ticketId);
         $product = $ticket?->clientProduct?->product;
 
-        // Çapraz referans: cihazdaki bileşenler ve onlarla uyumlu bileşenler
-        $componentIds = collect();
+        // Çapraz referans: cihazdaki parçalar ve onların muadilleri
+        $partIds = collect();
         if ($product) {
-            foreach ($product->components()->get() as $component) {
-                $componentIds = $componentIds->push($component->id)->merge($component->compatibles()->pluck('id'));
+            foreach ($product->parts()->with(['compatibleTo', 'compatibleFrom'])->get() as $onDevice) {
+                $partIds = $partIds->push($onDevice->id)->merge($onDevice->compatibles()->pluck('id'));
             }
         }
 
@@ -49,7 +49,7 @@ class TicketQuote extends Component
             ->when(mb_strlen($term) < 2, fn ($q) => $q->where(fn ($q) => $q
                 ->when($product?->codename, fn ($q) => $q->orWhere('compatible', 'like', '%'.$product->codename.'%'))
                 ->when($product?->model_name, fn ($q) => $q->orWhere('compatible', 'like', '%'.$product->model_name.'%')->orWhere('name', 'like', '%'.$product->model_name.'%'))
-                ->when($componentIds->isNotEmpty(), fn ($q) => $q->orWhereIn('component_id', $componentIds->unique()->all()))
+                ->when($partIds->isNotEmpty(), fn ($q) => $q->orWhereIn('id', $partIds->unique()->all()))
                 ->orWhereRaw('1 = 0')))
             ->orderBy('name')->limit(6)->get();
     }

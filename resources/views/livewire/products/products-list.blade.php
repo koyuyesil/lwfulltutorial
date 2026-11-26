@@ -60,7 +60,7 @@
 
     <div wire:loading.class="opacity-60" wire:target="search,brand,sort,view,gotoPage,nextPage,previousPage">
         @if ($products->isEmpty())
-            <div class="rounded-xl border-2 border-dashed border-slate-300 bg-white px-6 py-16 text-center dark:border-white/10 dark:bg-slate-800/50">
+            <x-ui.empty>
                 <svg class="mx-auto h-12 w-12 text-slate-300 dark:text-slate-600" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 1.5H8.25A2.25 2.25 0 0 0 6 3.75v16.5a2.25 2.25 0 0 0 2.25 2.25h7.5A2.25 2.25 0 0 0 18 20.25V3.75a2.25 2.25 0 0 0-2.25-2.25H13.5m-3 0V3h3V1.5m-3 0h3m-3 18.75h3" /></svg>
                 @if ($isFiltered)
                     <p class="mt-3 font-semibold text-slate-800 dark:text-white">Aramanıza uyan model yok</p>
@@ -68,14 +68,13 @@
                 @else
                     <p class="mt-3 font-semibold text-slate-800 dark:text-white">Kataloğunuz boş</p>
                     <p class="mt-1 text-sm text-slate-500">En sık servis verdiğiniz modelleri ekleyin; servis kaydı açarken hazır olsun.</p>
-                    <button type="button" x-on:click="$dispatch('open-drawer', { name: 'product-form' }); Livewire.dispatch('create-product')"
-                        class="mt-4 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500">Yeni model</button>
+                    <x-ui.button x-on:click="$dispatch('open-drawer', { name: 'product-form' }); Livewire.dispatch('create-product')" class="mt-4">Yeni model</x-ui.button>
                     <a href="{{ route('settings', 'cihaz-modelleri') }}" wire:navigate
                         class="ms-2 mt-4 inline-block rounded-lg px-4 py-2 text-sm font-semibold text-indigo-600 ring-1 ring-indigo-200 hover:bg-indigo-50 dark:text-indigo-300 dark:ring-indigo-500/30">CSV'den içe aktar</a>
                 @endif
-            </div>
+            </x-ui.empty>
         @elseif ($view === 'cards')
-            <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            <div data-list class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                 @foreach ($products as $product)
                     <article wire:key="product-{{ $product->id }}"
                         class="group relative flex flex-col overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-slate-200 transition hover:-translate-y-0.5 hover:shadow-lg dark:bg-slate-800 dark:ring-white/10">
@@ -118,7 +117,6 @@
                             <button type="button" x-on:click="$dispatch('open-drawer', { name: 'product-form' }); Livewire.dispatch('edit-product', { id: {{ $product->id }} })"
                                 class="flex-1 py-2.5 text-slate-600 transition hover:bg-slate-50 hover:text-indigo-600 dark:text-slate-300 dark:hover:bg-white/5">Düzenle</button>
                             <button type="button" wire:click="delete({{ $product->id }})"
-                                wire:confirm="{{ $product->display_name }} silinecek. Bu modele bağlı {{ $product->devices_count }} müşteri cihazı ve servis kayıtları da silinir. Emin misiniz?"
                                 class="flex-1 border-s border-slate-100 py-2.5 text-slate-400 transition hover:bg-rose-50 hover:text-rose-600 dark:border-white/5 dark:hover:bg-rose-500/10">Sil</button>
                         </div>
                     </article>
@@ -167,7 +165,7 @@
                                 </td>
                                 <td class="whitespace-nowrap px-4 py-2.5 text-right text-xs font-semibold">
                                     <button type="button" x-on:click="$dispatch('open-drawer', { name: 'product-form' }); Livewire.dispatch('edit-product', { id: {{ $product->id }} })" class="rounded-md px-2 py-1 text-indigo-600 hover:bg-indigo-50 dark:text-indigo-300 dark:hover:bg-indigo-500/10">Düzenle</button>
-                                    <button type="button" wire:click="delete({{ $product->id }})" wire:confirm="{{ $product->display_name }} ve bağlı kayıtlar silinsin mi?" class="rounded-md px-2 py-1 text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-500/10">Sil</button>
+                                    <button type="button" wire:click="delete({{ $product->id }})" class="rounded-md px-2 py-1 text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-500/10">Sil</button>
                                 </td>
                             </tr>
                         @endforeach

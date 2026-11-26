@@ -31,7 +31,9 @@ test('a user can delete their own client', function () {
 
     Livewire::actingAs($user)->test(ClientsList::class)->call('delete', $client->id);
 
-    expect($client->fresh())->toBeNull();
+    // Geri alınabilir silme: kayıt çöp kutusuna taşınır
+    expect(Client::find($client->id))->toBeNull()
+        ->and($client->fresh()->trashed())->toBeTrue();
 });
 
 test('a user cannot load another users product into the edit form', function () {

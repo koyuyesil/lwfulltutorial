@@ -87,10 +87,10 @@
                 <div class="my-1 border-t border-slate-100 dark:border-white/5"></div>
                 <button type="button" @click="menu = false; $dispatch('open-drawer', { name: 'task-form' }); Livewire.dispatch('edit-task', { id: {{ $task->id }} })"
                     class="block w-full px-4 py-1.5 text-left text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-white/5">Düzenle</button>
-                <button type="button" wire:click="delete({{ $task->id }})" wire:confirm="Bu görev silinsin mi?" @click="menu = false"
+                <button type="button" wire:click="delete({{ $task->id }})" @click="menu = false"
                     class="block w-full px-4 py-1.5 text-left text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-500/10">{{ $task->isRecurring() ? 'Yalnızca bunu sil' : 'Sil' }}</button>
                 @if ($task->isRecurring())
-                    <button type="button" wire:click="delete({{ $task->id }}, true)" wire:confirm="Bu tekrarlayan görevin tüm açık tekrarları silinecek. Emin misiniz?" @click="menu = false"
+                    <button type="button" wire:click="delete({{ $task->id }}, true)" @click="menu = false"
                         class="block w-full px-4 py-1.5 text-left text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-500/10">Tüm seriyi sil</button>
                 @endif
             </div>

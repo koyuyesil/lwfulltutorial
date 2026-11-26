@@ -1,0 +1,1 @@
+@include('errors.layout', ['code' => 500, 'emoji' => '🛠️', 'title' => 'Bir şeyler ters gitti', 'message' => 'Beklenmeyen bir hata oluştu ve ekibimize bildirildi. Lütfen birazdan tekrar deneyin.', 'retry' => true])

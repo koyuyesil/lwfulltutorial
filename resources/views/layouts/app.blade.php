@@ -28,6 +28,11 @@
         }"
         @keydown.escape.window="sidebarOpen = false">
 
+        {{-- Livewire isteği uzun sürerse üstte ilerleme çubuğu (resources/js/ui.js registerLoading) --}}
+        <div id="lw-progress" hidden class="pointer-events-none fixed inset-x-0 top-0 z-[80] h-0.5 overflow-hidden bg-indigo-500/15" role="progressbar" aria-label="Yükleniyor">
+            <div class="ui-progress h-full w-1/3 rounded-full bg-indigo-500"></div>
+        </div>
+
         <livewire:navigation.app />
 
         <div class="flex min-h-screen flex-col transition-[padding] duration-200 lg:ps-64 lg:group-data-[collapsed=true]/sb:ps-[4.5rem]">
@@ -79,5 +84,6 @@
         </div>
 
         <x-toasts />
+        <livewire:trash-undo />
     </body>
 </html>

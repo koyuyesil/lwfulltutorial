@@ -25,55 +25,38 @@ new #[Layout('layouts.auth')] class extends Component
 }; ?>
 
 <div>
-    <!-- Session Status -->
+    <div class="mb-6">
+        <h1 class="text-2xl font-black tracking-tight text-slate-900 dark:text-white">Tekrar hoş geldiniz</h1>
+        <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Servis panelinize erişmek için giriş yapın.</p>
+    </div>
+
     <x-auth-session-status class="mb-4" :status="session('status')" />
 
-    <form wire:submit="login">
-        <!-- Email Address -->
-        <div>
-            <x-input-label for="email" :value="__('Email')" />
-            <x-text-input wire:model="form.email" id="email" class="block mt-1 w-full" type="email" name="email" required autofocus autocomplete="username" />
-            <x-input-error :messages="$errors->get('form.email')" class="mt-2" />
-        </div>
+    <form wire:submit="login" class="space-y-4">
+        <x-ui.field label="E-posta" for="email" error="form.email">
+            <x-ui.input wire:model="form.email" id="email" type="email" name="email" required autofocus autocomplete="username" placeholder="ornek@firma.com" :invalid="$errors->has('form.email')" />
+        </x-ui.field>
 
-        <!-- Password -->
-        <div class="mt-4">
-            <x-input-label for="password" :value="__('Password')" />
+        <x-ui.field label="Şifre" for="password" error="form.password">
+            <x-ui.input wire:model="form.password" id="password" type="password" name="password" required autocomplete="current-password" :invalid="$errors->has('form.password')" />
+        </x-ui.field>
 
-            <x-text-input wire:model="form.password" id="password" class="block mt-1 w-full"
-                            type="password"
-                            name="password"
-                            required autocomplete="current-password" />
-
-            <x-input-error :messages="$errors->get('form.password')" class="mt-2" />
-        </div>
-
-        <!-- Remember Me -->
-        <div class="block mt-4">
-            <label for="remember" class="inline-flex items-center">
-                <input wire:model="form.remember" id="remember" type="checkbox" class="rounded dark:bg-gray-900 border-gray-300 dark:border-gray-700 text-indigo-600 shadow-sm focus:ring-indigo-500 dark:focus:ring-indigo-600 dark:focus:ring-offset-gray-800" name="remember">
-                <span class="ms-2 text-sm text-gray-600 dark:text-gray-400">{{ __('Remember me') }}</span>
+        <div class="flex items-center justify-between">
+            <label for="remember" class="inline-flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300">
+                <input wire:model="form.remember" id="remember" type="checkbox" name="remember" class="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 dark:border-white/20 dark:bg-slate-950">
+                Beni hatırla
             </label>
-        </div>
-
-        <div class="flex items-center justify-end mt-4">
             @if (Route::has('password.request'))
-                <a class="underline text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800" href="{{ route('password.request') }}" wire:navigate>
-                    {{ __('Forgot your password?') }}
-                </a>
+                <a href="{{ route('password.request') }}" wire:navigate class="text-sm font-semibold text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300">Şifremi unuttum</a>
             @endif
-
-            <x-primary-button class="ms-3">
-                {{ __('Log in') }}
-            </x-primary-button>
         </div>
+
+        <x-ui.button type="submit" size="lg" class="w-full" loading="login">Giriş yap</x-ui.button>
 
         @if (Route::has('register'))
-            <p class="mt-6 text-center text-sm text-gray-600 dark:text-gray-400">
-                {{ __('Hesabın yok mu?') }}
-                <a href="{{ route('register') }}" wire:navigate class="font-semibold text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300">
-                    {{ __('Kayıt ol') }}
-                </a>
+            <p class="pt-2 text-center text-sm text-slate-500 dark:text-slate-400">
+                Hesabınız yok mu?
+                <a href="{{ route('register') }}" wire:navigate class="font-semibold text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300">Ücretsiz kayıt olun</a>
             </p>
         @endif
     </form>

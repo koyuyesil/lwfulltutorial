@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class BoardId extends Model
 {
+    use \App\Models\Concerns\Trashable;
     use HasFactory;
 
     protected $fillable = [

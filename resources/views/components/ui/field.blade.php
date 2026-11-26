@@ -12,7 +12,7 @@
         {{ $slot }}
     </div>
     @if ($error && $errors->has($error))
-        <p class="mt-1 text-xs font-medium text-rose-600 dark:text-rose-400">{{ $errors->first($error) }}</p>
+        <p class="mt-1 text-xs font-medium text-rose-600 dark:text-rose-400" data-field-error role="alert">{{ $errors->first($error) }}</p>
     @elseif ($hint)
         <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">{{ $hint }}</p>
     @endif

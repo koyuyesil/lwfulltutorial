@@ -12,6 +12,7 @@ use Livewire\WithPagination;
 
 class ProductsList extends Component
 {
+    use \App\Livewire\Concerns\UndoableDelete;
     use WithPagination;
 
     #[Url(as: 'ara', except: '')]
@@ -56,11 +57,7 @@ class ProductsList extends Component
 
     public function delete(int $id)
     {
-        $product = Auth::user()->products()->findOrFail($id);
-        $name = $product->display_name;
-        $product->delete();
-
-        $this->dispatch('toast', message: "{$name} silindi.");
+        $this->trashWithUndo(Auth::user()->products()->findOrFail($id));
     }
 
     protected function query(): Builder

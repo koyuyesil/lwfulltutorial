@@ -47,8 +47,7 @@ new class extends Component
             ],
             'Araçlar' => [
                 ['route' => 'tools.index', 'match' => 'tools.index', 'label' => 'Hesaplayıcılar', 'icon' => 'M15.75 15.75V18m-7.5-6.75h.008v.008H8.25v-.008Zm0 2.25h.008v.008H8.25V13.5Zm0 2.25h.008v.008H8.25v-.008Zm0 2.25h.008v.008H8.25V18Zm2.498-6.75h.007v.008h-.007v-.008Zm0 2.25h.007v.008h-.007V13.5Zm0 2.25h.007v.008h-.007v-.008Zm0 2.25h.007v.008h-.007V18Zm2.504-6.75h.008v.008h-.008v-.008Zm0 2.25h.008v.008h-.008V13.5Zm0 2.25h.008v.008h-.008v-.008Zm0 2.25h.008v.008h-.008V18Zm2.498-6.75h.008v.008h-.008v-.008Zm0 2.25h.008v.008h-.008V13.5ZM8.25 6h7.5v2.25h-7.5V6ZM12 2.25c-1.892 0-3.758.11-5.593.322C5.307 2.7 4.5 3.65 4.5 4.757V19.5a2.25 2.25 0 0 0 2.25 2.25h10.5a2.25 2.25 0 0 0 2.25-2.25V4.757c0-1.108-.806-2.057-1.907-2.185A48.507 48.507 0 0 0 12 2.25Z'],
-            ],
-            'Premium' => [
+                ['divider' => true],
                 ['route' => 'board-ids.index', 'match' => 'board-ids.*', 'label' => 'Board ID kütüphanesi', 'premium' => true, 'icon' => 'M8.25 3v1.5M4.5 8.25H3m18 0h-1.5M4.5 12H3m18 0h-1.5m-15 3.75H3m18 0h-1.5M8.25 19.5V21M12 3v1.5m0 15V21m3.75-18v1.5m0 15V21m-9-1.5h10.5a2.25 2.25 0 0 0 2.25-2.25V6.75a2.25 2.25 0 0 0-2.25-2.25H6.75A2.25 2.25 0 0 0 4.5 6.75v10.5a2.25 2.25 0 0 0 2.25 2.25Zm.75-12h9v9h-9v-9Z'],
                 ['route' => 'cross-reference.index', 'match' => 'cross-reference.*', 'label' => 'Çapraz referans', 'premium' => true, 'icon' => 'M7.5 21 3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5'],
             ],
@@ -81,13 +80,14 @@ new class extends Component
         <nav class="flex-1 space-y-6 overflow-y-auto overflow-x-hidden px-3 py-4 lg:group-data-[collapsed=true]/sb:space-y-3 lg:group-data-[collapsed=true]/sb:px-2" aria-label="Ana menü">
             @foreach ($this->groups() as $group => $items)
                 <div>
-                    <p @class(['flex items-center gap-1.5 px-3 text-[11px] font-bold uppercase tracking-[0.15em] lg:group-data-[collapsed=true]/sb:hidden', 'text-amber-300/90' => $group === 'Premium', 'text-slate-500' => $group !== 'Premium'])>
-                        @if ($group === 'Premium')<svg class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"><path d="M10 1.5l2.6 5.3 5.9.9-4.25 4.1 1 5.85L10 14.9l-5.25 2.75 1-5.85L1.5 7.7l5.9-.9L10 1.5Z"/></svg>@endif
-                        {{ $group }}
-                    </p>
-                    <div @class(['mx-2 hidden h-px lg:group-data-[collapsed=true]/sb:block', 'bg-amber-400/40' => $group === 'Premium', 'bg-white/10' => $group !== 'Premium']) aria-hidden="true"></div>
+                    <p class="px-3 text-[11px] font-bold uppercase tracking-[0.15em] text-slate-500 lg:group-data-[collapsed=true]/sb:hidden">{{ $group }}</p>
+                    <div class="mx-2 hidden h-px bg-white/10 lg:group-data-[collapsed=true]/sb:block" aria-hidden="true"></div>
                     <ul class="mt-2 space-y-0.5">
                         @foreach ($items as $item)
+                            @if (! empty($item['divider']))
+                                <li role="separator" aria-hidden="true" class="mx-3 my-2 h-px bg-white/10 lg:group-data-[collapsed=true]/sb:mx-2"></li>
+                                @continue
+                            @endif
                             @php $active = request()->routeIs($item['match']); @endphp
                             <li>
                                 <a href="{{ route($item['route']) }}" wire:navigate @click="sidebarOpen = false" title="{{ $item['label'] }}{{ ! empty($item['badge']) ? ' · '.$item['badgeTitle'] : '' }}"
