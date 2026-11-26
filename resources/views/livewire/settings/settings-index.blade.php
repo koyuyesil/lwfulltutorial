@@ -4,6 +4,7 @@
         'servis' => ['Servis kayıtları', 'SLA ve teslim hedefleri', 'M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z'],
         'musteriler' => ['Müşteriler', 'vCard ve CSV aktarımı', 'M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z'],
         'cihaz-modelleri' => ['Cihaz modelleri', 'İçe / dışa aktarma', 'M10.5 1.5H8.25A2.25 2.25 0 0 0 6 3.75v16.5a2.25 2.25 0 0 0 2.25 2.25h7.5A2.25 2.25 0 0 0 18 20.25V3.75a2.25 2.25 0 0 0-2.25-2.25H13.5m-3 0V3h3V1.5m-3 0h3m-3 18.75h3'],
+        'bildirimler' => ['Bildirimler', 'WhatsApp / SMS şablonları', 'M8.625 12a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H8.25m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H12m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 0 1-2.555-.337A5.972 5.972 0 0 1 5.41 20.97a5.969 5.969 0 0 1-.474-.065 4.48 4.48 0 0 0 .978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25Z'],
         'board-id' => ['Board ID kütüphanesi', 'CSV içe / dışa aktarma', 'M8.25 3v1.5M4.5 8.25H3m18 0h-1.5M4.5 12H3m18 0h-1.5m-15 3.75H3m18 0h-1.5M8.25 19.5V21M12 3v1.5m0 15V21m3.75-18v1.5m0 15V21m-9-1.5h10.5a2.25 2.25 0 0 0 2.25-2.25V6.75a2.25 2.25 0 0 0-2.25-2.25H6.75A2.25 2.25 0 0 0 4.5 6.75v10.5a2.25 2.25 0 0 0 2.25 2.25Zm.75-12h9v9h-9v-9Z'],
         'gorevler' => ['Görevler', 'Varsayılan saat ve hatırlatma', 'M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z'],
     ];
@@ -21,7 +22,8 @@
 
     <div class="mt-6 grid gap-6 lg:grid-cols-[240px_1fr]">
         {{-- Sekmeler --}}
-        <nav class="flex gap-1 overflow-x-auto lg:flex-col" aria-label="Ayar bölümleri">
+        <nav aria-label="Ayar bölümleri" class="min-w-0 lg:self-start">
+            <x-scroll-row track="gap-1 lg:flex-col lg:overflow-visible">
             @foreach ($tabs as $key => [$label, $hint, $icon])
                 <a href="{{ route('settings', $key) }}" wire:navigate @if ($tab === $key) aria-current="page" @endif
                     @class(['flex shrink-0 items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition',
@@ -34,27 +36,13 @@
                     </span>
                 </a>
             @endforeach
+            </x-scroll-row>
         </nav>
 
         <div class="min-w-0 space-y-6">
             @switch($tab)
                 @case('genel')
-                    <form wire:submit="saveGeneral" class="{{ $card }}">
-                        <h3 class="font-bold text-slate-900 dark:text-white">Firma bilgileri</h3>
-                        <p class="mt-1 text-sm text-slate-500">Müşterinin arıza takip sayfasında ve servis fişlerinde görünür.</p>
-                        <div class="mt-6 grid gap-4 sm:grid-cols-2">
-                            <x-ui.field label="Firma adı" for="s-company" error="companyName" :hint="'Boş bırakılırsa: ' . auth()->user()->name" class="sm:col-span-2">
-                                <x-ui.input id="s-company" wire:model="companyName" placeholder="Örn. KoyuMavi Teknik Servis" />
-                            </x-ui.field>
-                            <x-ui.field label="Telefon" for="s-phone" error="companyPhone" optional>
-                                <x-ui.input id="s-phone" type="tel" wire:model="companyPhone" />
-                            </x-ui.field>
-                            <x-ui.field label="Adres" for="s-address" error="companyAddress" optional>
-                                <x-ui.input id="s-address" wire:model="companyAddress" />
-                            </x-ui.field>
-                        </div>
-                        <div class="mt-6 flex justify-end"><button class="{{ $saveBtn }}" wire:loading.attr="disabled">Kaydet</button></div>
-                    </form>
+                    <livewire:profile.business-info-form />
                     @break
 
                 @case('servis')
@@ -76,6 +64,54 @@
                             <button type="button" wire:click="resetSla" class="text-sm font-semibold text-slate-500 hover:text-slate-800 dark:hover:text-white">Varsayılana dön (24 / 72 / 120)</button>
                             <button class="{{ $saveBtn }}" wire:loading.attr="disabled">Kaydet</button>
                         </div>
+                    </form>
+
+                    <form wire:submit="saveTechnicians" class="{{ $card }}">
+                        <h3 class="font-bold text-slate-900 dark:text-white">Teknisyenler</h3>
+                        <p class="mt-1 text-sm text-slate-500">Servis kayıtları teknisyene atanır; iş panosunda teknisyen başına iş yükü görünür. Kartı teknisyenin üzerine sürükleyerek de atayabilirsiniz.</p>
+                        <div class="mt-4 flex flex-wrap gap-2">
+                            @foreach ($technicians as $i => $tech)
+                                <span wire:key="tech-{{ $i }}" class="inline-flex items-center gap-2 rounded-full bg-slate-100 py-1 pl-1 pr-2 text-sm font-semibold text-slate-700 dark:bg-white/10 dark:text-slate-200">
+                                    <span class="grid h-6 w-6 place-items-center rounded-full bg-indigo-600 text-[10px] font-bold text-white">{{ mb_strtoupper(mb_substr($tech, 0, 1)) }}</span>
+                                    {{ $tech }}
+                                    <button type="button" wire:click="removeTechnician({{ $i }})" class="text-slate-400 hover:text-rose-600" aria-label="{{ $tech }} kaldır">✕</button>
+                                </span>
+                            @endforeach
+                            @if (empty($technicians)) <p class="text-sm text-slate-400">Henüz teknisyen eklenmedi.</p> @endif
+                        </div>
+                        <div class="mt-4 flex max-w-md gap-2">
+                            <x-ui.input wire:model="newTechnician" placeholder="Ad Soyad" wire:keydown.enter.prevent="addTechnician" />
+                            <button type="button" wire:click="addTechnician" class="shrink-0 rounded-lg bg-slate-900 px-4 text-sm font-semibold text-white hover:bg-slate-700 dark:bg-white dark:text-slate-900">Ekle</button>
+                        </div>
+                        @error('newTechnician') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
+                    </form>
+                    @break
+
+                @case('bildirimler')
+                    <form wire:submit="saveTemplates" class="{{ $card }}">
+                        <h3 class="font-bold text-slate-900 dark:text-white">Müşteri bildirim şablonları</h3>
+                        <p class="mt-1 text-sm text-slate-500">Servis kaydında "Müşteriyi bilgilendir" bölümünde duruma göre hazır gelir; WhatsApp, SMS ya da e-postayla tek tıkla gönderilir.</p>
+                        <div class="mt-4 flex flex-wrap gap-1.5">
+                            @foreach (\App\Support\NotificationTemplates::PLACEHOLDERS as $ph => $desc)
+                                <span class="rounded-md bg-indigo-50 px-2 py-1 font-mono text-[11px] text-indigo-700 dark:bg-indigo-500/10 dark:text-indigo-300" title="{{ $desc }}">{{ $ph }} <span class="font-sans text-indigo-400">· {{ $desc }}</span></span>
+                            @endforeach
+                        </div>
+                        <div class="mt-6 space-y-5">
+                            @foreach (\App\Enums\TicketStatus::cases() as $s)
+                                <div wire:key="tpl-{{ $s->value }}">
+                                    <div class="flex items-center justify-between">
+                                        <label for="tpl-{{ $s->value }}" class="inline-flex items-center gap-2 text-sm font-semibold text-slate-800 dark:text-slate-100">
+                                            <span class="h-2.5 w-2.5 rounded-full {{ $s->bar() }}"></span>{{ $s->label() }}
+                                        </label>
+                                        <button type="button" wire:click="resetTemplate('{{ $s->value }}')" class="text-xs font-semibold text-slate-400 hover:text-slate-700 dark:hover:text-white">Varsayılan</button>
+                                    </div>
+                                    <textarea id="tpl-{{ $s->value }}" wire:model="templates.{{ $s->value }}" rows="3"
+                                        class="mt-1.5 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-indigo-600 dark:bg-slate-950 dark:text-white dark:ring-white/10"></textarea>
+                                    @error('templates.'.$s->value) <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
+                                </div>
+                            @endforeach
+                        </div>
+                        <div class="mt-6 flex justify-end"><button class="{{ $saveBtn }}" wire:loading.attr="disabled">Kaydet</button></div>
                     </form>
                     @break
 

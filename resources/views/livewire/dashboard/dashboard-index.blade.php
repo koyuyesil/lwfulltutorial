@@ -73,8 +73,8 @@
         </section>
     </div>
 
-    {{-- Teknisyen + marka + stok --}}
-    <div class="grid gap-6 xl:grid-cols-3">
+    {{-- Teknisyen + marka + stok + memnuniyet --}}
+    <div class="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
         <section class="{{ $card }}">
             <header>
                 <h3 class="font-bold text-slate-900 dark:text-white">Teknisyen performansı</h3>
@@ -93,18 +93,68 @@
             <header class="flex items-start justify-between gap-2">
                 <div>
                     <h3 class="font-bold text-slate-900 dark:text-white">Kritik stok seviyeleri</h3>
-                    <p class="text-xs text-slate-500">Yedek parça stoğu</p>
+                    <p class="text-xs text-slate-500">Minimum seviyenin altındaki parçalar</p>
                 </div>
-                <span class="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-bold uppercase text-slate-600 dark:bg-white/10 dark:text-slate-300">Yakında</span>
+                <a href="{{ route('parts.index', ['stok' => 'low']) }}" wire:navigate class="text-xs font-semibold text-indigo-600 dark:text-indigo-300">Tümü →</a>
             </header>
-            <div class="mt-4 flex flex-1 flex-col items-center justify-center rounded-xl border border-dashed border-slate-300 p-6 text-center dark:border-white/15">
-                <svg class="h-10 w-10 text-slate-300 dark:text-slate-600" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m20.25 7.5-.625 10.632a2.25 2.25 0 0 1-2.247 2.118H6.622a2.25 2.25 0 0 1-2.247-2.118L3.75 7.5m8.25 3v6.75m0 0-3-3m3 3 3-3M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125Z" /></svg>
-                <p class="mt-3 text-sm font-semibold text-slate-700 dark:text-slate-200">Parça stoğu modülü henüz etkin değil</p>
-                <p class="mt-1 text-xs text-slate-500">Etkinleştirildiğinde minimum seviyenin altına düşen parçalar burada listelenecek.</p>
-            </div>
+            @if ($lowParts->isEmpty())
+                <div class="mt-4 flex flex-1 flex-col items-center justify-center rounded-xl border border-dashed border-slate-300 p-6 text-center dark:border-white/15">
+                    <p class="text-3xl">{{ $partsCount ? '✅' : '🧩' }}</p>
+                    <p class="mt-2 text-sm font-semibold text-slate-700 dark:text-slate-200">{{ $partsCount ? 'Tüm stoklar yeterli' : 'Henüz parça eklenmedi' }}</p>
+                    @unless ($partsCount)
+                        <a href="{{ route('parts.index') }}" wire:navigate class="mt-2 text-xs font-semibold text-indigo-600">Parça kataloğunu oluştur →</a>
+                    @endunless
+                </div>
+            @else
+                <ul class="mt-3 space-y-2">
+                    @foreach ($lowParts as $part)
+                        <li class="flex items-center gap-3">
+                            <span @class(['grid h-9 w-9 shrink-0 place-items-center rounded-lg font-mono text-sm font-black',
+                                'bg-rose-100 text-rose-700 dark:bg-rose-500/15 dark:text-rose-300' => $part->stock <= 0,
+                                'bg-amber-100 text-amber-800 dark:bg-amber-500/15 dark:text-amber-300' => $part->stock > 0])>{{ $part->stock }}</span>
+                            <div class="min-w-0 flex-1">
+                                <p class="truncate text-sm font-semibold text-slate-900 dark:text-white">{{ $part->name }}</p>
+                                <div class="mt-1 h-1.5 overflow-hidden rounded-full bg-slate-100 dark:bg-white/10">
+                                    <div class="h-full rounded-full {{ $part->stock <= 0 ? 'bg-rose-500' : 'bg-amber-400' }}" style="width: {{ $part->min_stock ? max(4, min(100, $part->stock / $part->min_stock * 100)) : 4 }}%"></div>
+                                </div>
+                            </div>
+                            <span class="shrink-0 text-[11px] text-slate-500">min {{ $part->min_stock }}</span>
+                        </li>
+                    @endforeach
+                </ul>
+            @endif
+        </section>
+        <section class="{{ $card }} flex flex-col">
+            <header>
+                <h3 class="font-bold text-slate-900 dark:text-white">Müşteri memnuniyeti (NPS)</h3>
+                <p class="text-xs text-slate-500">Son 90 gün · teslim sonrası anket</p>
+            </header>
+            @if ($nps['count'])
+                <div class="mt-3 flex items-end gap-3">
+                    <p @class(['text-5xl font-black tracking-tight', 'text-emerald-600' => $nps['score'] >= 50, 'text-amber-500' => $nps['score'] >= 0 && $nps['score'] < 50, 'text-rose-600' => $nps['score'] < 0])>{{ $nps['score'] > 0 ? '+' : '' }}{{ $nps['score'] }}</p>
+                    <p class="pb-1 text-xs text-slate-500">{{ $nps['count'] }} yanıt · ort. {{ number_format($nps['avg'], 1, ',', '') }}/10</p>
+                </div>
+                <div class="mt-3 flex h-2.5 overflow-hidden rounded-full">
+                    <span class="bg-emerald-500" style="width: {{ $nps['promoters'] / $nps['count'] * 100 }}%" title="Destekçi"></span>
+                    <span class="bg-amber-400" style="width: {{ $nps['passives'] / $nps['count'] * 100 }}%" title="Pasif"></span>
+                    <span class="bg-rose-500" style="width: {{ $nps['detractors'] / $nps['count'] * 100 }}%" title="Eleştirmen"></span>
+                </div>
+                <div class="mt-1 flex justify-between text-[11px] text-slate-500"><span>😊 {{ $nps['promoters'] }}</span><span>😐 {{ $nps['passives'] }}</span><span>☹️ {{ $nps['detractors'] }}</span></div>
+                @foreach ($nps['comments'] as $t)
+                    <a href="{{ route('tickets.show', $t) }}" wire:navigate class="mt-2 block rounded-lg bg-slate-50 px-3 py-2 text-xs text-slate-700 hover:bg-slate-100 dark:bg-white/5 dark:text-slate-200 dark:hover:bg-white/10">
+                        <span class="font-bold">{{ $t->survey_score }}/10</span> “{{ \Illuminate\Support\Str::limit($t->survey_comment, 90) }}”
+                        <span class="text-slate-400">— {{ $t->clientProduct?->client?->first_name }}</span>
+                    </a>
+                @endforeach
+            @else
+                <div class="mt-4 flex flex-1 flex-col items-center justify-center rounded-xl border border-dashed border-slate-300 p-6 text-center dark:border-white/15">
+                    <p class="text-3xl">⭐</p>
+                    <p class="mt-2 text-sm font-semibold text-slate-700 dark:text-slate-200">Henüz anket yanıtı yok</p>
+                    <p class="mt-1 text-xs text-slate-500">Teslim bildiriminde {anket} bağlantısı otomatik gider.</p>
+                </div>
+            @endif
         </section>
     </div>
-
     {{-- Acil işler + son hareketler --}}
     <div class="grid gap-6 xl:grid-cols-5">
         <section class="{{ $card }} xl:col-span-3">
@@ -157,7 +207,7 @@
                                     @case('status_changed') durumu <strong>{{ $event->to_status?->label() }}</strong> yaptı @break
                                     @default not ekledi
                                 @endswitch
-                                <a href="{{ route('tickets.show', $event->ticket_id) }}" wire:navigate class="font-mono text-xs text-indigo-600 dark:text-indigo-400">{{ $event->ticket?->tracking_code }}</a>
+                                @if ($event->ticket)<x-copy-code :code="$event->ticket->tracking_code" :href="route('tickets.show', $event->ticket_id)" class="text-xs" text-class="text-indigo-600 dark:text-indigo-400" />@endif
                             </p>
                             @if ($event->note)
                                 <p class="truncate text-xs text-slate-500">{{ $event->note }}</p>

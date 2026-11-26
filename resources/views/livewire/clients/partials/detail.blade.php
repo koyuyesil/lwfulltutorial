@@ -134,7 +134,7 @@
                     <a href="{{ route('tickets.show', $ticket) }}" wire:navigate class="-mx-2 flex items-center gap-3 rounded-lg px-2 py-2.5 hover:bg-slate-50 dark:hover:bg-white/5">
                         <div class="min-w-0 flex-1">
                             <p class="truncate text-sm font-medium text-slate-900 dark:text-white">{{ $ticket->problem }}</p>
-                            <p class="font-mono text-xs text-slate-500">{{ $ticket->tracking_code }} · {{ $ticket->created_at->format('d.m.Y') }}</p>
+                            <p class="text-xs text-slate-500"><x-copy-code :code="$ticket->tracking_code" plain text-class="text-slate-500" /> · {{ $ticket->created_at->format('d.m.Y') }}</p>
                         </div>
                         <span class="shrink-0 rounded-full px-2 py-0.5 text-[11px] font-semibold ring-1 {{ $ticket->status->badge() }}">{{ $ticket->status->label() }}</span>
                     </a>

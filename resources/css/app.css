@@ -2,6 +2,9 @@
 
 @plugin '@tailwindcss/forms';
 
+/* Koyu mod: <html class="dark"> ile (tema seçici: sisteme göre / açık / koyu — resources/views/partials/theme-head) */
+@custom-variant dark (&:where(.dark, .dark *));
+
 /* Tailwind'in sınıf taradığı yerler (v3'teki tailwind.config.js "content" listesi) */
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';

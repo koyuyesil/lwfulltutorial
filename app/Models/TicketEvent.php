@@ -12,6 +12,12 @@ class TicketEvent extends Model
     public const TYPE_STATUS_CHANGED = 'status_changed';
     public const TYPE_NOTE = 'note';
 
+    public const TYPE_QUOTE = 'quote';
+
+    public const TYPE_NOTIFIED = 'notified';
+
+    public const TYPE_INTAKE = 'intake';
+
     protected $fillable = ['ticket_id', 'user_id', 'type', 'from_status', 'to_status', 'note', 'is_public'];
 
     protected $casts = [

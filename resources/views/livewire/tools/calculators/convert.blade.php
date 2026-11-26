@@ -1,11 +1,11 @@
 <div x-data="unitConverter" class="space-y-5">
-    <div class="-mx-1 flex gap-1.5 overflow-x-auto px-1 pb-1 [scrollbar-width:thin]">
+    <x-scroll-row track="gap-1.5 py-0.5" label="Birim kategorisi">
         <template x-for="(c, key) in categories" :key="key">
-            <button type="button" @click="setCat(key)"
+            <button type="button" @click="setCat(key)" :aria-pressed="cat === key ? 'true' : 'false'"
                 :class="cat === key ? 'bg-slate-900 text-white shadow-md dark:bg-white dark:text-slate-900' : 'bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-white/10 dark:text-slate-300'"
                 class="shrink-0 rounded-full px-3 py-1.5 text-xs font-semibold transition" x-text="c.label"></button>
         </template>
-    </div>
+    </x-scroll-row>
 
     <x-calc.stage>
         <div class="grid items-center gap-4 md:grid-cols-[1fr_auto_1fr]">

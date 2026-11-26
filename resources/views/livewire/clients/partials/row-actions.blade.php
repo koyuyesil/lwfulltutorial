@@ -1,6 +1,6 @@
 <div class="relative inline-flex items-center gap-1" x-data="{ menu: false }" @click.outside="menu = false" @keydown.escape="menu = false">
     <a href="{{ route('tickets.index', ['yeni' => 1, 'musteri' => $client->id]) }}" wire:navigate
-        class="hidden rounded-lg px-2.5 py-1.5 text-xs font-semibold text-indigo-600 ring-1 ring-indigo-200 transition hover:bg-indigo-50 sm:inline-flex dark:text-indigo-300 dark:ring-indigo-500/30 dark:hover:bg-indigo-500/10"
+        class="hidden whitespace-nowrap rounded-lg px-2.5 py-1.5 text-xs font-semibold text-indigo-600 ring-1 ring-indigo-200 transition hover:bg-indigo-50 sm:inline-flex dark:text-indigo-300 dark:ring-indigo-500/30 dark:hover:bg-indigo-500/10"
         title="Bu müşteri için servis kaydı aç">+ Servis</a>
     <button type="button" @click="menu = ! menu" :aria-expanded="menu" aria-haspopup="menu" aria-label="Diğer işlemler"
         class="rounded-lg p-1.5 text-slate-400 transition hover:bg-slate-100 hover:text-slate-700 dark:hover:bg-white/10 dark:hover:text-white">

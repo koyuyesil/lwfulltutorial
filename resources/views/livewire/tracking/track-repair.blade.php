@@ -71,7 +71,7 @@
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 px-6 py-4 dark:border-white/5">
                     <div>
                         <p class="text-xs text-slate-500">Takip kodu</p>
-                        <p class="font-mono text-lg font-bold">{{ $ticket->tracking_code }}</p>
+                        <p class="text-lg"><x-copy-code :code="$ticket->tracking_code" text-class="font-bold" /></p>
                     </div>
                     <span class="rounded-full px-3 py-1 text-sm font-semibold ring-1 {{ $status->badge() }}">{{ $status->label() }}</span>
                 </div>
@@ -96,7 +96,59 @@
                                 </li>
                             @endforeach
                         </ol>
-                        <p class="mt-6 text-lg font-semibold text-slate-900 dark:text-white">{{ $customerMessage($status) }}</p>
+                        <p class="mt-6 text-lg font-semibold text-slate-900 dark:text-white">
+                            {{ $ticket->quote_status === 'pending' ? 'İnceleme tamamlandı. Aşağıdaki onarım teklifini onaylamanızı bekliyoruz.' : $customerMessage($status) }}
+                        </p>
+                    @endif
+
+                    {{-- Onarım teklifi --}}
+                    @if ($ticket->quote_status && $ticket->items->isNotEmpty())
+                        @php $money = fn ($v) => \App\Models\Ticket::money((float) $v); @endphp
+                        <div @class(['mt-6 overflow-hidden rounded-2xl ring-2',
+                            'ring-amber-400' => $ticket->quote_status === 'pending',
+                            'ring-emerald-400' => $ticket->quote_status === 'approved',
+                            'ring-rose-300' => $ticket->quote_status === 'rejected'])>
+                            <div @class(['flex items-center justify-between px-4 py-3',
+                                'bg-amber-50 dark:bg-amber-500/10' => $ticket->quote_status === 'pending',
+                                'bg-emerald-50 dark:bg-emerald-500/10' => $ticket->quote_status === 'approved',
+                                'bg-rose-50 dark:bg-rose-500/10' => $ticket->quote_status === 'rejected'])>
+                                <p class="font-bold text-slate-900 dark:text-white">Onarım teklifi</p>
+                                <p class="text-sm font-semibold">
+                                    @if ($ticket->quote_status === 'pending') <span class="text-amber-700 dark:text-amber-300">Onayınızı bekliyor</span>
+                                    @elseif ($ticket->quote_status === 'approved') <span class="text-emerald-700 dark:text-emerald-300">✓ Onaylandı · {{ $ticket->quote_decided_at->format('d.m.Y H:i') }}</span>
+                                    @else <span class="text-rose-700 dark:text-rose-300">Reddedildi</span>
+                                    @endif
+                                </p>
+                            </div>
+                            <table class="w-full text-sm">
+                                <tbody class="divide-y divide-slate-100 dark:divide-white/5">
+                                    @foreach ($ticket->items as $item)
+                                        <tr>
+                                            <td class="px-4 py-2 text-slate-700 dark:text-slate-200">{{ $item->name }} @if ($item->qty > 1)<span class="text-slate-400">× {{ $item->qty }}</span>@endif</td>
+                                            <td class="px-4 py-2 text-right font-mono">{{ $money($item->total()) }}</td>
+                                        </tr>
+                                    @endforeach
+                                    <tr class="bg-slate-50 dark:bg-white/5">
+                                        <td class="px-4 py-3 font-bold">Toplam (KDV dahil)</td>
+                                        <td class="px-4 py-3 text-right font-mono text-lg font-black">{{ $money($ticket->quote_total) }}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            @if ($ticket->quote_status === 'pending')
+                                <div class="space-y-3 border-t border-slate-100 p-4 dark:border-white/5">
+                                    <textarea wire:model="quoteNote" rows="2" placeholder="Servise notunuz (isteğe bağlı)…"
+                                        class="block w-full rounded-xl border-slate-300 text-sm focus:border-emerald-500 focus:ring-emerald-500 dark:border-white/10 dark:bg-slate-950"></textarea>
+                                    @error('quote') <p class="text-sm text-rose-600">{{ $message }}</p> @enderror
+                                    <div class="grid gap-2 sm:grid-cols-2">
+                                        <button type="button" wire:click="decideQuote(true)" wire:confirm="{{ $money($ticket->quote_total) }} tutarındaki onarım teklifini onaylıyor musunuz?"
+                                            class="rounded-xl bg-emerald-600 px-4 py-3 font-semibold text-white shadow-lg shadow-emerald-600/20 hover:bg-emerald-700">✓ Teklifi onayla, onarıma başlansın</button>
+                                        <button type="button" wire:click="decideQuote(false)" wire:confirm="Teklifi reddetmek istediğinize emin misiniz? Cihazınız onarılmadan iade edilir."
+                                            class="rounded-xl px-4 py-3 font-semibold text-rose-700 ring-1 ring-rose-200 hover:bg-rose-50 dark:text-rose-300 dark:ring-rose-500/30 dark:hover:bg-rose-500/10">Reddet</button>
+                                    </div>
+                                    <p class="text-center text-xs text-slate-500">Onayınız tarih ve saatiyle kayıt altına alınır.</p>
+                                </div>
+                            @endif
+                        </div>
                     @endif
 
                     <dl class="mt-6 grid gap-4 rounded-xl bg-slate-50 p-4 text-sm sm:grid-cols-3 dark:bg-white/5">
@@ -132,6 +184,7 @@
                                     <p class="font-medium text-slate-900 dark:text-white">
                                         @if ($event->type === 'created') Servis kaydı oluşturuldu
                                         @elseif ($event->to_status) {{ $event->to_status->label() }}
+                                        @elseif ($event->type === 'quote') Onarım teklifi
                                         @else Servis notu
                                         @endif
                                     </p>
@@ -145,7 +198,17 @@
                 </div>
 
                 <div class="flex flex-wrap items-center justify-between gap-3 border-t border-slate-100 bg-slate-50 px-6 py-4 text-sm dark:border-white/5 dark:bg-white/5">
-                    <p class="text-slate-600 dark:text-slate-300">Servis: <strong>{{ $ticket->user->companyName() }}</strong></p>
+                    @php $company = \App\Support\Company::for($ticket->user); @endphp
+                    <div class="flex min-w-0 items-center gap-3">
+                        @if ($company['logo'])<img src="{{ $company['logo'] }}" alt="" class="h-9 w-9 shrink-0 rounded-lg bg-white object-contain p-0.5 ring-1 ring-slate-200 dark:ring-white/10">@endif
+                        <div class="min-w-0 text-slate-600 dark:text-slate-300">
+                            <p>Servis: <strong>{{ $company['name'] }}</strong></p>
+                            <p class="truncate text-xs text-slate-500">
+                                @if ($company['phone'])<a href="tel:{{ preg_replace('/[^\d+]/', '', $company['phone']) }}" class="font-semibold text-emerald-700 dark:text-emerald-400">{{ $company['phone'] }}</a>@endif
+                                {{ \App\Support\Company::addressLine($company) ? ' · '.\App\Support\Company::addressLine($company) : '' }}
+                            </p>
+                        </div>
+                    </div>
                     <button type="button" wire:click="resetSearch" class="font-semibold text-emerald-700 hover:text-emerald-900 dark:text-emerald-400">Başka kayıt sorgula</button>
                 </div>
             </div>

@@ -46,6 +46,9 @@ class DashboardIndex extends Component
             'statusChart' => $this->statusChart($user),
             'technicianChart' => $this->technicianChart($user),
             'brandChart' => $this->brandChart($user),
+            'lowParts' => $user->parts()->low()->orderBy('stock')->limit(6)->get(),
+            'partsCount' => $user->parts()->count(),
+            'nps' => $this->nps($user),
             'urgent' => $tickets()->open()->with('clientProduct.client', 'clientProduct.product')
                 ->orderBy('due_at')->limit(6)->get(),
             'activity' => TicketEvent::query()
@@ -110,6 +113,29 @@ class DashboardIndex extends Component
     /** Son 30 günde teknisyenlerin tamamladığı (teslime hazır / teslim) adımlar ve toplam işlem sayısı. */
     protected function technicianChart(User $user): array
     {
+        // Teknisyen ataması yapılıyorsa: atanan teknisyene göre son 30 günde teslim edilen ve açık iş yükü
+        if ($user->tickets()->whereNotNull('technician')->exists()) {
+            $rows = $user->tickets()->whereNotNull('technician')
+                ->where(fn ($q) => $q->open()->orWhere('closed_at', '>=', now()->subDays(30)))
+                ->get(['id', 'technician', 'status', 'closed_at'])
+                ->groupBy('technician')->map(fn ($t, $name) => [
+                    'name' => $name,
+                    'done' => $t->filter(fn ($x) => $x->status === TicketStatus::DELIVERED)->count(),
+                    'open' => $t->filter(fn ($x) => ! $x->status->isClosed())->count(),
+                ])->sortByDesc('done')->take(8)->values();
+
+            return [
+                'chart' => ['type' => 'bar', 'height' => max(200, 70 + $rows->count() * 48)],
+                'series' => [
+                    ['name' => 'Teslim (30 gün)', 'data' => $rows->pluck('done')->all()],
+                    ['name' => 'Açık iş yükü', 'data' => $rows->pluck('open')->all()],
+                ],
+                'xaxis' => ['categories' => $rows->pluck('name')->all()],
+                'plotOptions' => ['bar' => ['horizontal' => true, 'borderRadius' => 4, 'barHeight' => '60%']],
+                'colors' => ['#10b981', '#818cf8'],
+            ];
+        }
+
         $events = TicketEvent::query()
             ->whereHas('ticket', fn ($q) => $q->where('user_id', $user->id))
             ->where('created_at', '>=', now()->subDays(30))
@@ -132,6 +158,24 @@ class DashboardIndex extends Component
             'xaxis' => ['categories' => $byUser->pluck('name')->all()],
             'plotOptions' => ['bar' => ['horizontal' => true, 'borderRadius' => 4, 'barHeight' => '60%']],
             'colors' => ['#10b981', '#c7d2fe'],
+        ];
+    }
+
+    /** Son 90 günün memnuniyet anketi: NPS = %destekçi (9–10) − %eleştirmen (0–6) */
+    protected function nps(User $user): array
+    {
+        $rows = $user->tickets()->whereNotNull('survey_score')->where('survey_at', '>=', now()->subDays(90))
+            ->with('clientProduct.client:id,first_name,last_name')->latest('survey_at')->get(['id', 'client_product_id', 'survey_score', 'survey_comment', 'survey_at', 'tracking_code']);
+        $n = $rows->count();
+        $promoters = $rows->where('survey_score', '>=', 9)->count();
+        $detractors = $rows->where('survey_score', '<=', 6)->count();
+
+        return [
+            'count' => $n,
+            'score' => $n ? (int) round(($promoters - $detractors) / $n * 100) : null,
+            'avg' => $n ? round($rows->avg('survey_score'), 1) : null,
+            'promoters' => $promoters, 'passives' => $n - $promoters - $detractors, 'detractors' => $detractors,
+            'comments' => $rows->filter(fn ($t) => $t->survey_comment)->take(3)->values(),
         ];
     }
 

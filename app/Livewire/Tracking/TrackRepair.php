@@ -64,6 +64,23 @@ class TrackRepair extends Component
         $this->code = $ticket->tracking_code;
     }
 
+    public string $quoteNote = '';
+
+    /** Müşteri teklifi onaylar / reddeder (kayıt yalnızca kod + telefon doğrulamasından sonra açılır). */
+    public function decideQuote(bool $approved): void
+    {
+        $ticket = $this->ticketId ? Ticket::find($this->ticketId) : null;
+        if (! $ticket || $ticket->quote_status !== Ticket::QUOTE_PENDING) {
+            $this->addError('quote', 'Bu teklif için karar zaten verilmiş.');
+
+            return;
+        }
+
+        $this->validate(['quoteNote' => 'nullable|string|max:500']);
+        $ticket->decideQuote($approved, 'customer', trim($this->quoteNote) ?: null, request()->ip());
+        $this->quoteNote = '';
+    }
+
     public function resetSearch(): void
     {
         $this->reset('code', 'phoneLast4', 'ticketId');
@@ -75,6 +92,7 @@ class TrackRepair extends Component
             ? Ticket::with([
                 'clientProduct.product',
                 'user',
+                'items',
                 'events' => fn ($q) => $q->where('is_public', true),
             ])->find($this->ticketId)
             : null;

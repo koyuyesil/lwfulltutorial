@@ -2,8 +2,8 @@
 // Kullanım: <div x-data="apexChart(@js($options))"></div>
 // Kütüphane yalnızca grafik içeren sayfalarda (dinamik import) yüklenir.
 
-const isDark = () => window.matchMedia('(prefers-color-scheme: dark)').matches
-    || document.documentElement.classList.contains('dark');
+// Tema <html class="dark"> ile belirlenir (sisteme göre / açık / koyu seçimi)
+const isDark = () => document.documentElement.classList.contains('dark');
 
 const isPlainObject = (v) => v && typeof v === 'object' && !Array.isArray(v);
 
@@ -47,9 +47,16 @@ export function registerCharts(Alpine) {
             const { default: ApexCharts } = await import('apexcharts');
             this.chart = new ApexCharts(this.$el, merge(baseOptions(), options));
             await this.chart.render();
+            // Tema değişince grafik renklerini güncelle
+            this._onTheme = () => {
+                const b = baseOptions();
+                this.chart?.updateOptions({ chart: { foreColor: b.chart.foreColor }, theme: b.theme, grid: b.grid, tooltip: b.tooltip }, false, false);
+            };
+            window.addEventListener('theme-changed', this._onTheme);
         },
 
         destroy() {
+            window.removeEventListener('theme-changed', this._onTheme);
             this.chart?.destroy();
             this.chart = null;
         },

@@ -67,6 +67,22 @@ class User extends Authenticatable
         return $this->hasMany(Ticket::class);
     }
 
+    public function components(): HasMany
+    {
+        return $this->hasMany(Component::class);
+    }
+
+    public function parts(): HasMany
+    {
+        return $this->hasMany(Part::class);
+    }
+
+    /** Ayarlardaki teknisyen listesi */
+    public function technicians(): array
+    {
+        return array_values(array_filter(array_map('trim', (array) $this->setting('tickets.technicians', []))));
+    }
+
     public function boardIds()
     {
         return $this->hasMany(BoardId::class);

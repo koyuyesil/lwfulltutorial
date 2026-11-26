@@ -1,13 +1,10 @@
 import './bootstrap';
-import { printTicket, downloadTicketPdf } from './ticket-print';
 import { registerCharts } from './charts';
 import { registerCalculators } from './calculators';
 import { registerQr } from './qr';
 import { registerBoardPcb } from './board-pcb';
-
-// Blade şablonlarından (Alpine @click) erişilebilmesi için global yap
-window.printTicket = printTicket;
-window.downloadTicketPdf = downloadTicketPdf;
+import { registerUi } from './ui';
+import { registerIntake } from './intake';
 
 // Livewire'ın paketlediği Alpine başlamadan önce bileşenleri kaydet
 const register = (Alpine) => {
@@ -15,6 +12,8 @@ const register = (Alpine) => {
     registerCalculators(Alpine);
     registerQr(Alpine);
     registerBoardPcb(Alpine);
+    registerUi(Alpine);
+    registerIntake(Alpine);
 };
 
 if (window.Alpine) {

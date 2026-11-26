@@ -27,7 +27,12 @@ class Ticket extends Model
     /** Kalan süre toplam sürenin bu oranının altına inince "riskli" sayılır. */
     public const SLA_WARNING_RATIO = 0.25;
 
-    protected $fillable = ['user_id', 'client_product_id', 'problem', 'priority', 'status', 'due_at'];
+    protected $fillable = [
+        'user_id', 'client_product_id', 'problem', 'priority', 'status', 'due_at', 'technician',
+        'intake', 'lock_type', 'lock_secret', 'signature', 'signed_at',
+    ];
+
+    protected $hidden = ['lock_secret', 'signature'];
 
     // Veritabanından gelen verileri tipine dönüştür
     protected $casts = [
@@ -36,7 +41,26 @@ class Ticket extends Model
         'due_at' => 'datetime',
         'status_changed_at' => 'datetime',
         'closed_at' => 'datetime',
+        'intake' => 'array',
+        'lock_secret' => 'encrypted',
+        'signed_at' => 'datetime',
+        'quote_total' => 'decimal:2',
+        'quote_sent_at' => 'datetime',
+        'quote_decided_at' => 'datetime',
+        'survey_score' => 'integer',
+        'survey_at' => 'datetime',
     ];
+
+    public const QUOTE_PENDING = 'pending';
+
+    public const QUOTE_APPROVED = 'approved';
+
+    public const QUOTE_REJECTED = 'rejected';
+
+    /** Kabulde işaretlenen aksesuarlar ve dış durum maddeleri */
+    public const ACCESSORIES = ['Şarj aleti', 'Kablo', 'Kılıf', 'SIM kart', 'Hafıza kartı', 'Kutu', 'Kalem', 'Kulaklık'];
+
+    public const CONDITIONS = ['Ekran çizik', 'Ekran kırık', 'Kasa ezik / çizik', 'Arka kapak çatlak', 'Kamera camı kırık', 'Sıvı teması izi', 'Tuş eksik / basmıyor', 'Cihaz açılmıyor (test edilemedi)'];
 
     protected static function booted(): void
     {
@@ -111,6 +135,129 @@ class Ticket extends Model
     public function events(): HasMany
     {
         return $this->hasMany(TicketEvent::class)->latest('id');
+    }
+
+    public function items(): HasMany
+    {
+        return $this->hasMany(TicketItem::class)->orderBy('id');
+    }
+
+    public function photos(): HasMany
+    {
+        return $this->hasMany(TicketPhoto::class)->orderBy('id');
+    }
+
+    /* ------------------------------------------------------------------
+     | Teklif ve müşteri onayı
+     * ----------------------------------------------------------------- */
+
+    public function itemsTotal(): float
+    {
+        return (float) $this->items->sum(fn (TicketItem $i) => $i->total());
+    }
+
+    public function itemsCost(): float
+    {
+        return (float) $this->items->sum(fn (TicketItem $i) => $i->costTotal());
+    }
+
+    /** Teklifi müşteriye açar; teşhisteyse "Onay bekliyor"a geçer. */
+    public function sendQuote(): void
+    {
+        DB::transaction(function () {
+            $total = $this->loadMissing('items')->itemsTotal();
+            $this->forceFill([
+                'quote_status' => self::QUOTE_PENDING,
+                'quote_total' => $total,
+                'quote_sent_at' => now(),
+                'quote_decided_at' => null,
+                'quote_decided_by' => null,
+                'quote_decision_ip' => null,
+                'quote_customer_note' => null,
+            ])->save();
+
+            $note = 'Onarım teklifi gönderildi: '.self::money($total).'. Takip sayfasından onaylayabilirsiniz.';
+            if ($this->status->canTransitionTo(TicketStatus::AWAITING_APPROVAL)) {
+                $this->transitionTo(TicketStatus::AWAITING_APPROVAL, $note);
+            } else {
+                $this->events()->create(['user_id' => Auth::id(), 'type' => TicketEvent::TYPE_QUOTE, 'note' => $note, 'is_public' => true]);
+            }
+        });
+    }
+
+    /**
+     * Teklif kararı. by: customer (takip sayfası) | staff (telefonla onay vb.)
+     * Onayda "Onay bekliyor" durumundaki iş onarıma geçer.
+     */
+    public function decideQuote(bool $approved, string $by = 'customer', ?string $note = null, ?string $ip = null): void
+    {
+        if ($this->quote_status !== self::QUOTE_PENDING) {
+            throw new InvalidArgumentException('Bu teklif için karar zaten verilmiş.');
+        }
+
+        DB::transaction(function () use ($approved, $by, $note, $ip) {
+            $this->forceFill([
+                'quote_status' => $approved ? self::QUOTE_APPROVED : self::QUOTE_REJECTED,
+                'quote_decided_at' => now(),
+                'quote_decided_by' => $by,
+                'quote_decision_ip' => $ip,
+                'quote_customer_note' => $note ?: null,
+            ])->save();
+
+            $who = $by === 'customer' ? 'Müşteri' : 'Servis (müşteri adına)';
+            $text = $who.' teklifi '.($approved ? 'onayladı' : 'reddetti').' ('.self::money((float) $this->quote_total).').'
+                .($note ? "\nNot: ".$note : '');
+
+            if ($approved && $this->status === TicketStatus::AWAITING_APPROVAL) {
+                $this->transitionTo(TicketStatus::IN_REPAIR, $text);
+            } else {
+                $this->events()->create(['user_id' => Auth::id(), 'type' => TicketEvent::TYPE_QUOTE, 'note' => $text, 'is_public' => true]);
+                $this->touch();
+            }
+        });
+    }
+
+    public static function money(float $amount): string
+    {
+        return '₺'.number_format($amount, 2, ',', '.');
+    }
+
+    /* ------------------------------------------------------------------
+     | Cihaz geçmişi (IMEI / seri)
+     * ----------------------------------------------------------------- */
+
+    /** Aynı cihazın (aynı kayıt ya da aynı IMEI / seri) bu servisteki diğer kayıtları. */
+    public function deviceHistory()
+    {
+        $device = $this->clientProduct;
+        $deviceIds = ClientProduct::query()
+            ->where('user_id', $this->user_id)
+            ->where(fn ($q) => $q->whereKey($device->id)
+                ->when($device->imei, fn ($q) => $q->orWhere('imei', $device->imei))
+                ->when($device->serial, fn ($q) => $q->orWhere('serial', $device->serial)))
+            ->pluck('id');
+
+        return self::query()
+            ->whereIn('client_product_id', $deviceIds)
+            ->whereKeyNot($this->id)
+            ->with('clientProduct.client')
+            ->latest('id')
+            ->get();
+    }
+
+    /* ------------------------------------------------------------------
+     | Memnuniyet anketi
+     * ----------------------------------------------------------------- */
+
+    /** Müşteriye gönderilen imzalı anket bağlantısı (60 gün geçerli). */
+    public function surveyUrl(): string
+    {
+        return \Illuminate\Support\Facades\URL::temporarySignedRoute('survey', now()->addDays(60), ['ticket' => $this->tracking_code]);
+    }
+
+    public function trackingUrl(): string
+    {
+        return route('tracking', ['kod' => $this->tracking_code]);
     }
 
     /**

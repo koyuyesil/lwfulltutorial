@@ -44,18 +44,18 @@
     </div>
 
     {{-- Durum sekmeleri --}}
-    <div class="-mx-1 flex gap-1.5 overflow-x-auto px-1 pb-1">
-        <button type="button" wire:click="$set('statusFilter', 'open')" @class([$chip, $statusFilter === 'open' ? $chipOn : $chipOff])>
+    <x-scroll-row track="gap-1.5 py-0.5" label="Durum filtresi">
+        <button type="button" wire:click="$set('statusFilter', 'open')" aria-pressed="{{ $statusFilter === 'open' ? 'true' : 'false' }}" @class([$chip, 'shrink-0 whitespace-nowrap', $statusFilter === 'open' ? $chipOn : $chipOff])>
             Açık işler <span class="opacity-60">{{ $openTotal }}</span>
         </button>
         @foreach (TicketStatus::cases() as $case)
-            <button type="button" wire:click="$set('statusFilter', '{{ $case->value }}')" @class([$chip, $statusFilter === $case->value ? $chipOn : $chipOff])>
+            <button type="button" wire:click="$set('statusFilter', '{{ $case->value }}')" aria-pressed="{{ $statusFilter === $case->value ? 'true' : 'false' }}" @class([$chip, 'shrink-0 whitespace-nowrap', $statusFilter === $case->value ? $chipOn : $chipOff])>
                 <span class="h-2 w-2 rounded-full {{ $case->bar() }}"></span>
                 {{ $case->label() }} <span class="opacity-60">{{ $countsByStatus[$case->value] ?? 0 }}</span>
             </button>
         @endforeach
-        <button type="button" wire:click="$set('statusFilter', '')" @class([$chip, $statusFilter === '' ? $chipOn : $chipOff])>Tümü</button>
-    </div>
+        <button type="button" wire:click="$set('statusFilter', '')" aria-pressed="{{ $statusFilter === '' ? 'true' : 'false' }}" @class([$chip, 'shrink-0 whitespace-nowrap', $statusFilter === '' ? $chipOn : $chipOff])>Tümü</button>
+    </x-scroll-row>
 
     @if ($searchingAll)
         <p class="text-xs text-slate-500">"{{ $search }}" için kapanmış kayıtlar dahil tüm servis geçmişinde arandı.</p>
@@ -100,7 +100,7 @@
                                 <td class="relative px-4 py-3">
                                     <span @class(['absolute inset-y-0 left-0 w-1',
                                         'bg-red-500' => $sla === 'overdue', 'bg-amber-400' => $sla === 'warning', 'bg-emerald-400' => $sla === 'ok', 'bg-transparent' => in_array($sla, ['closed', 'none'])])></span>
-                                    <a href="{{ route('tickets.show', $ticket) }}" wire:navigate class="font-mono text-sm font-bold text-slate-900 hover:text-indigo-600 dark:text-white dark:hover:text-indigo-300">{{ $ticket->tracking_code }}</a>
+                                    <x-copy-code :code="$ticket->tracking_code" :href="route('tickets.show', $ticket)" class="text-sm" />
                                     <p class="text-xs text-slate-500">{{ $ticket->created_at->format('d.m.Y H:i') }}</p>
                                     <p class="text-xs text-slate-600 md:hidden dark:text-slate-300">{{ $client->full_name }} · {{ $product->display_name }}</p>
                                 </td>
@@ -153,7 +153,7 @@
                         'border-l-slate-200 dark:border-l-white/10' => in_array($sla, ['closed', 'none']),
                     ])>
                         <div class="flex flex-wrap items-center gap-2">
-                            <a href="{{ route('tickets.show', $ticket) }}" wire:navigate class="font-mono font-bold text-slate-900 hover:text-indigo-600 dark:text-white">{{ $ticket->tracking_code }}</a>
+                            <x-copy-code :code="$ticket->tracking_code" :href="route('tickets.show', $ticket)" />
                             <span class="rounded-full px-2 py-0.5 text-xs font-semibold ring-1 {{ $ticket->status->badge() }}">{{ $ticket->status->label() }}</span>
                             <span class="rounded-full px-2 py-0.5 text-xs font-semibold {{ $ticket->priority->badge() }}">{{ $ticket->priority->label() }}</span>
                             @isset($slaBadge[$sla])

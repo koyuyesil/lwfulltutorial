@@ -2,7 +2,6 @@
     // İş akışındaki "doğal" sonraki adım birincil buton olur; iptal gibi yan yollar menüde kalır
     $primary = collect($next)->first(fn ($s) => $s !== \App\Enums\TicketStatus::CANCELLED);
     $others = collect($next)->reject(fn ($s) => $s === $primary);
-    $printable = array_merge($ticket->toArray(), ['status' => $ticket->status->label(), 'priority' => $ticket->priority->label()]);
 @endphp
 
 <div class="relative inline-flex items-center gap-1" x-data="{ menu: false }" @click.outside="menu = false" @keydown.escape="menu = false">
@@ -31,9 +30,12 @@
             </button>
         @endforeach
         <div class="my-1 border-t border-slate-100 dark:border-white/5"></div>
-        <button type="button" role="menuitem" @click="menu = false; window.printTicket(@js($printable))" class="block w-full px-4 py-2 text-left text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-white/5">Fişi yazdır</button>
-        <button type="button" role="menuitem" @click="menu = false; window.downloadTicketPdf(@js($printable))" class="block w-full px-4 py-2 text-left text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-white/5">PDF indir</button>
-        <button type="button" role="menuitem" @click="menu = false; navigator.clipboard.writeText(@js(route('tracking', ['kod' => $ticket->tracking_code]))); $dispatch('toast', { message: 'Takip bağlantısı kopyalandı.', type: 'info' })"
+        <a role="menuitem" href="{{ route('tickets.print', [$ticket, 'a4']) }}" target="_blank" @click="menu = false" class="block px-4 py-2 text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-white/5">A4 kabul formu / PDF</a>
+        <a role="menuitem" href="{{ route('tickets.print', [$ticket, 'a4-2']) }}" target="_blank" @click="menu = false" class="block px-4 py-2 text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-white/5">A4 · 2 nüsha (müşteri + işletme)</a>
+        <a role="menuitem" href="{{ route('tickets.print', [$ticket, 'a5']) }}" target="_blank" @click="menu = false" class="block px-4 py-2 text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-white/5">A5 dikey form</a>
+        <a role="menuitem" href="{{ route('tickets.print', [$ticket, '80']) }}" target="_blank" @click="menu = false" class="block px-4 py-2 text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-white/5">Termal fiş (80 mm)</a>
+        <a role="menuitem" href="{{ route('tickets.print', [$ticket, 'label']) }}" target="_blank" @click="menu = false" class="block px-4 py-2 text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-white/5">QR cihaz etiketi</a>
+        <button type="button" role="menuitem" @click="menu = false; copyText(@js(route('tracking', ['kod' => $ticket->tracking_code])), 'Takip bağlantısı kopyalandı.')"
             class="block w-full px-4 py-2 text-left text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-white/5">Takip bağlantısını kopyala</button>
         <div class="my-1 border-t border-slate-100 dark:border-white/5"></div>
         <button type="button" role="menuitem" wire:click="delete({{ $ticket->id }})" wire:confirm="{{ $ticket->tracking_code }} servis kaydı ve tüm geçmişi kalıcı olarak silinecek. Emin misiniz?"

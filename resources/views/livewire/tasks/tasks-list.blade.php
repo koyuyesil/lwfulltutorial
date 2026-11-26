@@ -66,15 +66,15 @@
     </div>
 
     {{-- Türler --}}
-    <div class="-mx-1 flex gap-1.5 overflow-x-auto px-1 pb-1">
-        <button type="button" wire:click="$set('category', '')" @class([$chip, $category === '' ? $chipOn : $chipOff])>Tüm türler</button>
+    <x-scroll-row track="gap-1.5 py-0.5" label="Görev türü">
+        <button type="button" wire:click="$set('category', '')" aria-pressed="{{ $category === '' ? 'true' : 'false' }}" @class([$chip, 'shrink-0 whitespace-nowrap', $category === '' ? $chipOn : $chipOff])>Tüm türler</button>
         @foreach (TaskCategory::cases() as $c)
-            <button type="button" wire:click="$set('category', '{{ $c->value }}')" @class([$chip, $category === $c->value ? $chipOn : $chipOff])>
+            <button type="button" wire:click="$set('category', '{{ $c->value }}')" aria-pressed="{{ $category === $c->value ? 'true' : 'false' }}" @class([$chip, 'shrink-0 whitespace-nowrap', $category === $c->value ? $chipOn : $chipOff])>
                 <span>{{ $c->emoji() }}</span> {{ $c->label() }}
                 @if ($n = $categoryCounts[$c->value] ?? 0) <span class="opacity-60">{{ $n }}</span> @endif
             </button>
         @endforeach
-    </div>
+    </x-scroll-row>
 
     <div wire:loading.class="opacity-60" wire:target="search,category,filter,view,shiftMonth,showDone">
     @if ($view === 'list')

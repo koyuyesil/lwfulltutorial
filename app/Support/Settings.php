@@ -18,6 +18,10 @@ class Settings
 
         // Servis kayıtları: öncelik → hedef teslim süresi (saat)
         'tickets.sla_hours' => ['high' => 24, 'normal' => 72, 'low' => 120],
+        'tickets.technicians' => [],
+
+        // Müşteri bildirim şablonları (durum → metin); boşsa NotificationTemplates varsayılanı
+        'notify.templates' => [],
 
         // Müşteriler
         'clients.vcard_version' => '3.0',

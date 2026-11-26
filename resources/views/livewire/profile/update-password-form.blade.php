@@ -38,42 +38,35 @@ new class extends Component
     }
 }; ?>
 
-<section>
-    <header>
-        <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100">
-            {{ __('Update Password') }}
-        </h2>
-
-        <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
-            {{ __('Ensure your account is using a long, random password to stay secure.') }}
-        </p>
+<section id="guvenlik" class="scroll-mt-24 rounded-2xl bg-white shadow-sm ring-1 ring-slate-200 dark:bg-slate-800 dark:ring-white/10">
+    <header class="flex items-center gap-3 border-b border-slate-100 px-6 py-5 dark:border-white/5">
+        <span class="grid h-10 w-10 place-items-center rounded-xl bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300">
+            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" /></svg>
+        </span>
+        <div>
+            <h2 class="font-bold text-slate-900 dark:text-white">Şifre</h2>
+            <p class="text-sm text-slate-500">Hesabınızı korumak için uzun ve tahmin edilmesi zor bir şifre kullanın.</p>
+        </div>
     </header>
 
-    <form wire:submit="updatePassword" class="mt-6 space-y-6">
-        <div>
-            <x-input-label for="update_password_current_password" :value="__('Current Password')" />
-            <x-text-input wire:model="current_password" id="update_password_current_password" name="current_password" type="password" class="mt-1 block w-full" autocomplete="current-password" />
-            <x-input-error :messages="$errors->get('current_password')" class="mt-2" />
+    <form wire:submit="updatePassword" class="space-y-5 p-6" x-data="{ show: false }">
+        <div class="grid gap-4 sm:grid-cols-3">
+            <x-ui.field label="Mevcut şifre" for="update_password_current_password" error="current_password">
+                <x-ui.input wire:model="current_password" id="update_password_current_password" name="current_password" x-bind:type="show ? 'text' : 'password'" type="password" autocomplete="current-password" :invalid="$errors->has('current_password')" />
+            </x-ui.field>
+            <x-ui.field label="Yeni şifre" for="update_password_password" error="password">
+                <x-ui.input wire:model="password" id="update_password_password" name="password" x-bind:type="show ? 'text' : 'password'" type="password" autocomplete="new-password" :invalid="$errors->has('password')" />
+            </x-ui.field>
+            <x-ui.field label="Yeni şifre (tekrar)" for="update_password_password_confirmation" error="password_confirmation">
+                <x-ui.input wire:model="password_confirmation" id="update_password_password_confirmation" name="password_confirmation" x-bind:type="show ? 'text' : 'password'" type="password" autocomplete="new-password" />
+            </x-ui.field>
         </div>
-
-        <div>
-            <x-input-label for="update_password_password" :value="__('New Password')" />
-            <x-text-input wire:model="password" id="update_password_password" name="password" type="password" class="mt-1 block w-full" autocomplete="new-password" />
-            <x-input-error :messages="$errors->get('password')" class="mt-2" />
-        </div>
-
-        <div>
-            <x-input-label for="update_password_password_confirmation" :value="__('Confirm Password')" />
-            <x-text-input wire:model="password_confirmation" id="update_password_password_confirmation" name="password_confirmation" type="password" class="mt-1 block w-full" autocomplete="new-password" />
-            <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
-        </div>
-
-        <div class="flex items-center gap-4">
-            <x-primary-button>{{ __('Save') }}</x-primary-button>
-
-            <x-action-message class="me-3" on="password-updated">
-                {{ __('Saved.') }}
-            </x-action-message>
+        <div class="flex items-center justify-between gap-3 border-t border-slate-100 pt-5 dark:border-white/5">
+            <label class="inline-flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300"><input type="checkbox" x-model="show" class="rounded border-slate-300 text-indigo-600"> Şifreleri göster</label>
+            <div class="flex items-center gap-3">
+                <x-action-message class="text-sm font-semibold text-emerald-600" on="password-updated">✓ Şifre güncellendi</x-action-message>
+                <button class="rounded-lg bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500" wire:loading.attr="disabled">Şifreyi güncelle</button>
+            </div>
         </div>
     </form>
 </section>

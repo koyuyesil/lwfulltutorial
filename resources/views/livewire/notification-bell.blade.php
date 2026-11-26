@@ -33,7 +33,7 @@
                         class="flex items-start gap-3 px-4 py-2.5 hover:bg-slate-50 dark:hover:bg-white/5">
                         <span class="mt-1 h-2 w-2 shrink-0 rounded-full bg-red-500"></span>
                         <span class="min-w-0 flex-1">
-                            <span class="block truncate text-sm font-semibold text-slate-900 dark:text-white">{{ $ticket->tracking_code }} · {{ $ticket->clientProduct?->client?->full_name }}</span>
+                            <span class="flex min-w-0 items-center gap-1 text-sm font-semibold text-slate-900 dark:text-white"><x-copy-code :code="$ticket->tracking_code" plain text-class="" /> <span class="truncate">· {{ $ticket->clientProduct?->client?->full_name }}</span></span>
                             <span class="block truncate text-xs text-slate-500">{{ $ticket->clientProduct?->product?->display_name }} · {{ $ticket->status->label() }} · hedef {{ $ticket->due_at->locale('tr')->diffForHumans() }}</span>
                         </span>
                     </a>

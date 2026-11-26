@@ -36,9 +36,9 @@
         @unless ($form->isEditing())
             <section>
                 <p class="text-xs font-bold uppercase tracking-wider text-slate-500">Hazır şablonlar</p>
-                <div class="-mx-1 mt-2 flex gap-2 overflow-x-auto px-1 pb-2">
+                <x-scroll-row track="gap-2 px-0.5 pb-2 pt-1" class="mt-2" label="Hazır şablonlar">
                     @foreach (\App\Support\TaskTemplates::all() as $key => $tpl)
-                        <button type="button" wire:click="useTemplate('{{ $key }}')"
+                        <button type="button" wire:click="useTemplate('{{ $key }}')" aria-pressed="{{ $form->title === $tpl['title'] ? 'true' : 'false' }}"
                             @class(['flex w-40 shrink-0 flex-col items-start rounded-xl p-3 text-left ring-1 transition hover:-translate-y-0.5',
                                 'bg-indigo-50 ring-2 ring-indigo-500 dark:bg-indigo-500/10' => $form->title === $tpl['title'],
                                 'bg-white ring-slate-200 hover:shadow-md dark:bg-slate-800 dark:ring-white/10' => $form->title !== $tpl['title']])>
@@ -47,7 +47,7 @@
                             <span class="mt-1 text-[11px] text-slate-500">{{ $tpl['recurrence']->describe() }}</span>
                         </button>
                     @endforeach
-                </div>
+                </x-scroll-row>
             </section>
         @endunless
 

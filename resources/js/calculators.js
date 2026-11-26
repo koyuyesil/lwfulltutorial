@@ -1,4 +1,6 @@
 // Elektronik hesaplayıcılar ve birim dönüştürücüler (tamamı tarayıcıda, anlık).
+import { copyWithToast } from './ui.js';
+
 // Değer girişleri SI önekleri ve servis notasyonunu anlar: 4k7, 2R2, 100n, 10µ, 1,5M …
 
 /* ------------------------------------------------------------------ Yardımcılar */
@@ -331,10 +333,7 @@ export function registerCalculators(Alpine) {
             this.favorites = this.favorites.includes(key) ? this.favorites.filter((k) => k !== key) : [...this.favorites, key];
             localStorage.setItem('tools.favorites', JSON.stringify(this.favorites));
         },
-        copy(text) {
-            navigator.clipboard?.writeText(String(text));
-            this.$dispatch('toast', { message: `Kopyalandı: ${text}`, type: 'info', timeout: 1800 });
-        },
+        copy(text) { copyWithToast(text); },
     }));
 
     /**

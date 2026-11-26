@@ -62,54 +62,40 @@ new class extends Component
     }
 }; ?>
 
-<section>
-    <header>
-        <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100">
-            {{ __('Profile Information') }}
-        </h2>
-
-        <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
-            {{ __("Update your account's profile information and email address.") }}
-        </p>
+<section id="hesap" class="scroll-mt-24 rounded-2xl bg-white shadow-sm ring-1 ring-slate-200 dark:bg-slate-800 dark:ring-white/10">
+    <header class="flex items-center gap-3 border-b border-slate-100 px-6 py-5 dark:border-white/5">
+        <span class="grid h-10 w-10 place-items-center rounded-xl bg-sky-100 text-sky-700 dark:bg-sky-500/15 dark:text-sky-300">
+            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" /></svg>
+        </span>
+        <div>
+            <h2 class="font-bold text-slate-900 dark:text-white">Hesap bilgileri</h2>
+            <p class="text-sm text-slate-500">Giriş yaptığınız ad ve e-posta adresi.</p>
+        </div>
     </header>
 
-    <form wire:submit="updateProfileInformation" class="mt-6 space-y-6">
-        <div>
-            <x-input-label for="name" :value="__('Name')" />
-            <x-text-input wire:model="name" id="name" name="name" type="text" class="mt-1 block w-full" required autofocus autocomplete="name" />
-            <x-input-error class="mt-2" :messages="$errors->get('name')" />
+    <form wire:submit="updateProfileInformation" class="space-y-5 p-6">
+        <div class="grid gap-4 sm:grid-cols-2">
+            <x-ui.field label="Ad soyad" for="name" error="name">
+                <x-ui.input wire:model="name" id="name" name="name" type="text" required autocomplete="name" :invalid="$errors->has('name')" />
+            </x-ui.field>
+            <x-ui.field label="E-posta" for="email" error="email">
+                <x-ui.input wire:model="email" id="email" name="email" type="email" required autocomplete="username" :invalid="$errors->has('email')" />
+            </x-ui.field>
         </div>
 
-        <div>
-            <x-input-label for="email" :value="__('Email')" />
-            <x-text-input wire:model="email" id="email" name="email" type="email" class="mt-1 block w-full" required autocomplete="username" />
-            <x-input-error class="mt-2" :messages="$errors->get('email')" />
+        @if (auth()->user() instanceof \Illuminate\Contracts\Auth\MustVerifyEmail && ! auth()->user()->hasVerifiedEmail())
+            <div class="rounded-xl bg-amber-50 px-4 py-3 text-sm text-amber-900 ring-1 ring-amber-200 dark:bg-amber-500/10 dark:text-amber-100 dark:ring-amber-500/30">
+                E-posta adresiniz doğrulanmadı.
+                <button wire:click.prevent="sendVerification" class="font-semibold underline">Doğrulama bağlantısını yeniden gönder</button>
+                @if (session('status') === 'verification-link-sent')
+                    <p class="mt-1 font-medium text-emerald-700 dark:text-emerald-300">Yeni doğrulama bağlantısı e-posta adresinize gönderildi.</p>
+                @endif
+            </div>
+        @endif
 
-            @if (auth()->user() instanceof \Illuminate\Contracts\Auth\MustVerifyEmail && ! auth()->user()->hasVerifiedEmail())
-                <div>
-                    <p class="text-sm mt-2 text-gray-800 dark:text-gray-200">
-                        {{ __('Your email address is unverified.') }}
-
-                        <button wire:click.prevent="sendVerification" class="underline text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800">
-                            {{ __('Click here to re-send the verification email.') }}
-                        </button>
-                    </p>
-
-                    @if (session('status') === 'verification-link-sent')
-                        <p class="mt-2 font-medium text-sm text-green-600 dark:text-green-400">
-                            {{ __('A new verification link has been sent to your email address.') }}
-                        </p>
-                    @endif
-                </div>
-            @endif
-        </div>
-
-        <div class="flex items-center gap-4">
-            <x-primary-button>{{ __('Save') }}</x-primary-button>
-
-            <x-action-message class="me-3" on="profile-updated">
-                {{ __('Saved.') }}
-            </x-action-message>
+        <div class="flex items-center justify-end gap-3 border-t border-slate-100 pt-5 dark:border-white/5">
+            <x-action-message class="text-sm font-semibold text-emerald-600" on="profile-updated">✓ Kaydedildi</x-action-message>
+            <button class="rounded-lg bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500" wire:loading.attr="disabled">Kaydet</button>
         </div>
     </form>
 </section>

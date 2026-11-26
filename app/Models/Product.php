@@ -61,6 +61,12 @@ class Product extends Model
         return trim($this->brand.' '.$this->model_name);
     }
 
+    /** Çapraz referans: cihazdaki bileşenler (SoC, RAM, PMIC…) */
+    public function components(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->belongsToMany(Component::class)->withPivot(['id', 'variant', 'note'])->withTimestamps();
+    }
+
     public function boardIds(): HasMany
     {
         return $this->hasMany(BoardId::class);

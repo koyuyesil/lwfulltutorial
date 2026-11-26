@@ -8,6 +8,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use InvalidArgumentException;
 use Livewire\Attributes\Locked;
+use Livewire\Attributes\On;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 
@@ -49,6 +50,27 @@ class TicketsShow extends Component
         }
 
         $this->reset('note', 'notePublic');
+        $this->dispatch('suggest-notify');
+    }
+
+    #[On('ticket-updated')]
+    public function refreshTicket(): void
+    {
+        // Alt bileşenler (teklif, kabul, bildirim) değişiklik yapınca sayfa yeniden çizilir
+    }
+
+    public function assignTechnician(string $name): void
+    {
+        $name = trim($name);
+        $ticket = $this->ticket();
+        if ($name !== '' && ! in_array($name, Auth::user()->technicians(), true)) {
+            $this->addError('technician', 'Teknisyeni önce Ayarlar > Servis kayıtları bölümünden ekleyin.');
+
+            return;
+        }
+        $old = $ticket->technician;
+        $ticket->update(['technician' => $name ?: null]);
+        $ticket->addNote($name ? 'Teknisyen atandı: '.$name.($old ? ' (önceki: '.$old.')' : '') : 'Teknisyen ataması kaldırıldı.');
     }
 
     public function addNote(): void
@@ -82,6 +104,7 @@ class TicketsShow extends Component
             'clientProduct.client',
             'clientProduct.product',
             'events.user',
+            'items',
         ]);
 
         // Her durumda geçen süreyi olay geçmişinden hesapla
@@ -100,6 +123,8 @@ class TicketsShow extends Component
         return view('livewire.tickets.tickets-show', [
             'ticket' => $ticket,
             'durations' => $durations,
+            'history' => $ticket->deviceHistory(),
+            'technicians' => Auth::user()->technicians(),
             'mainPath' => [
                 TicketStatus::RECEIVED,
                 TicketStatus::DIAGNOSING,
@@ -110,6 +135,6 @@ class TicketsShow extends Component
                 TicketStatus::READY,
                 TicketStatus::DELIVERED,
             ],
-        ])->layout('layouts.app');
+        ])->layout('layouts.app')->title($ticket->tracking_code.' · Servis kaydı');
     }
 }

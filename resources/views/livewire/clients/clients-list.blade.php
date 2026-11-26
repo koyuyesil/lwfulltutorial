@@ -71,10 +71,10 @@
                 <table class="min-w-full divide-y divide-slate-200 text-sm dark:divide-white/10">
                     <thead class="bg-slate-50 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 dark:bg-white/5 dark:text-slate-400">
                         <tr>
-                            <th class="min-w-56 px-4 py-3">Müşteri</th>
-                            <th class="hidden px-4 py-3 md:table-cell">İletişim</th>
+                            <th class="w-full px-4 py-3">Müşteri</th>
+                            <th class="hidden whitespace-nowrap px-4 py-3 md:table-cell">İletişim</th>
                             <th class="hidden px-4 py-3 lg:table-cell">Cihazlar</th>
-                            <th class="px-4 py-3 text-center">Servis</th>
+                            <th class="whitespace-nowrap px-4 py-3 text-center">Servis</th>
                             <th class="hidden px-4 py-3 xl:table-cell">Kayıt</th>
                             <th class="px-4 py-3"><span class="sr-only">İşlemler</span></th>
                         </tr>
@@ -82,8 +82,9 @@
                     <tbody class="divide-y divide-slate-100 dark:divide-white/5">
                         @foreach ($clients as $client)
                             <tr wire:key="client-{{ $client->id }}" class="group cursor-pointer transition hover:bg-slate-50 dark:hover:bg-white/5" x-on:click="$dispatch('open-drawer', { name: 'client-detail' }); Livewire.dispatch('show-client', { id: {{ $client->id }} })">
-                                <td class="px-4 py-3">
-                                    <div class="flex items-center gap-3">
+                                {{-- Ad sütunu kalan genişliği alır; sığmazsa "…" ile kısalır, üzerine gelince tam ad --}}
+                                <td class="w-full min-w-40 max-w-0 px-4 py-3">
+                                    <div class="flex items-center gap-3" title="{{ $client->full_name }}{{ $client->company ? ' · '.$client->company : '' }}">
                                         <span class="grid h-9 w-9 shrink-0 place-items-center rounded-full text-xs font-bold text-white {{ $avatar($client) }}">{{ $client->initials }}</span>
                                         <div class="min-w-0">
                                             <p class="truncate font-semibold text-slate-900 dark:text-white">{{ $client->full_name }}</p>
@@ -91,14 +92,14 @@
                                         </div>
                                     </div>
                                 </td>
-                                <td class="hidden px-4 py-3 md:table-cell">
-                                    <p class="font-medium text-slate-700 dark:text-slate-200">{{ $client->phone }}</p>
-                                    <p class="truncate text-xs text-slate-500">{{ $client->email ?: '—' }}</p>
+                                <td class="hidden max-w-64 px-4 py-3 md:table-cell">
+                                    <p class="whitespace-nowrap font-medium text-slate-700 dark:text-slate-200">{{ $client->phone }}</p>
+                                    <p class="truncate text-xs text-slate-500" title="{{ $client->email }}">{{ $client->email ?: '—' }}</p>
                                 </td>
-                                <td class="hidden px-4 py-3 lg:table-cell">
+                                <td class="hidden min-w-44 max-w-72 px-4 py-3 lg:table-cell">
                                     <div class="flex flex-wrap gap-1">
                                         @foreach ($client->clientsProducts->take(2) as $device)
-                                            <span class="rounded-md bg-slate-100 px-2 py-0.5 text-xs text-slate-700 dark:bg-white/10 dark:text-slate-200">{{ $device->product?->brand }} {{ $device->product?->model_name }}</span>
+                                            <span class="max-w-full truncate whitespace-nowrap rounded-md bg-slate-100 px-2 py-0.5 text-xs text-slate-700 dark:bg-white/10 dark:text-slate-200" title="{{ $device->product?->brand }} {{ $device->product?->model_name }}">{{ $device->product?->brand }} {{ $device->product?->model_name }}</span>
                                         @endforeach
                                         @if ($client->devices_count > 2)
                                             <span class="rounded-md px-1.5 py-0.5 text-xs text-slate-500">+{{ $client->devices_count - 2 }}</span>
@@ -107,7 +108,7 @@
                                         @endif
                                     </div>
                                 </td>
-                                <td class="px-4 py-3 text-center">
+                                <td class="whitespace-nowrap px-4 py-3 text-center">
                                     @if ($client->open_tickets_count)
                                         <span class="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-xs font-semibold text-amber-800 dark:bg-amber-500/15 dark:text-amber-300" title="Açık servis kaydı">
                                             <span class="h-1.5 w-1.5 rounded-full bg-amber-500"></span>{{ $client->open_tickets_count }} açık
@@ -115,8 +116,8 @@
                                     @endif
                                     <span class="block text-xs text-slate-500">{{ $client->tickets_count }} toplam</span>
                                 </td>
-                                <td class="hidden px-4 py-3 text-xs text-slate-500 xl:table-cell">{{ $client->created_at?->locale('tr')->diffForHumans() }}</td>
-                                <td class="px-4 py-3 text-right" x-on:click.stop>
+                                <td class="hidden whitespace-nowrap px-4 py-3 text-xs text-slate-500 xl:table-cell">{{ $client->created_at?->locale('tr')->diffForHumans() }}</td>
+                                <td class="whitespace-nowrap px-4 py-3 text-right" x-on:click.stop>
                                     @include('livewire.clients.partials.row-actions', ['client' => $client])
                                 </td>
                             </tr>
@@ -132,7 +133,7 @@
                         <div class="flex items-start gap-3">
                             <span class="grid h-11 w-11 shrink-0 place-items-center rounded-full text-sm font-bold text-white {{ $avatar($client) }}">{{ $client->initials }}</span>
                             <button type="button" x-on:click="$dispatch('open-drawer', { name: 'client-detail' }); Livewire.dispatch('show-client', { id: {{ $client->id }} })" class="min-w-0 flex-1 text-left">
-                                <p class="truncate font-bold text-slate-900 hover:text-indigo-600 dark:text-white">{{ $client->full_name }}</p>
+                                <p class="truncate font-bold text-slate-900 hover:text-indigo-600 dark:text-white" title="{{ $client->full_name }}">{{ $client->full_name }}</p>
                                 <p class="truncate text-xs text-slate-500">{{ $client->company ?: 'Bireysel müşteri' }}</p>
                             </button>
                             @include('livewire.clients.partials.row-actions', ['client' => $client])

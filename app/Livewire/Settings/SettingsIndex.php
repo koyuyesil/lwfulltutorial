@@ -15,7 +15,7 @@ use Livewire\Component;
 #[Title('Ayarlar')]
 class SettingsIndex extends Component
 {
-    public const TABS = ['genel', 'servis', 'musteriler', 'cihaz-modelleri', 'board-id', 'gorevler'];
+    public const TABS = ['genel', 'servis', 'musteriler', 'bildirimler', 'cihaz-modelleri', 'board-id', 'gorevler'];
 
     public string $tab = 'genel';
 
@@ -28,6 +28,13 @@ class SettingsIndex extends Component
 
     /* Servis kayıtları */
     public array $sla = [];
+
+    public array $technicians = [];
+
+    public string $newTechnician = '';
+
+    /* Bildirim şablonları */
+    public array $templates = [];
 
     /* Görevler */
     public string $taskDefaultTime = '09:00';
@@ -48,6 +55,8 @@ class SettingsIndex extends Component
         $this->companyPhone = (string) $user->setting('company.phone');
         $this->companyAddress = (string) $user->setting('company.address');
         $this->sla = $user->setting('tickets.sla_hours');
+        $this->technicians = $user->technicians();
+        $this->templates = \App\Support\NotificationTemplates::all($user);
         $this->taskDefaultTime = (string) $user->setting('tasks.default_time');
         $this->taskDefaultRemind = (string) $user->setting('tasks.default_remind');
         $this->productsDefaultView = (string) $user->setting('products.default_view');
@@ -83,6 +92,53 @@ class SettingsIndex extends Component
 
         Settings::set(Auth::user(), 'tickets.sla_hours', array_map('intval', $this->sla));
         $this->saved('Yeni servis kayıtları bu sürelerle açılacak.');
+    }
+
+    public function addTechnician(): void
+    {
+        $this->validate(['newTechnician' => ['required', 'string', 'min:2', 'max:60']], ['newTechnician.required' => 'Ad yazın.']);
+        $name = trim(preg_replace('/\s+/', ' ', $this->newTechnician));
+        if (in_array($name, $this->technicians, true)) {
+            $this->addError('newTechnician', 'Bu teknisyen zaten listede.');
+
+            return;
+        }
+        $this->technicians[] = $name;
+        $this->newTechnician = '';
+        $this->saveTechnicians();
+    }
+
+    public function removeTechnician(int $index): void
+    {
+        unset($this->technicians[$index]);
+        $this->technicians = array_values($this->technicians);
+        $this->saveTechnicians();
+    }
+
+    public function saveTechnicians(): void
+    {
+        Settings::set(Auth::user(), 'tickets.technicians', array_values(array_unique($this->technicians)));
+        $this->saved();
+    }
+
+    public function saveTemplates(): void
+    {
+        $this->validate(['templates' => ['array'], 'templates.*' => ['nullable', 'string', 'max:1000']]);
+        $defaults = \App\Support\NotificationTemplates::defaults();
+        // Varsayılandan farklı olanlar saklanır; böylece varsayılan metin güncellenirse otomatik yansır
+        $custom = array_filter(
+            array_intersect_key(array_map(fn ($v) => trim((string) $v), $this->templates), $defaults),
+            fn ($v, $k) => $v !== '' && $v !== $defaults[$k],
+            ARRAY_FILTER_USE_BOTH,
+        );
+        Settings::set(Auth::user(), 'notify.templates', $custom);
+        $this->templates = \App\Support\NotificationTemplates::all(Auth::user());
+        $this->saved();
+    }
+
+    public function resetTemplate(string $status): void
+    {
+        $this->templates[$status] = \App\Support\NotificationTemplates::defaults()[$status] ?? '';
     }
 
     public function resetSla(): void

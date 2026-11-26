@@ -46,9 +46,17 @@ Route::middleware('auth')->group(function () {
     Route::get('tasks', TasksIndex::class)->name('tasks.index');
     Route::get('products', ProductsIndex::class)->name('products.index');
     Route::get('tickets', TicketsIndex::class)->name('tickets.index');
+    Route::get('tickets/board', \App\Livewire\Tickets\TicketsBoard::class)->name('tickets.board');
     Route::get('tickets/{ticket}', TicketsShow::class)->name('tickets.show');
+    Route::get('tickets/{ticket}/photos/{photo}', [\App\Http\Controllers\TicketDocumentsController::class, 'photo'])->name('tickets.photo');
+    Route::get('tickets/{ticket}/print/{format}', [\App\Http\Controllers\TicketDocumentsController::class, 'print'])
+        ->whereIn('format', \App\Http\Controllers\TicketDocumentsController::FORMATS)->name('tickets.print');
+    Route::get('parts', \App\Livewire\Parts\PartsIndex::class)->name('parts.index');
     Route::get('tools', ToolsIndex::class)->name('tools.index');
     Route::get('tools/board-ids', BoardIdsIndex::class)->name('board-ids.index');
+    Route::get('tools/cross-reference', \App\Livewire\CrossReference\CrossReferenceIndex::class)->name('cross-reference.index');
+    Route::get('tools/cross-reference/export', [\App\Http\Controllers\CrossReferenceController::class, 'export'])->name('cross-reference.export');
+    Route::get('tools/cross-reference/sample-csv', [\App\Http\Controllers\CrossReferenceController::class, 'sample'])->name('cross-reference.sample');
 
     // Ayarlar (modül bazlı sekmeler) ve cihaz kataloğu içe / dışa aktarma
     Route::get('settings/{tab?}', \App\Livewire\Settings\SettingsIndex::class)

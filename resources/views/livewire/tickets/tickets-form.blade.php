@@ -8,12 +8,7 @@
 <div class="flex min-h-0 flex-1 flex-col">
 @if ($created)
     {{-- Başarılı kayıt özeti --}}
-    @php
-        $printable = array_merge($created->toArray(), [
-            'status' => $created->status->label(),
-            'priority' => $created->priority->label(),
-        ]);
-    @endphp
+
     <div class="flex flex-1 flex-col items-center justify-center overflow-y-auto px-6 py-10 text-center">
         <span class="grid h-16 w-16 place-items-center rounded-full bg-emerald-100 text-3xl text-emerald-600 dark:bg-emerald-500/15">✓</span>
         <h3 class="mt-5 text-xl font-bold text-slate-900 dark:text-white">Servis kaydı açıldı</h3>
@@ -22,20 +17,22 @@
         <div class="mt-6 w-full max-w-sm rounded-2xl border-2 border-dashed border-slate-300 p-5 dark:border-white/15" x-data="{ copied: false }">
             <p class="text-xs font-semibold uppercase tracking-wider text-slate-500">Müşteri takip kodu</p>
             <p class="mt-1 font-mono text-3xl font-black tracking-wider text-slate-900 dark:text-white">{{ $created->tracking_code }}</p>
-            <button type="button" @click="navigator.clipboard.writeText(@js($created->tracking_code)); copied = true; setTimeout(() => copied = false, 1500)"
+            <button type="button" @click="copyText(@js($created->tracking_code)).then((ok) => { copied = ok; setTimeout(() => copied = false, 1500) })"
                 class="mt-2 text-xs font-semibold text-indigo-600 dark:text-indigo-400" x-text="copied ? 'Kopyalandı ✓' : 'Kodu kopyala'"></button>
             <p class="mt-3 text-xs text-slate-500">Müşteriniz <strong>{{ str_replace(['http://', 'https://'], '', route('tracking')) }}</strong> adresinden bu kod ve telefonunun son 4 hanesiyle durumu takip edebilir.</p>
             <p class="mt-2 text-xs font-semibold text-slate-600 dark:text-slate-300">Teslim hedefi: {{ $created->due_at?->locale('tr')->translatedFormat('d F l, H:i') }}</p>
         </div>
 
         <div class="mt-6 grid w-full max-w-sm grid-cols-2 gap-2">
-            <button type="button" x-on:click="window.printTicket(@js($printable))"
-                class="rounded-lg px-4 py-2.5 text-sm font-semibold text-slate-700 ring-1 ring-slate-300 hover:bg-slate-50 dark:text-slate-200 dark:ring-white/15 dark:hover:bg-white/5">Fişi yazdır</button>
+            <a href="{{ route('tickets.print', [$created, '80']) }}" target="_blank"
+                class="rounded-lg px-4 py-2.5 text-sm font-semibold text-slate-700 ring-1 ring-slate-300 hover:bg-slate-50 dark:text-slate-200 dark:ring-white/15 dark:hover:bg-white/5">QR'lı fiş yazdır</a>
+            <a href="{{ route('tickets.print', [$created, 'label']) }}" target="_blank"
+                class="rounded-lg px-4 py-2.5 text-sm font-semibold text-slate-700 ring-1 ring-slate-300 hover:bg-slate-50 dark:text-slate-200 dark:ring-white/15 dark:hover:bg-white/5">Cihaz etiketi</a>
             <a href="{{ route('tickets.show', $created) }}" wire:navigate
-                class="rounded-lg px-4 py-2.5 text-sm font-semibold text-slate-700 ring-1 ring-slate-300 hover:bg-slate-50 dark:text-slate-200 dark:ring-white/15 dark:hover:bg-white/5">Kayda git</a>
+                class="col-span-2 rounded-lg bg-sky-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-sky-500">📷 Kabul formu: fotoğraf + imza</a>
             @if ($wa = $created->clientProduct->client->whatsappNumber())
                 <a target="_blank" rel="noopener"
-                    href="https://wa.me/{{ $wa }}?text={{ rawurlencode('Merhaba ' . $created->clientProduct->client->first_name . ', cihazınız servisimize kabul edildi. Takip kodunuz: ' . $created->tracking_code . ' — Durumu buradan takip edebilirsiniz: ' . route('tracking', ['kod' => $created->tracking_code])) }}"
+                    href="https://wa.me/{{ $wa }}?text={{ rawurlencode(\App\Support\NotificationTemplates::for($created)) }}"
                     class="col-span-2 rounded-lg bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-emerald-500">Takip kodunu WhatsApp ile gönder</a>
             @endif
             <button type="button" wire:click="resetForm" class="col-span-2 rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-indigo-500">Yeni kayıt aç</button>

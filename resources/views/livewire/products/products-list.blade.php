@@ -39,14 +39,14 @@
 
     {{-- Marka filtreleri --}}
     @if ($brands->count() > 1)
-        <div class="flex gap-1.5 overflow-x-auto pb-1">
-            <button type="button" wire:click="$set('brand', '')" @class([
+        <x-scroll-row track="gap-1.5 py-0.5" label="Marka filtresi">
+            <button type="button" wire:click="$set('brand', '')" aria-pressed="{{ $brand === '' ? 'true' : 'false' }}" @class([
                 'shrink-0 rounded-full px-3 py-1.5 text-xs font-semibold transition',
                 'bg-slate-900 text-white dark:bg-white dark:text-slate-900' => $brand === '',
                 'bg-white text-slate-600 ring-1 ring-slate-200 hover:bg-slate-50 dark:bg-slate-800 dark:text-slate-300 dark:ring-white/10' => $brand !== '',
             ])>Tüm markalar</button>
             @foreach ($brands as $name => $count)
-                <button type="button" wire:click="$set('brand', @js($name))" @class([
+                <button type="button" wire:click="$set('brand', @js($name))" aria-pressed="{{ $brand === $name ? 'true' : 'false' }}" @class([
                     'inline-flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold transition',
                     'bg-slate-900 text-white dark:bg-white dark:text-slate-900' => $brand === $name,
                     'bg-white text-slate-600 ring-1 ring-slate-200 hover:bg-slate-50 dark:bg-slate-800 dark:text-slate-300 dark:ring-white/10' => $brand !== $name,
@@ -55,7 +55,7 @@
                     {{ $name }} <span class="opacity-60">{{ $count }}</span>
                 </button>
             @endforeach
-        </div>
+        </x-scroll-row>
     @endif
 
     <div wire:loading.class="opacity-60" wire:target="search,brand,sort,view,gotoPage,nextPage,previousPage">
