@@ -31,35 +31,26 @@
         <x-calc.formula>L[µH] = D²·N² / (18·D + 40·l) &nbsp;·&nbsp; D, l inç (Wheeler, l &gt; 0,4·D için ~%1)</x-calc.formula>
     </div>
 
-    <x-calc.stage label="3D model" badge="canlı dönüş · alan çizgileri">
+    <x-calc.stage label="3D model" badge="alan çizgileri · N → S">
         <svg viewBox="0 0 400 240" class="w-full" fill="none" aria-hidden="true">
             <defs>
                 <linearGradient id="sol-cu" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fde68a" /><stop offset=".35" stop-color="#f59e0b" /><stop offset="1" stop-color="#9a3412" /></linearGradient>
                 <linearGradient id="sol-core" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#94a3b8" stop-opacity=".35" /><stop offset=".5" stop-color="#e2e8f0" stop-opacity=".12" /><stop offset="1" stop-color="#0f172a" stop-opacity=".5" /></linearGradient>
             </defs>
-            {{-- Manyetik alan çizgileri --}}
-            @foreach ([1, 2, 3] as $i)
-                <ellipse cx="200" cy="120" :rx="geo.len / 2 + 22 + {{ $i }} * 26" :ry="geo.r + 12 + {{ $i }} * 22" stroke="#38bdf8" stroke-opacity="{{ 0.45 - $i * 0.1 }}" stroke-width="1.5" class="calc-flow" style="animation-duration: {{ 1.2 + $i * 0.4 }}s" />
-            @endforeach
-            {{-- Arka sarımlar, çekirdek, ön sarımlar --}}
             <path :d="geo.back" stroke="#7c2d12" stroke-width="3.2" stroke-linecap="round" opacity=".8" />
-            <rect :x="200 - geo.len / 2 * Math.cos(0.45) - 4" :y="120 - geo.r * 0.78" :width="geo.len * Math.cos(0.45) + 8" :height="geo.r * 1.56" rx="3" fill="url(#sol-core)" stroke="#94a3b8" stroke-opacity=".25" />
+            <path :d="geo.body.body" fill="url(#sol-core)" stroke="#94a3b8" stroke-opacity=".25" />
+            @include('livewire.tools.coils.partials.field', ['lines' => 'geo.field', 'x1' => 'geo.x1 - geo.body.rx', 'x2' => 'geo.x2 + geo.body.rx'])
             <path :d="geo.front" stroke="url(#sol-cu)" stroke-width="3.6" stroke-linecap="round" />
             <path :d="geo.front" stroke="#fff7ed" stroke-width=".9" stroke-linecap="round" opacity=".55" />
-            {{-- Bağlantı uçları --}}
-            <path :d="`M${geo.start.x} ${geo.start.y} L${geo.start.x - 34} ${geo.start.y}`" stroke="url(#sol-cu)" stroke-width="3.2" stroke-linecap="round" />
-            <path :d="`M${geo.end.x} ${geo.end.y} L${geo.end.x + 34} ${geo.end.y}`" stroke="url(#sol-cu)" stroke-width="3.2" stroke-linecap="round" />
-            {{-- Ölçüler --}}
+            <path :d="`M${geo.start.x} ${geo.start.y} l-30 0`" stroke="url(#sol-cu)" stroke-width="3.2" stroke-linecap="round" />
+            <path :d="`M${geo.end.x} ${geo.end.y} l30 0`" stroke="url(#sol-cu)" stroke-width="3.2" stroke-linecap="round" />
             <g font-family="ui-monospace,monospace" font-size="11" font-weight="700">
-                <path :d="`M${200 - geo.len / 2 * Math.cos(0.45)} 214 H${200 + geo.len / 2 * Math.cos(0.45)}`" stroke="#64748b" stroke-width="1" />
-                <text x="200" y="230" text-anchor="middle" fill="#cbd5e1" x-text="'l = ' + $num(Len, 3) + ' mm'"></text>
-                <text x="16" y="24" fill="#fde68a" x-text="Number.isFinite(N) ? 'N = ' + $num(N, 3) : 'N ?'"></text>
-                <text x="384" y="24" text-anchor="end" fill="#a5b4fc" x-text="'Ø ' + $num(D, 3) + ' mm'"></text>
+                <path :d="`M${geo.x1} 218 H${geo.x2}`" stroke="#64748b" stroke-width="1" />
+                <text x="200" y="232" text-anchor="middle" fill="#cbd5e1" x-text="'l = ' + $num(Len, 3) + ' mm'"></text>
+                <text x="16" y="22" fill="#fde68a" x-text="Number.isFinite(N) ? 'N = ' + $num(N, 3) : 'N ?'"></text>
+                <text x="384" y="22" text-anchor="end" fill="#a5b4fc" x-text="'Ø ' + $num(D, 3) + ' mm'"></text>
             </g>
         </svg>
-        <div class="mt-1 flex items-center justify-between gap-2 text-[11px] text-slate-400">
-            <span x-text="N > 80 ? 'Çizimde 80 sarım gösteriliyor' : ''"></span>
-            <button type="button" @click="spinning = ! spinning" class="rounded-md px-2 py-1 font-semibold text-slate-300 ring-1 ring-white/10 hover:bg-white/10" x-text="spinning ? '⏸ Durdur' : '▶ Döndür'"></button>
-        </div>
+        @include('livewire.tools.coils.partials.stage-footer', ['note' => '<span x-text="N > 80 ? \'Çizimde 80 sarım gösteriliyor\' : \'\'"></span>'])
     </x-calc.stage>
 </div>

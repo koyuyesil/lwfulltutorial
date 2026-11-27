@@ -6,7 +6,8 @@ use Livewire\Attributes\Title;
 use Livewire\Component;
 
 /**
- * Bobin hesaplayıcıları (ayrı sayfa, sekmeli): tek katmanlı solenoid, çok katmanlı, toroid (AL) ve düz spiral.
+ * Bobin hesaplayıcıları (ayrı sayfa, sekmeli): solenoid, çok katmanlı, toroid (AL ve µ), düz spiral, hassas tek katman (Q),
+ * dikdörtgen tek / çok katman ve folyo, PCB, ferrit çubuk, pot / E / U çekirdek.
  * Hesaplama ve 3D çizim tarayıcıda: resources/js/coils.js
  */
 #[Title('Bobin hesaplayıcı')]
@@ -18,6 +19,13 @@ class CoilsIndex extends Component
         'multilayer' => ['Çok katmanlı', 'Makara üzerine katlı sarım', '🧵'],
         'toroid' => ['Toroid / ferrit', 'AL değerinden endüktans', '🍩'],
         'spiral' => ['Düz spiral', 'Kablosuz şarj / NFC bobini', '📶'],
+        'onelayer' => ['Hassas tek katman', 'Adımlı sarım, Q ve öz rezonans', '🎯'],
+        'rect' => ['Dikdörtgen tek katman', 'Kare / dikdörtgen gövde', '⬛'],
+        'rectmulti' => ['Dikdörtgen çok katman / folyo', 'Makara ya da bakır folyo sarım', '📜'],
+        'ferrite' => ['Ferrit toroid (µ)', 'Boyut ve geçirgenlikten, doyma akımı', '⭕'],
+        'pcb' => ['PCB bobin', 'Kare, altıgen, sekizgen, dairesel', '🟩'],
+        'rod' => ['Ferrit çubuk', 'AM / LW anten bobini', '📻'],
+        'core' => ['Pot / E / U çekirdek', 'Hava boşluklu ferrit çekirdek', '🧲'],
     ];
 
     public string $initial = 'solenoid';

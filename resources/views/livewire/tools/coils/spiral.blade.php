@@ -37,22 +37,20 @@
                             <linearGradient id="spi-cu" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fde68a" /><stop offset=".45" stop-color="#f59e0b" /><stop offset="1" stop-color="#9a3412" /></linearGradient>
                             <radialGradient id="spi-ferrite"><stop offset="0" stop-color="#334155" /><stop offset="1" stop-color="#0f172a" /></radialGradient>
                         </defs>
-                        {{-- Ferrit plaka --}}
                         <circle r="104" fill="url(#spi-ferrite)" stroke="#475569" stroke-width="1.5" :opacity="k > 1 ? 1 : 0.35" />
                         <path :d="geo.d" stroke="#000" stroke-opacity=".5" stroke-width="5.5" stroke-linecap="round" transform="translate(1.5 2)" />
                         <path :d="geo.d" stroke="url(#spi-cu)" stroke-width="4" stroke-linecap="round" />
                         <path :d="geo.d" stroke="#fff7ed" stroke-width=".8" stroke-linecap="round" opacity=".55" />
-                        {{-- Uçlar --}}
                         <path :d="`M${geo.end.x} ${geo.end.y} L${geo.end.x * 1.15} ${geo.end.y * 1.15}`" stroke="url(#spi-cu)" stroke-width="4" stroke-linecap="round" />
                         <path :d="`M${geo.start.x} ${geo.start.y} L104 ${geo.start.y}`" stroke="#b45309" stroke-width="3" stroke-linecap="round" stroke-dasharray="2 3" />
                     </svg>
                 </div>
+                {{-- Alan: düzleme dik, merkezden yükselip kenarın ötesine döner (ferrit varsa alt taraf kalkanlanır) --}}
+                @include('livewire.tools.coils.partials.flat-field')
             </div>
             <p class="font-mono text-2xl font-black text-white" x-text="$si(L, 'H')"></p>
-            <p class="font-mono text-xs text-slate-400" x-text="(Number.isFinite(N) ? $num(N, 3) + ' sarım · ' : '') + 'Ø ' + $num(Di, 3) + '–' + $num(Do, 3) + ' mm'"></p>
+            <p class="font-mono text-xs text-slate-400" x-text="(Number.isFinite(N) ? $num(N, 3) + ' sarım · ' : '') + 'Ø ' + $num(Di, 3) + '–' + $num(Do, 3) + ' mm' + (k > 1 ? ' · ferrit kalkanı' : '')"></p>
         </div>
-        <div class="mt-1 flex justify-end">
-            <button type="button" @click="spinning = ! spinning" class="rounded-md px-2 py-1 text-[11px] font-semibold text-slate-300 ring-1 ring-white/10 hover:bg-white/10" x-text="spinning ? '⏸ Durdur' : '▶ Döndür'"></button>
-        </div>
+        @include('livewire.tools.coils.partials.stage-footer')
     </x-calc.stage>
 </div>

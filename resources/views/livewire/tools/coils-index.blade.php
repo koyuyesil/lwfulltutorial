@@ -32,7 +32,7 @@
             <article x-show="tab === '{{ $key }}'" @if ($key !== $initial) x-cloak @endif
                 class="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200 sm:p-6 dark:bg-slate-800/80 dark:ring-white/10" role="tabpanel" aria-label="{{ $title }}">
                 <header class="mb-5">
-                    <h2 class="text-lg font-bold text-slate-900 dark:text-white">{{ $title }} bobin</h2>
+                    <h2 class="text-lg font-bold text-slate-900 dark:text-white">{{ str_contains(mb_strtolower($title), 'bobin') || str_contains(mb_strtolower($title), 'çekirdek') ? $title : $title.' bobin' }}</h2>
                     <p class="text-sm text-slate-500 dark:text-slate-400">{{ $desc }}</p>
                 </header>
                 @include('livewire.tools.coils.'.$key)

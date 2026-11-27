@@ -37,28 +37,8 @@
         <x-calc.formula>L = AL · N² &nbsp;·&nbsp; N = √(L / AL) &nbsp;·&nbsp; sarım başına tel ≈ 2·(h + (DÇ − İÇ)/2)</x-calc.formula>
     </div>
 
-    <x-calc.stage label="3D model" badge="halka üzerinde sarımlar">
-        <svg viewBox="0 0 400 240" class="w-full" fill="none" aria-hidden="true">
-            <defs>
-                <linearGradient id="tor-cu" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fde68a" /><stop offset=".4" stop-color="#f59e0b" /><stop offset="1" stop-color="#9a3412" /></linearGradient>
-                <linearGradient id="tor-core" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#64748b" /><stop offset=".45" stop-color="#334155" /><stop offset="1" stop-color="#0f172a" /></linearGradient>
-            </defs>
-            <ellipse cx="200" cy="200" :rx="geo.R + geo.r" ry="12" fill="#000" opacity=".35" />
-            <path :d="geo.back" stroke="#7c2d12" stroke-width="2.2" stroke-linecap="round" opacity=".7" />
-            {{-- Çekirdek: yan duvar + üst yüzey --}}
-            <ellipse cx="200" :cy="120 + geo.wall * 0.5" :rx="geo.R" :ry="geo.ry" stroke="#0f172a" :stroke-width="geo.r * 2" />
-            <ellipse cx="200" cy="120" :rx="geo.R" :ry="geo.ry" stroke="url(#tor-core)" :stroke-width="geo.r * 2" />
-            <ellipse cx="200" cy="120" :rx="geo.R + geo.r - 1" :ry="geo.ry + geo.r * 0.5" stroke="#94a3b8" stroke-opacity=".25" />
-            <path :d="geo.front" stroke="url(#tor-cu)" stroke-width="2.6" stroke-linecap="round" />
-            <path :d="geo.front" stroke="#fff7ed" stroke-width=".7" stroke-linecap="round" opacity=".5" />
-            <g font-family="ui-monospace,monospace" font-size="11" font-weight="700">
-                <text x="16" y="24" fill="#fde68a" x-text="Number.isFinite(N) ? 'N = ' + $num(N, 3) : 'N ?'"></text>
-                <text x="384" y="24" text-anchor="end" fill="#a5b4fc" x-text="'AL ' + $si(AL * 1e-9, 'H')"></text>
-                <text x="200" y="232" text-anchor="middle" fill="#cbd5e1" x-text="N > geo.drawn ? 'Çizimde ' + geo.drawn + ' sarım gösteriliyor' : ''"></text>
-            </g>
-        </svg>
-        <div class="mt-1 flex justify-end">
-            <button type="button" @click="spinning = ! spinning" class="rounded-md px-2 py-1 text-[11px] font-semibold text-slate-300 ring-1 ring-white/10 hover:bg-white/10" x-text="spinning ? '⏸ Durdur' : '▶ Döndür'"></button>
-        </div>
+    <x-calc.stage label="3D model" badge="alan çekirdeğin içinde dolaşır">
+        @include('livewire.tools.coils.partials.toroid-scene', ['id' => 'tor', 'label' => "'AL ' + \$si(AL * 1e-9, 'H')"])
+        @include('livewire.tools.coils.partials.stage-footer', ['note' => '<span x-text="N > geo.drawn ? \'Çizimde \' + geo.drawn + \' sarım gösteriliyor\' : \'\'"></span>'])
     </x-calc.stage>
 </div>

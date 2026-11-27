@@ -48,7 +48,7 @@ test('unit converter and coil calculators have their own pages listed under calc
     $this->actingAs($user)->get(route('tools.index', ['arac' => 'convert']))->assertRedirect(route('tools.units'));
 
     $coils = $this->actingAs($user)->get(route('tools.coils', ['bobin' => 'toroid']))->assertOk()->assertSee("coilsApp('toroid')", false);
-    foreach (['solenoidCalc', 'multilayerCalc', 'toroidCalc', 'spiralCalc'] as $component) {
+    foreach (['solenoidCalc', 'multilayerCalc', 'toroidCalc', 'spiralCalc', 'oneLayerCalc', 'rectCalc', 'rectMultiCalc', 'ferriteToroidCalc', 'pcbCalc', 'rodCalc', 'coreCalc'] as $component) {
         $coils->assertSee('x-data="'.$component.'"', false);
     }
     $this->actingAs($user)->get(route('tools.coils', ['bobin' => 'yok']))->assertSee("coilsApp('solenoid')", false);
